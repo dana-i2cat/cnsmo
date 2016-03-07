@@ -1,6 +1,11 @@
+from src.main.python.net.i2cat.lib.model.service import Service
+from src.main.python.net.i2cat.factory.system.state.factory import SystemStateFactory
+
+
 class CNSMOManager:
 
-    def __init__(self, bind_address, name=None, type=None, deployment_driver=None, system_state_manager=None):
+    def __init__(self, address, name=None, type=None, deployment_driver=None,
+                 system_state_manager=None, services=dict()):
         """
         Main CNSMO Service instances, this are meant to be super-recursive and the base object of every service
         triggered by OpenNaas
@@ -11,34 +16,42 @@ class CNSMOManager:
         :param system_state_manager:
         :return:
         """
-        self.__bind_address =  bind_address
+        self.__address =  address
         self.__deployment_driver = deployment_driver
-        self.__system_state_manager = system_state_manager
+        self.__system_state_manager = None
         self.__name = name
         self.__type = type
+        self.__services = services
         self.__is_running = False
-
-        self.__services = dict()
-        self.__apps = set()
+        self.__status = None
 
     def start(self):
         if not self.__is_running:
-            self.__system_state_manager.start()
+            self.__configure_system_state()
             self.__deployment_driver.start()
-            self.__bind()
+            self.__connect()
             self.__is_running = True
 
     def stop(self):
         if self.__is_running:
             self.__system_state_manager.stop()
             self.__deployment_driver.stop()
-            self.__unbind()
+            self.__disconnect()
             self.__is_running = False
 
-    def __bind(self):
+    def __connect(self):
         pass
 
-    def __unbind(self):
+    def __disconnect(self):
+        pass
+
+    def __configure_system_state(self):
+        self.__system_state_manager = SystemStateFactory.generate_system_state_client(address=self.__address, service_id=self.__name, service_type=self.__type,
+                                                                                      service_status=self.__status, subscriptions=[],
+                                                                                      callback=self.update_service)
+        self.__system_state_manager.start()
+
+    def update_service(self, message):
         pass
 
     def get_system_state_manager(self):
@@ -71,7 +84,8 @@ class CNSMOManager:
         :param service:
         :return:
         """
-        self.__services.update(service)
+        self.__system_state_manager.save(service)
+        self.__services.update({service.get_service_id():service})
 
     def deregister_service(self, service):
         """
@@ -81,7 +95,12 @@ class CNSMOManager:
         """
         self.__services.pop(service)
 
-    def launch_app(self, **kwargs):
+    def compose_service(self, **kwargs):
+        service = Service()
+        service.objectify(**kwargs)
+        self.register_service(service)
+
+    def launch_service(self, service):
         """
         Given the app request, it launches an app using the deployment driver.
         Right now is only bash, but it could be more deployers, like docker, OpenStack
@@ -89,8 +108,8 @@ class CNSMOManager:
         :param kwargs:
         :return:
         """
-        return self.__deployment_driver.launch_app(**kwargs)
-
+        self.__deployment_driver.launch_app(**self.__services.get(service).dictionarize())
+        self.__system_state_manager.advertise()
 
 
 

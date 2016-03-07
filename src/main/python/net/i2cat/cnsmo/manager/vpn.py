@@ -1,5 +1,8 @@
 import threading
 
+from main.python.net.i2cat.cnsmo.service.maker import ServiceMaker
+from src.main.python.net.i2cat.factory.system.state.factory import SystemStateFactory
+
 
 class VPNManager:
 
@@ -25,13 +28,24 @@ class VPNManager:
 
         self.__status = "power_off"
 
+
+
+    def __configure_system_state(self):
+        self.__system_state_manager = SystemStateFactory.generate_system_state_client(self.__bind_address, "myVpn","VPNManager",
+                                                                                      self.__status, ["Server", "Client", "CredentialManager"],
+                                                                                      self.register_service)
+
     def start(self):
+        self.__configure_system_state()
+        self.__system_state_manager.start()
+
+    def deploy(self):
         print self.__status
         if self.__status == "ready":
             self.__deploy_vpn()
         else:
             try:
-                self.__thread_pool.add(threading.Thread(target= self.start))
+                self.__thread_pool.add(threading.Thread(target= self.deploy))
             except:
                 pass
 
@@ -43,23 +57,30 @@ class VPNManager:
         :param service:
         :return:
         """
-        print "-----registering service", service
-        service = self.__system_state_manager.load(service)
-        if service.get_type() == "Client":
-            self.__client_services.add(service)
 
-        elif service.get_type() == "Server":
-            self.__server_service = service
+        if service.get_service_type() == "Client":
+            client_service = ServiceMaker().make_service("Client", self.__system_state_manager.load(service.get_service_id()).get_endpoints())
+            self.__client_services.add(client_service)
 
-        elif service.get_type() == "CredentialManager":
-            self.__credential_manager = service
+        elif service.get_service_type() == "Server":
+            print "Making Server Service..."
+            server_service = ServiceMaker().make_service("Server", self.__system_state_manager.load(service.get_service_id()).get_endpoints())
+            self.__server_service = server_service
+            print self.__server_service.__dict__
+
+        elif service.get_service_type() == "CredentialManager":
+            print "Making Credential Manager..."
+            cred_service = ServiceMaker().make_service("CredentialManager", self.__system_state_manager.load(service.get_service_id()).get_endpoints())
+            self.__credential_manager = cred_service
+            print self.__credential_manager.__dict__
+        else:
+            return
 
         self.__update_state()
 
     def __update_state(self):
-        #XXX: Ultra Hack
+
         self.__client_services = True
-        print self.__server_service, self.__client_services, self.__credential_manager
         if self.__server_service and self.__client_services and self.__credential_manager:
             self.__status = "ready"
             [ t.start() for t in self.__thread_pool]

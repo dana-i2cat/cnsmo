@@ -15,13 +15,16 @@ class BashDeployer:
         """
         self.__bind_address = bind_address
 
+    def start(self):
+        pass
+
     def launch_app(self, **kwargs):
         """
         Creates basic object that will manage the workflow of configuration and execution
         :param kwargs:
         :return:
         """
-        instance = self.configure(kwargs.get("app_id"), kwargs.get("trigger"), kwargs.get("resources"), kwargs.get("dependencies"))
+        instance = self.configure(kwargs.get("service_id"), kwargs.get("trigger"), kwargs.get("resources"), kwargs.get("dependencies"))
         self.spawn(instance.get_command(), instance.get_working_dir())
         return instance
 

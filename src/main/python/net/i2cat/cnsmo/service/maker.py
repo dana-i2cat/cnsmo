@@ -97,7 +97,7 @@ class ServiceMaker:
     def clean_uri(self, uri):
         """
         If there is an URL that has params, this method transforms the URL to properly call the methods
-        
+
         :return:
         """
         if "{param}" in uri:

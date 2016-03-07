@@ -1,7 +1,7 @@
-
 from src.main.python.net.i2cat.cnsmo.manager.vpn import VPNManager
 from src.main.python.net.i2cat.cnsmo.manager.cnsmo import CNSMOManager
 from src.main.python.net.i2cat.cnsmo.deployment.bash import BashDeployer
+
 
 def get_server_app_request():
     """
@@ -10,13 +10,13 @@ def get_server_app_request():
     The trigger is quite intrusive, it requires some refactor to make it clearer and easy to use
     :return:
     """
-    return dict(app_id="server_123",
+    return dict(service_id="server_123",
                 trigger= "cp /home/oscarcillo/example/server.py /home/CNSMO/ENVS/server_123/server.py && python /home/CNSMO/ENVS/server_123/server.py",
                 resources = [],
                 dependencies=[])
 
 def get_cert_app_request():
-    return dict(app_id="cert_123",
+    return dict(service_id="cert_123",
                 trigger= "cp /home/oscarcillo/example/cert.py /home/CNSMO/ENVS/cert_123/cert.py && python cert.py",
                 resources = [],
                 dependencies=[])
@@ -46,7 +46,7 @@ def main():
 
     #This is a simulation. It represents that this is a distributed system
     #The service Server is spawned at some place
-    server = CNSMOManager(None, "Serverr","server", bash_deployer, None)
+    server = CNSMOManager(None, "Server","server", bash_deployer, None)
     #The service Credential is spawned at another place
     credential = CNSMOManager(None, "CredentialManager", "cert", bash_deployer, None)
 
