@@ -58,17 +58,17 @@ class VPNManager:
         :return:
         """
 
-        if service.get_service_type() == "Client":
+        if service.get_service_type() == "VPNClient":
             client_service = ServiceMaker().make_service("Client", self.__system_state_manager.load(service.get_service_id()).get_endpoints())
             self.__client_services.add(client_service)
 
-        elif service.get_service_type() == "Server":
+        elif service.get_service_type() == "VPNServer":
             print "Making Server Service..."
             server_service = ServiceMaker().make_service("Server", self.__system_state_manager.load(service.get_service_id()).get_endpoints())
             self.__server_service = server_service
             print self.__server_service.__dict__
 
-        elif service.get_service_type() == "CredentialManager":
+        elif service.get_service_type() == "VPNConfigManager":
             print "Making Credential Manager..."
             cred_service = ServiceMaker().make_service("CredentialManager", self.__system_state_manager.load(service.get_service_id()).get_endpoints())
             self.__credential_manager = cred_service
