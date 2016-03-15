@@ -29,7 +29,7 @@ def get_server_config():
     manager = app.config["manager"]
     raw_config = manager.get_server_config()
     response = make_response(raw_config)
-    response.headers["Content-Disposition"] = "attachment; filename=dh2048.pem"
+    response.headers["Content-Disposition"] = "attachment; filename=server.conf"
     return response
 
 
@@ -38,7 +38,7 @@ def get_client_config():
     manager = app.config["manager"]
     raw_config = manager.get_client_config()
     response = make_response(raw_config)
-    response.headers["Content-Disposition"] = "attachment; filename=dh2048.pem"
+    response.headers["Content-Disposition"] = "attachment; filename=client.conf"
     return response
 
 
@@ -47,7 +47,7 @@ def get_ca_cert():
     manager = app.config["manager"]
     raw_config = manager.get_ca_cert()
     response = make_response(raw_config)
-    response.headers["Content-Disposition"] = "attachment; filename=dh2048.pem"
+    response.headers["Content-Disposition"] = "attachment; filename=ca.crt"
     return response
 
 
@@ -56,7 +56,7 @@ def get_client_cert():
     manager = app.config["manager"]
     raw_config = manager.get_client_cert()
     response = make_response(raw_config)
-    response.headers["Content-Disposition"] = "attachment; filename=dh2048.pem"
+    response.headers["Content-Disposition"] = "attachment; filename=client.crt"
     return response
 
 
@@ -65,7 +65,7 @@ def get_client_key():
     manager = app.config["manager"]
     raw_config = manager.get_client_key()
     response = make_response(raw_config)
-    response.headers["Content-Disposition"] = "attachment; filename=dh2048.pem"
+    response.headers["Content-Disposition"] = "attachment; filename=client.key"
     return response
 
 
@@ -88,7 +88,7 @@ def get_server_cert():
     manager = app.config["manager"]
     raw_config = manager.get_server_cert()
     response = make_response(raw_config)
-    response.headers["Content-Disposition"] = "attachment; filename=dh2048.pem"
+    response.headers["Content-Disposition"] = "attachment; filename=server.crt"
     return response
 
 
@@ -97,7 +97,7 @@ def get_server_key():
     manager = app.config["manager"]
     raw_config = manager.get_server_key()
     response = make_response(raw_config)
-    response.headers["Content-Disposition"] = "attachment; filename=dh2048.pem"
+    response.headers["Content-Disposition"] = "attachment; filename=server.key"
     return response
 
 
