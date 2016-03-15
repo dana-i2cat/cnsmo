@@ -1,12 +1,12 @@
 import getopt
 import os
-
 import subprocess
 
 import sys
 from flask import Flask
 from flask import make_response
 from jinja2 import Template
+import shlex
 
 
 app = Flask(__name__)
@@ -18,70 +18,84 @@ POST = "POST"
 @app.route("/vpn/configs/dh/", methods=[GET])
 def get_dh():
     manager = app.config["manager"]
-    raw_config = manager.generate_dh()
+    raw_config = manager.get_dh()
     response = make_response(raw_config)
     response.headers["Content-Disposition"] = "attachment; filename=dh2048.pem"
     return response
 
 
-@app.route("/vpn/configs/server/", methods=[POST])
+@app.route("/vpn/configs/server/", methods=[GET])
 def get_server_config():
     manager = app.config["manager"]
-    raw_config = manager.generate_server_config()
+    raw_config = manager.get_server_config()
     response = make_response(raw_config)
     response.headers["Content-Disposition"] = "attachment; filename=dh2048.pem"
     return response
 
 
-@app.route("/vpn/configs/client/", methods=[POST])
+@app.route("/vpn/configs/client/", methods=[GET])
 def get_client_config():
     manager = app.config["manager"]
-    raw_config = manager.generate_client_config()
+    raw_config = manager.get_client_config()
     response = make_response(raw_config)
     response.headers["Content-Disposition"] = "attachment; filename=dh2048.pem"
     return response
 
 
-@app.route("/vpn/configs/cert/ca/", methods=[POST])
+@app.route("/vpn/configs/cert/ca/", methods=[GET])
 def get_ca_cert():
     manager = app.config["manager"]
-    raw_config = manager.generate_ca_cert()
+    raw_config = manager.get_ca_cert()
     response = make_response(raw_config)
     response.headers["Content-Disposition"] = "attachment; filename=dh2048.pem"
     return response
 
 
-@app.route("/vpn/configs/certs/client/", methods=[POST])
+@app.route("/vpn/configs/certs/client/", methods=[GET])
 def get_client_cert():
     manager = app.config["manager"]
-    raw_config = manager.generate_client_cert()
+    raw_config = manager.get_client_cert()
     response = make_response(raw_config)
     response.headers["Content-Disposition"] = "attachment; filename=dh2048.pem"
     return response
 
 
-@app.route("/vpn/configs/keys/client/", methods=[POST])
+@app.route("/vpn/configs/keys/client/", methods=[GET])
 def get_client_key():
     manager = app.config["manager"]
-    raw_config = manager.generate_client_key()
+    raw_config = manager.get_client_key()
     response = make_response(raw_config)
     response.headers["Content-Disposition"] = "attachment; filename=dh2048.pem"
     return response
 
 
 @app.route("/vpn/configs/certs/server/", methods=[POST])
+def generate_server_cert():
+    manager = app.config["manager"]
+    manager.generate_server_certs()
+    return "", 204
+
+
+@app.route("/vpn/configs/certs/client/", methods=[POST])
+def generate_client_cert():
+    manager = app.config["manager"]
+    manager.generate_client_certs()
+    return "", 204
+
+
+@app.route("/vpn/configs/certs/server/", methods=[GET])
 def get_server_cert():
     manager = app.config["manager"]
-    raw_config = manager.generate_server_cert()
+    raw_config = manager.get_server_cert()
     response = make_response(raw_config)
     response.headers["Content-Disposition"] = "attachment; filename=dh2048.pem"
     return response
 
 
-@app.route("/vpn/configs/keys/server/", methods=[POST])
+@app.route("/vpn/configs/keys/server/", methods=[GET])
 def get_server_key():
     manager = app.config["manager"]
-    raw_config = manager.generate_server_key()
+    raw_config = manager.get_server_key()
     response = make_response(raw_config)
     response.headers["Content-Disposition"] = "attachment; filename=dh2048.pem"
     return response
@@ -97,10 +111,11 @@ class VPNConfigManager:
         self.key_dir = key_dir
 
     def generate_client_certs(self):
-        subprocess.Popen("sh %s/../build-key client" % self.key_dir)
+        command = "sh %s../build-key client" % self.key_dir
+        subprocess.check_call(shlex.split(command))
 
     def generate_server_certs(self):
-        subprocess.Popen("sh %s/../build-key server" % self.key_dir)
+        subprocess.Popen("sh %s../build-key server" % self.key_dir)
 
     def get_client_cert(self):
         f = open(self.key_dir + "client.crt")
@@ -131,7 +146,7 @@ class VPNConfigManager:
         return content
 
     def get_server_config(self):
-        template = Template(VPN_CLIENT_CONFIG_TEMPLATE)
+        template = Template(VPN_SERVER_CONFIG_TEMPLATE)
         return template.render(port=str(self.port), ip=self.ip, mask=self.mask)
 
     def get_ca_cert(self):
@@ -191,7 +206,9 @@ if __name__ == "__main__":
     port = 9093
 
     for opt, arg in opts:
-        if opt == "-w" or "--working-dir":
+        print opt
+        print opt, arg
+        if opt == "-w":
             working_dir = arg
         elif opt == "-a":
             address = arg
@@ -202,6 +219,7 @@ if __name__ == "__main__":
         elif opt == "-m":
             vpn_mask = arg
         elif opt == "-v":
+            print opt, arg
             vpn_address = arg
         elif opt == "-o":
             vpn_port = arg
@@ -209,7 +227,7 @@ if __name__ == "__main__":
     manager = VPNConfigManager(vpn_address, vpn_mask, vpn_port, server_address, working_dir )
     app.config["manager"] = manager
 
-    app.run(host=address, port=port, debug=False)
+    app.run(host=address, port=int(port), debug=True)
 
 
 
