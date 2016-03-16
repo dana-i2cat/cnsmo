@@ -42,7 +42,7 @@ def get_client_config():
     return response
 
 
-@app.route("/vpn/configs/cert/ca/", methods=[GET])
+@app.route("/vpn/configs/certs/ca/", methods=[GET])
 def get_ca_cert():
     manager = app.config["manager"]
     raw_config = manager.get_ca_cert()
@@ -83,6 +83,13 @@ def generate_client_cert():
     return "", 204
 
 
+@app.route("/vpn/configs/certs/ca/", methods=[POST])
+def generate_ca_cert():
+    manager = app.config["manager"]
+    manager.generate_ca_and_dh()
+    return "", 204
+
+
 @app.route("/vpn/configs/certs/server/", methods=[GET])
 def get_server_cert():
     manager = app.config["manager"]
@@ -110,12 +117,17 @@ class VPNConfigManager:
         self.server_ip = server_ip
         self.key_dir = key_dir
 
+    def generate_ca_and_dh(self):
+        command = "sh %s/../gen_ca.sh" % self.key_dir
+        subprocess.check_call(shlex.split(command))
+
     def generate_client_certs(self):
-        command = "sh %s../build-key client" % self.key_dir
+        command = "sh %s/../gen_client.sh" % self.key_dir
         subprocess.check_call(shlex.split(command))
 
     def generate_server_certs(self):
-        subprocess.Popen("sh %s../build-key server" % self.key_dir)
+        command = "sh %s/../gen_server.sh" % self.key_dir
+        subprocess.check_call(shlex.split(command))
 
     def get_client_cert(self):
         f = open(self.key_dir + "client.crt")
