@@ -43,7 +43,7 @@ def set_server_cert():
 
 
 @app.route("/vpn/server/key/server/", methods=[POST])
-def set_server_cert():
+def set_server_key():
     save_file(request.files['file'], "server.key")
     app.config["config_files"]["server_key_ready"] = True
     return 204, ""

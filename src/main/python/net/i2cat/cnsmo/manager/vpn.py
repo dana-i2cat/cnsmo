@@ -1,6 +1,6 @@
 import threading
 
-from main.python.net.i2cat.cnsmo.service.maker import ServiceMaker
+from src.main.python.net.i2cat.cnsmo.service.maker import ServiceMaker
 from src.main.python.net.i2cat.factory.system.state.factory import SystemStateFactory
 
 
@@ -22,7 +22,7 @@ class VPNManager:
 
         self.__server_service = None
         self.__client_services = set()
-        self.__credential_manager = None
+        self.__configuration_manager = None
 
         self.__thread_pool = set()
 
@@ -31,7 +31,7 @@ class VPNManager:
 
 
     def __configure_system_state(self):
-        self.__system_state_manager = SystemStateFactory.generate_system_state_client(self.__bind_address, "myVpn","VPNManager",
+        self.__system_state_manager = SystemStateFactory.generate_system_state_client(self.__bind_address, "myVpn", "VPNManager",
                                                                                       self.__status, ["Server", "Client", "CredentialManager"],
                                                                                       self.register_service)
 
@@ -71,8 +71,8 @@ class VPNManager:
         elif service.get_service_type() == "VPNConfigManager":
             print "Making Credential Manager..."
             cred_service = ServiceMaker().make_service("CredentialManager", self.__system_state_manager.load(service.get_service_id()).get_endpoints())
-            self.__credential_manager = cred_service
-            print self.__credential_manager.__dict__
+            self.__configuration_manager = cred_service
+            print self.__configuration_manager.__dict__
         else:
             return
 
@@ -81,7 +81,7 @@ class VPNManager:
     def __update_state(self):
 
         self.__client_services = True
-        if self.__server_service and self.__client_services and self.__credential_manager:
+        if self.__server_service and self.__client_services and self.__configuration_manager:
             self.__status = "ready"
             [ t.start() for t in self.__thread_pool]
 
@@ -95,12 +95,70 @@ class VPNManager:
         :return:
         """
         print "Deploying VPN..."
-        print "getting DH..."
-        dh = self.__credential_manager.get_dh(*[""])
-        print "DH is", dh.text
-        print self.__server_service.start(dh.text).text
 
+        print "generating security mechanism..."
+        # Generate DH (skipped by now, too slow)
+        # self.__configuration_manager.generate_dh()
 
+        # Generate CA
+        self.__configuration_manager.generate_ca_cert()
 
+        print "generating vpn server configuration..."
+        # Generate server key and cert
+        self.__configuration_manager.generate_server_cert()
 
+        # Get all config files
+        dh = self.__configuration_manager.get_dh()
+        ca_crt = self.__configuration_manager.get_ca_cert()
+        server_key = self.__configuration_manager.get_server_key()
+        server_crt = self.__configuration_manager.get_server_cert()
+        server_conf = self.__configuration_manager.get_server_config()
 
+        # TODO find a proper name for the server
+        self.__configure_and_start_vpn_server("server", dh, ca_crt, server_key, server_crt, server_conf)
+
+        # for each client:
+        # Generate client config, get it and configure the client service
+        i = 0
+        for client_service in self.__client_services:
+            print "generating vpn client configuration..."
+            self.__configuration_manager.generate_client_cert()
+            client_key = self.__configuration_manager.get_client_key()
+            client_crt = self.__configuration_manager.get_client_cert()
+            client_conf = self.__configuration_manager.get_client_config()
+
+            # TODO find a proper name for each client
+            self.__configure_and_start_vpn_client(client_service, "client-" + str(i), ca_crt, client_key, client_crt, client_conf)
+            i += 1
+
+        print "VPN deployed."
+
+    def __configure_and_start_vpn_server(self, name, dh, ca_crt, server_key, server_crt, server_conf):
+        """
+        Helper method that configures server service with given configuration and starts the service
+        """
+        print "configuring vpn server..."
+        self.__server_service.set_dh(dh)
+        self.__server_service.set_ca_cert(ca_crt)
+        self.__server_service.set_server_key(server_key)
+        self.__server_service.set_server_cert(server_crt)
+        self.__server_service.set_config_file(server_conf)
+
+        self.__server_service.build_server(name)
+
+        print "starting vpn server..."
+        self.__server_service.start_server()
+
+    def __configure_and_start_vpn_client(self, client_service, name, ca_crt, client_key, client_crt, client_conf):
+        """
+        Helper method that configures given client service with given configuration and starts the service
+        """
+        print "configuring vpn client " + name + " ..."
+        client_service.set_ca_cert(ca_crt)
+        client_service.set_server_key(client_key)
+        client_service.set_server_cert(client_crt)
+        client_service.set_config_file(client_conf)
+
+        client_service.build_server(name)
+        print "starting vpn client " + name + " ..."
+        client_service.start_server()
