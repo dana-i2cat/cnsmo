@@ -218,7 +218,6 @@ if __name__ == "__main__":
     port = 9093
 
     for opt, arg in opts:
-        print opt
         print opt, arg
         if opt == "-w":
             working_dir = arg
@@ -236,7 +235,7 @@ if __name__ == "__main__":
         elif opt == "-o":
             vpn_port = arg
 
-    manager = VPNConfigManager(vpn_address, vpn_mask, vpn_port, server_address, working_dir )
+    manager = VPNConfigManager(vpn_address, vpn_mask, vpn_port, server_address, working_dir)
     app.config["manager"] = manager
 
     app.run(host=address, port=int(port), debug=True)
