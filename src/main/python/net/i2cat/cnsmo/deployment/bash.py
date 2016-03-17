@@ -73,7 +73,6 @@ class BashDeployer:
         :return:
         """
         shell_command = "cd %s && " %working_dir +  command #self.wrap_command(command)
-        print shell_command
         subprocess.Popen(shell_command, shell=True)
 
     def wrap_command(self, command, working_dir):
@@ -95,6 +94,7 @@ class BashDeployer:
         :param resources:
         :return:
         """
+
         [ self.download_file(resource, instance.get_working_dir()) for resource in resources ]
 
     def download_file(self, url, path):
@@ -104,7 +104,11 @@ class BashDeployer:
         :param path:
         :return:
         """
-        file_location = path + "/" +  url.split()[-1]
+
+        file_name = self.__format_file_name(url.split("/")[-1])
+        print file_name
+        file_location = path + "/" + file_name
+
         try:
             os.remove(file_location)
         except OSError:
@@ -119,7 +123,24 @@ class BashDeployer:
         :param dependencies:
         :return:
         """
-        [ self.spawn("apt-get install -y" + dependency) for dependency in dependencies]
+        [ self.spawn("apt-get install -y " + dependency) for dependency in dependencies]
+
+    def __format_file_name(self, file_name):
+        file_name = file_name.split(".")
+        if len(file_name) >= 2:
+            extension = self.__get_extension(file_name[1])
+            return file_name[0] + "." + extension
+        else:
+            self.__get_extension()
+            return file_name[0]
+
+    def __get_extension(self, raw_extension):
+        for extension in ["py", "sh"]:
+            if extension in raw_extension[0:2]:
+                return extension
+
+        raise Exception("Extension not supported")
+
 
 
 class Instance(object):

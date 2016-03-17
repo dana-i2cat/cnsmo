@@ -50,6 +50,7 @@ class CNSMOManager:
                                                                                       service_status=self.__status, subscriptions=[],
                                                                                       callback=self.update_service)
         self.__system_state_manager.start()
+        print "State up to date"
 
     def update_service(self, message):
         pass
@@ -85,6 +86,8 @@ class CNSMOManager:
         :return:
         """
         self.__system_state_manager.save(service)
+        print "saved"
+        print service.get_service_id()
         self.__services.update({service.get_service_id():service})
 
     def deregister_service(self, service):

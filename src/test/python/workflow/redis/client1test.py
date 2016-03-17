@@ -5,7 +5,7 @@ class Client1Test:
 
     def __init__(self):
 
-        self.client = SystemStateFactory.generate_system_state_client("localhost:6379", "Client1",
+        self.client = SystemStateFactory.generate_system_state_client("localhost:6379", "Client1","Client",
                                                                       "Ready", ["Client2"], self.pipe)
         self.client.start()
 
