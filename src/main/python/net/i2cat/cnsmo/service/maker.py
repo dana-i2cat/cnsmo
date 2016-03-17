@@ -64,16 +64,25 @@ class ServiceMaker:
         :param uri:
         :return:
         """
-        lib, json = self.get_lib(driver, logic)
+        lib = self.get_lib(driver, logic)
         clean_uri, has_params = self.clean_uri(uri)
         if has_params:
-            if json:
+            if logic == "post":
                 func = lambda *x : lib(url=clean_uri % x[:-1], json=x[-1])
+
+            elif logic == "upload":
+                func = lambda *x : lib(url=clean_uri % x[:-1], files=x[-1])
+
             else:
                 func = lambda *x: lib(url=clean_uri % str(x))
+
         else:
-            if json:
+            if logic == "post":
                 func = lambda x : lib(url=clean_uri, json=x)
+
+            if logic == "upload":
+                func = lambda x : lib(url=clean_uri, files=x)
+
             else:
                 func = lambda x: lib(url=clean_uri)
         return func
@@ -87,12 +96,11 @@ class ServiceMaker:
         """
 
         if logic == "get":
-            return requests.get, False
-        elif logic == "post":
-            return requests.post, True
+            return requests.get
+        elif logic == "post" or logic == "upload":
+            return requests.post
         else:
-            print "Returning none", logic
-            return None, False
+            return None
 
     def clean_uri(self, uri):
         """
