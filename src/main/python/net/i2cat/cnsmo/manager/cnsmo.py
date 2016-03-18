@@ -9,7 +9,7 @@ class CNSMOManager:
         """
         Main CNSMO Service instances, this are meant to be super-recursive and the base object of every service
         triggered by OpenNaas
-        :param bind_address:
+        :param bind_address: Where the distributed system state is
         :param name:
         :param type:
         :param deployment_driver:
