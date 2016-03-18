@@ -1,4 +1,4 @@
-from main.python.net.i2cat.lib.model.service import Service
+from src.main.python.net.i2cat.lib.model.service import Service
 from src.main.python.net.i2cat.lib.message.newservice import NewService
 from src.main.python.net.i2cat.cnsmo.service.maker import ServiceMaker
 

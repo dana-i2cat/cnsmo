@@ -15,6 +15,27 @@ GET = "GET"
 POST = "POST"
 
 
+@app.route("/vpn/configs/certs/server/", methods=[POST])
+def generate_server_cert():
+    manager = app.config["manager"]
+    manager.generate_server_certs()
+    return "", 204
+
+
+@app.route("/vpn/configs/certs/client/", methods=[POST])
+def generate_client_cert():
+    manager = app.config["manager"]
+    manager.generate_client_certs()
+    return "", 204
+
+
+@app.route("/vpn/configs/certs/ca/", methods=[POST])
+def generate_ca_cert():
+    manager = app.config["manager"]
+    manager.generate_ca_and_dh()
+    return "", 204
+
+
 @app.route("/vpn/configs/dh/", methods=[GET])
 def get_dh():
     manager = app.config["manager"]
@@ -67,27 +88,6 @@ def get_client_key():
     response = make_response(raw_config)
     response.headers["Content-Disposition"] = "attachment; filename=client.key"
     return response
-
-
-@app.route("/vpn/configs/certs/server/", methods=[POST])
-def generate_server_cert():
-    manager = app.config["manager"]
-    manager.generate_server_certs()
-    return "", 204
-
-
-@app.route("/vpn/configs/certs/client/", methods=[POST])
-def generate_client_cert():
-    manager = app.config["manager"]
-    manager.generate_client_certs()
-    return "", 204
-
-
-@app.route("/vpn/configs/certs/ca/", methods=[POST])
-def generate_ca_cert():
-    manager = app.config["manager"]
-    manager.generate_ca_and_dh()
-    return "", 204
 
 
 @app.route("/vpn/configs/certs/server/", methods=[GET])
