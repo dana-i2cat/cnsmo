@@ -1,7 +1,6 @@
-
 import time
-from main.python.net.i2cat.cnsmo.deployment.bash import BashDeployer
-from main.python.net.i2cat.cnsmo.manager.cnsmo import CNSMOManager
+import os
+import sys
 
 
 def get_app_request():
@@ -18,7 +17,17 @@ def get_app_request():
                           "https://raw.githubusercontent.com/dana-i2cat/cnsmo-net-services/master/src/main/docker/vpn/easy-rsa/vars",
                           ],
              dependencies=[],
-             endpoints=[{ "uri":"http://127.0.0.1:9093/server/{param}", "driver":"REST", "logic":"get", "name":"start"}])
+             endpoints=[{"uri":"http://127.0.0.1:9093/vpn/configs/dh/", "driver":"REST", "logic":"get", "name":"get_dh"},
+                        {"uri":"http://127.0.0.1:9093/vpn/configs/server/", "driver":"REST", "logic":"get", "name":"get_server_config"},
+                        {"uri":"http://127.0.0.1:9093/vpn/configs/client/", "driver":"REST", "logic":"get", "name":"get_client_config"},
+                        {"uri":"http://127.0.0.1:9093/vpn/configs/certs/ca/", "driver":"REST", "logic":"get", "name":"get_ca_cert"},
+                        {"uri":"http://127.0.0.1:9093/vpn/configs/certs/client/", "driver":"REST", "logic":"get", "name":"get_client_cert"},
+                        {"uri":"http://127.0.0.1:9093/vpn/configs/keys/client/", "driver":"REST", "logic":"get", "name":"get_client_key"},
+                        {"uri":"http://127.0.0.1:9093/vpn/configs/certs/server/", "driver":"REST", "logic":"get", "name":"get_server_cert"},
+                        {"uri":"http://127.0.0.1:9093/vpn/configs/keys/server/", "driver":"REST", "logic":"get", "name":"get_server_key"},
+                        {"uri":"http://127.0.0.1:9093/vpn/configs/certs/client/", "driver":"REST", "logic":"post", "name":"generate_ca_cert"},
+                        {"uri":"http://127.0.0.1:9093/vpn/configs/certs/client/", "driver":"REST", "logic":"post", "name":"generate_client_cert"},
+                        {"uri":"http://127.0.0.1:9093/vpn/configs/certs/client/", "driver":"REST", "logic":"post", "name":"generate_server_cert"},])
     return d
 
 
@@ -35,4 +44,13 @@ def main():
 
 
 if __name__== "__main__":
+
+    configurator_path = os.path.dirname(os.path.abspath(__file__))
+    src_dir = configurator_path + "/../../../../"
+    if not src_dir in sys.path:
+       sys.path.append(src_dir)
+
+    from src.main.python.net.i2cat.cnsmo.deployment.bash import BashDeployer
+    from src.main.python.net.i2cat.cnsmo.manager.cnsmo import CNSMOManager
+
     main()
