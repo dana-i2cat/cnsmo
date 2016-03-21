@@ -103,7 +103,7 @@ def stop_server():
     try:
         if app.config["service_running"]:
             subprocess.Popen(shlex.split("docker kill server-vpn"))
-            subprocess.Popen(shlex.split("docker rm server-vpn"))
+            subprocess.Popen(shlex.split("docker rm -f server-vpn"))
             app.config["service_running"] = False
             return "", 204
         return "",  409
