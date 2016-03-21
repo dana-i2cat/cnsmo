@@ -75,7 +75,7 @@ def build_server():
             log.debug("building docker...")
             subprocess.Popen(shlex.split("docker build -t vpn-server ."))
             log.debug("docker build")
-            app.config["service_build"] = True
+            app.config["service_built"] = True
             return "", 204
         else:
             return "Config is not ready: " + str(app.config["config_files"]), 409
