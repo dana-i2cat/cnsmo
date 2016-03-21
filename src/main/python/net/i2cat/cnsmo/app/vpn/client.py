@@ -31,14 +31,14 @@ def set_ca_cert():
 @app.route("/vpn/client/cert/", methods=[POST])
 def set_server_cert():
     save_file(request.files['file'], "client.crt")
-    app.config["config_files"]["server_cert_ready"] = True
+    app.config["config_files"]["client_cert_ready"] = True
     return 204, ""
 
 
-@app.route("/vpn/server/key/", methods=[POST])
+@app.route("/vpn/client/key/", methods=[POST])
 def set_server_key():
     save_file(request.files['file'], "client.key")
-    app.config["config_files"]["server_key_ready"] = True
+    app.config["config_files"]["client_key_ready"] = True
     return 204, ""
 
 
@@ -46,7 +46,7 @@ def set_server_key():
 def build_server(server_name):
     result = reduce(lambda x, y: x and y, app.config["config_files"].values())
     if result:
-        subprocess.Popen("docker build -t client-server .")
+        subprocess.Popen("docker build -t client-vpn .")
         app.config["service_build"] = True
         return 204, ""
     else:
@@ -57,7 +57,7 @@ def build_server(server_name):
 def start_server():
     if app.config["service_built"]:
         subprocess.Popen(
-            "docker run -t --net=host  --privileged -v /dev/net/:/dev/net/ --name client-vpn -d client-server")
+            "docker run -t --net=host  --privileged -v /dev/net/:/dev/net/ --name client-vpn -d client-vpn")
         app.config["service_running"] = True
         return 204, ""
     return 409, ""
@@ -67,7 +67,7 @@ def start_server():
 def stop_server():
     if app.config["service_running"]:
         subprocess.Popen("docker kill client-vpn")
-        subprocess.Popen("docker rm clientr-vpn")
+        subprocess.Popen("docker rm client-vpn")
         return 204, ""
     return 409, ""
 
@@ -79,8 +79,8 @@ def save_file(file, file_name):
 
 def prepare_config():
     app.config["config_files"] = {"dh_ready": False,
-                                  "server_cert_ready": False,
-                                  "server_key_ready": False,
+                                  "client_cert_ready": False,
+                                  "client_key_ready": False,
                                   "ca_cert_ready": False,
                                   "config_ready": False,
                                   }
