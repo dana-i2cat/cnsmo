@@ -8,20 +8,20 @@ def get_app_request():
     d = dict(service_id="ClientVPN",
              trigger='python client.py -a 127.0.0.1 -p 9092 -w "$(pwd)"',
 
-             resources=["https://raw.githubusercontent.com/dana-i2cat/cnsmo/master/src/main/python/net/i2cat/cnsmo/app/vpn/client.py"
+             resources=["https://raw.githubusercontent.com/dana-i2cat/cnsmo/master/src/main/python/net/i2cat/cnsmo/app/vpn/client.py",
                         "https://raw.githubusercontent.com/dana-i2cat/cnsmo-net-services/feature/script-install-docker/src/main/docker/vpn/client/Dockerfile",
                         "https://raw.githubusercontent.com/dana-i2cat/cnsmo-net-services/feature/script-install-docker/src/main/docker/vpn/client/tun_manager.sh",
                         ],
 
              dependencies=[],
 
-             endpoints=[{"uri":"/vpn/client/config/", "driver":"REST", "logic":"get", "name":"set_config"},
-                        {"uri":"/vpn/client/cert/ca/", "driver":"REST", "logic":"get", "name":"set_ca"},
-                        {"uri":"/vpn/client/cert/", "driver":"REST", "logic":"get", "name":"set_client_cert"},
-                        {"uri":"/vpn/client/key/",  "driver":"REST", "logic":"get", "name":"set_client_key"},
-                        {"uri":"/vpn/client/build/", "driver":"REST", "logic":"get", "name":"build_client"},
-                        {"uri":"/vpn/client/start/",  "driver":"REST", "logic":"get", "name":"start"},
-                        {"uri":"/vpn/server/stop/", "driver":"REST", "logic":"get", "name":"stop"},])
+             endpoints=[{"uri":"/vpn/client/config/", "driver":"REST", "logic":"upload", "name":"set_config"},
+                        {"uri":"/vpn/client/cert/ca/", "driver":"REST", "logic":"upload", "name":"set_ca"},
+                        {"uri":"/vpn/client/cert/", "driver":"REST", "logic":"upload", "name":"set_client_cert"},
+                        {"uri":"/vpn/client/key/",  "driver":"REST", "logic":"upload", "name":"set_client_key"},
+                        {"uri":"/vpn/client/build/", "driver":"REST", "logic":"post", "name":"build_client"},
+                        {"uri":"/vpn/client/start/",  "driver":"REST", "logic":"post", "name":"start"},
+                        {"uri":"/vpn/server/stop/", "driver":"REST", "logic":"post", "name":"stop"},])
     return d
 
 
