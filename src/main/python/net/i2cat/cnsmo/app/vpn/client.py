@@ -6,6 +6,7 @@ import subprocess
 import sys
 from flask import Flask
 from flask import request
+import shlex
 
 
 app = Flask(__name__)
@@ -18,58 +19,58 @@ POST = "POST"
 def set_config_file():
     save_file(request.files['file'], "client.conf")
     app.config["config_files"]["config_ready"] = True
-    return 204, ""
+    return "", 204
 
 
 @app.route("/vpn/client/cert/ca/", methods=[POST])
 def set_ca_cert():
     save_file(request.files['file'], "ca.crt")
-    app.config["config_files"]["ca_ready"] = True
-    return 204, ""
+    app.config["config_files"]["ca_cert_ready"] = True
+    return "", 204
 
 
 @app.route("/vpn/client/cert/", methods=[POST])
 def set_server_cert():
     save_file(request.files['file'], "client.crt")
     app.config["config_files"]["client_cert_ready"] = True
-    return 204, ""
+    return "", 204
 
 
 @app.route("/vpn/client/key/", methods=[POST])
 def set_server_key():
     save_file(request.files['file'], "client.key")
     app.config["config_files"]["client_key_ready"] = True
-    return 204, ""
+    return "", 204
 
 
 @app.route("/vpn/client/build/", methods=[POST])
-def build_server(server_name):
+def build_client():
     result = reduce(lambda x, y: x and y, app.config["config_files"].values())
     if result:
-        subprocess.Popen("docker build -t client-vpn .")
-        app.config["service_build"] = True
-        return 204, ""
+        subprocess.Popen(shlex.split("docker build -t client-vpn ."))
+        app.config["service_built"] = True
+        return "", 204
     else:
-        return 409, "Config is not ready"
+        return "Config is not ready", 409
 
 
 @app.route("/vpn/client/start/", methods=[POST])
 def start_server():
     if app.config["service_built"]:
         subprocess.Popen(
-            "docker run -t --net=host  --privileged -v /dev/net/:/dev/net/ --name client-vpn -d client-vpn")
+            shlex.split("docker run -t --net=host  --privileged -v /dev/net/:/dev/net/ --name client-vpn -d client-vpn"))
         app.config["service_running"] = True
-        return 204, ""
-    return 409, ""
+        return "", 204
+    return "", 409
 
 
 @app.route("/vpn/server/stop/", methods=[POST])
 def stop_server():
     if app.config["service_running"]:
-        subprocess.Popen("docker kill client-vpn")
-        subprocess.Popen("docker rm client-vpn")
-        return 204, ""
-    return 409, ""
+        subprocess.Popen(shlex.split("docker kill client-vpn"))
+        subprocess.Popen(shlex.split("docker rm client-vpn"))
+        return "",204
+    return "",409
 
 
 def save_file(file, file_name):
@@ -78,8 +79,7 @@ def save_file(file, file_name):
 
 
 def prepare_config():
-    app.config["config_files"] = {"dh_ready": False,
-                                  "client_cert_ready": False,
+    app.config["config_files"] = {"client_cert_ready": False,
                                   "client_key_ready": False,
                                   "ca_cert_ready": False,
                                   "config_ready": False,
@@ -103,4 +103,4 @@ if __name__ == "__main__":
             port = arg
 
     prepare_config()
-    app.run(host=host, port=port, debug=False)
+    app.run(host=host, port=port, debug=True)
