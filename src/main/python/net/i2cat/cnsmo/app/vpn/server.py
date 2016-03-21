@@ -1,7 +1,7 @@
 import getopt
 import os
 import logging
-
+import shlex
 import subprocess
 
 import sys
@@ -71,10 +71,9 @@ def set_server_key():
 def build_server():
     try:
         result = reduce(lambda x, y: x and y, app.config["config_files"].values())
-        log.debug(app.config["config_files"].values())
         if result:
             log.debug("building docker...")
-            subprocess.Popen("docker build -t vpn-server .")
+            subprocess.Popen(shlex.split("docker build -t vpn-server ."))
             log.debug("docker build")
             app.config["service_build"] = True
             return "", 204
@@ -89,8 +88,8 @@ def start_server():
     try:
         if app.config["service_built"]:
             log.debug("running docker...")
-            subprocess.Popen(
-                "docker run --net=host  --privileged -v /dev/net/:/dev/net/ --name server-vpn -d vpn-server")
+            subprocess.Popen(shlex.split(
+                "docker run --net=host  --privileged -v /dev/net/:/dev/net/ --name server-vpn -d vpn-server"))
             log.debug("docker run")
             app.config["service_running"] = True
             return "", 204
@@ -103,8 +102,9 @@ def start_server():
 def stop_server():
     try:
         if app.config["service_running"]:
-            subprocess.Popen("docker kill server-vpn")
-            subprocess.Popen("docker rm server-vpn")
+            subprocess.Popen(shlex.split("docker kill server-vpn"))
+            subprocess.Popen(shlex.split("docker rm server-vpn"))
+            app.config["service_running"] = False
             return "", 204
         return "",  409
     except Exception as e:
@@ -134,8 +134,6 @@ if __name__ == "__main__":
 
     host = "127.0.0.1"
     port = 9092
-    # TODO to be removed!!! Hardcoded for isolated testing purposes
-    working_dir = "/home/isart/code/CYCLONE/network-services/src/main/docker/vpn/server"
     for opt, arg in opts:
         if opt == "-w" or "--working-dir":
             working_dir = arg
