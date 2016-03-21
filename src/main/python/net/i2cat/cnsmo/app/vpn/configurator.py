@@ -15,6 +15,27 @@ GET = "GET"
 POST = "POST"
 
 
+@app.route("/vpn/configs/certs/server/", methods=[POST])
+def generate_server_cert():
+    manager = app.config["manager"]
+    manager.generate_server_certs()
+    return "", 204
+
+
+@app.route("/vpn/configs/certs/client/", methods=[POST])
+def generate_client_cert():
+    manager = app.config["manager"]
+    manager.generate_client_certs()
+    return "", 204
+
+
+@app.route("/vpn/configs/certs/ca/", methods=[POST])
+def generate_ca_cert():
+    manager = app.config["manager"]
+    manager.generate_ca_and_dh()
+    return "", 204
+
+
 @app.route("/vpn/configs/dh/", methods=[GET])
 def get_dh():
     manager = app.config["manager"]
@@ -69,27 +90,6 @@ def get_client_key():
     return response
 
 
-@app.route("/vpn/configs/certs/server/", methods=[POST])
-def generate_server_cert():
-    manager = app.config["manager"]
-    manager.generate_server_certs()
-    return "", 204
-
-
-@app.route("/vpn/configs/certs/client/", methods=[POST])
-def generate_client_cert():
-    manager = app.config["manager"]
-    manager.generate_client_certs()
-    return "", 204
-
-
-@app.route("/vpn/configs/certs/ca/", methods=[POST])
-def generate_ca_cert():
-    manager = app.config["manager"]
-    manager.generate_ca_and_dh()
-    return "", 204
-
-
 @app.route("/vpn/configs/certs/server/", methods=[GET])
 def get_server_cert():
     manager = app.config["manager"]
@@ -118,15 +118,15 @@ class VPNConfigManager:
         self.key_dir = key_dir
 
     def generate_ca_and_dh(self):
-        command = "sh %s/../gen_ca.sh" % self.key_dir
-        subprocess.check_call(shlex.split(command))
+        command = "sh %s../gen_ca.sh" % self.key_dir
+        subprocess.check_call(shlex.split(command), shell=True)
 
     def generate_client_certs(self):
-        command = "sh %s/../gen_client.sh" % self.key_dir
+        command = "sh %s../gen_client.sh" % self.key_dir
         subprocess.check_call(shlex.split(command))
 
     def generate_server_certs(self):
-        command = "sh %s/../gen_server.sh" % self.key_dir
+        command = "sh %s../gen_server.sh" % self.key_dir
         subprocess.check_call(shlex.split(command))
 
     def get_client_cert(self):
@@ -218,7 +218,6 @@ if __name__ == "__main__":
     port = 9093
 
     for opt, arg in opts:
-        print opt
         print opt, arg
         if opt == "-w":
             working_dir = arg
@@ -236,7 +235,7 @@ if __name__ == "__main__":
         elif opt == "-o":
             vpn_port = arg
 
-    manager = VPNConfigManager(vpn_address, vpn_mask, vpn_port, server_address, working_dir )
+    manager = VPNConfigManager(vpn_address, vpn_mask, vpn_port, server_address, working_dir)
     app.config["manager"] = manager
 
     app.run(host=address, port=int(port), debug=True)

@@ -1,22 +1,33 @@
-import threading
 import time
-from main.python.net.i2cat.cnsmo.deployment.bash import BashDeployer
-from main.python.net.i2cat.cnsmo.manager.cnsmo import CNSMOManager
+import os
+import sys
 
 
 def get_app_request():
 
     d = dict(service_id="VPNConfigurer",
-             trigger= 'python configurator.py -a 127.0.0.1 -p 9093 -w "$( cd "$( dirname "$0" )" && pwd )"/keys/ -s 84.88.40.11 -m 255.255.255.0 -v 10.10.10 -o 1194',
-             resources = ["http://stash.i2cat.net/projects/CYCLONE/repos/cnsmo/browse/src/main/python/net/i2cat/cnsmo/app/vpn/configurator.py?at=03619b943323bf27a581afe54f0259001239f2ad&raw",
-                          "http://stash.i2cat.net/projects/CYCLONE/repos/network-services/browse/src/main/docker/vpn/easy-rsa/gen_ca.sh?at=7efa386719fabd68b4ab29a91dda65748b6dd70c&raw",
-                          "http://stash.i2cat.net/projects/CYCLONE/repos/network-services/browse/src/main/docker/vpn/easy-rsa/gen_client.sh?at=7efa386719fabd68b4ab29a91dda65748b6dd70c&raw",
-                          "http://stash.i2cat.net/projects/CYCLONE/repos/network-services/browse/src/main/docker/vpn/easy-rsa/gen_index.sh?at=7efa386719fabd68b4ab29a91dda65748b6dd70c&raw",
-                          "http://stash.i2cat.net/projects/CYCLONE/repos/network-services/browse/src/main/docker/vpn/easy-rsa/gen_server.sh?at=7efa386719fabd68b4ab29a91dda65748b6dd70c&raw",
-                          "http://stash.i2cat.net/projects/CYCLONE/repos/network-services/browse/src/main/docker/vpn/easy-rsa/vars?at=72fac7ee5870334d7a8ee13f7982200dea03ce46&raw",
+             # trigger= 'python configurator.py -a 127.0.0.1 -p 9093 -w "$( cd "$( dirname "$0" )" && pwd )"/keys/ -s 84.88.40.11 -m 255.255.255.0 -v 10.10.10 -o 1194',
+             trigger= 'mkdir -p keys && python configurator.py -a 127.0.0.1 -p 9093 -w "$(pwd)"/keys/ -s 84.88.40.11 -m 255.255.255.0 -v 10.10.10 -o 1194',
+
+             resources = ["https://raw.githubusercontent.com/dana-i2cat/cnsmo/master/src/main/python/net/i2cat/cnsmo/app/vpn/configurator.py",
+                          "https://raw.githubusercontent.com/dana-i2cat/cnsmo-net-services/master/src/main/docker/vpn/easy-rsa/gen_ca.sh",
+                          "https://raw.githubusercontent.com/dana-i2cat/cnsmo-net-services/master/src/main/docker/vpn/easy-rsa/gen_client.sh",
+                          "https://raw.githubusercontent.com/dana-i2cat/cnsmo-net-services/master/src/main/docker/vpn/easy-rsa/gen_index.sh",
+                          "https://raw.githubusercontent.com/dana-i2cat/cnsmo-net-services/master/src/main/docker/vpn/easy-rsa/gen_server.sh",
+                          "https://raw.githubusercontent.com/dana-i2cat/cnsmo-net-services/master/src/main/docker/vpn/easy-rsa/vars",
                           ],
              dependencies=[],
-             endpoints=[{ "uri":"http://127.0.0.1:9093/server/{param}", "driver":"REST", "logic":"get", "name":"start"}])
+             endpoints=[{"uri":"http://127.0.0.1:9093/vpn/configs/dh/", "driver":"REST", "logic":"get", "name":"get_dh"},
+                        {"uri":"http://127.0.0.1:9093/vpn/configs/server/", "driver":"REST", "logic":"get", "name":"get_server_config"},
+                        {"uri":"http://127.0.0.1:9093/vpn/configs/client/", "driver":"REST", "logic":"get", "name":"get_client_config"},
+                        {"uri":"http://127.0.0.1:9093/vpn/configs/certs/ca/", "driver":"REST", "logic":"get", "name":"get_ca_cert"},
+                        {"uri":"http://127.0.0.1:9093/vpn/configs/certs/client/", "driver":"REST", "logic":"get", "name":"get_client_cert"},
+                        {"uri":"http://127.0.0.1:9093/vpn/configs/keys/client/", "driver":"REST", "logic":"get", "name":"get_client_key"},
+                        {"uri":"http://127.0.0.1:9093/vpn/configs/certs/server/", "driver":"REST", "logic":"get", "name":"get_server_cert"},
+                        {"uri":"http://127.0.0.1:9093/vpn/configs/keys/server/", "driver":"REST", "logic":"get", "name":"get_server_key"},
+                        {"uri":"http://127.0.0.1:9093/vpn/configs/certs/ca/", "driver":"REST", "logic":"post", "name":"generate_ca_cert"},
+                        {"uri":"http://127.0.0.1:9093/vpn/configs/certs/client/", "driver":"REST", "logic":"post", "name":"generate_client_cert"},
+                        {"uri":"http://127.0.0.1:9093/vpn/configs/certs/server/", "driver":"REST", "logic":"post", "name":"generate_server_cert"},])
     return d
 
 
@@ -25,10 +36,21 @@ def main():
     bash_deployer = BashDeployer(None)
     configurer = CNSMOManager("localhost:6379", "configurer", "CredentialManager", bash_deployer, None)
     configurer.start()
-    time.sleep(0.5)
     configurer.compose_service(**get_app_request())
     configurer.launch_service("VPNConfigurer")
 
+    while True:
+        time.sleep(1)
+
 
 if __name__== "__main__":
+
+    configurator_path = os.path.dirname(os.path.abspath(__file__))
+    src_dir = configurator_path + "/../../../../"
+    if not src_dir in sys.path:
+       sys.path.append(src_dir)
+
+    from src.main.python.net.i2cat.cnsmo.deployment.bash import BashDeployer
+    from src.main.python.net.i2cat.cnsmo.manager.cnsmo import CNSMOManager
+
     main()
