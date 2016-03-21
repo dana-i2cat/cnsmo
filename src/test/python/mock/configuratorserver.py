@@ -9,8 +9,7 @@ POST = "POST"
 
 @app.route("/vpn/configs/certs/server/", methods=[POST])
 def generate_server_cert():
-
-    return "CaCert", 200
+    return "ServerCert", 200
 
 
 @app.route("/vpn/configs/certs/client/", methods=[POST])
