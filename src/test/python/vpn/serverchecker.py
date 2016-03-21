@@ -36,18 +36,23 @@ def main():
     print "Sending build request..."
     r = requests.post(url_build)
     print r
-    print "Build response: " + r.text
+    print r.content
     r.raise_for_status()
-    time.sleep(1)
+    time.sleep(3)
+
     print "Sending start request..."
     r = requests.post(url_start)
     print r
-    print "Start response: " + r.text
+    print r.content
+    r.raise_for_status()
+    time.sleep(3)
+
+    print "Sending stop request..."
+    r = requests.post(url_stop)
+    print r
+    print r.content
     r.raise_for_status()
 
-    # time.sleep(60)
-    # r = requests.post(url_stop)
 
-
-if __name__== "__main__":
+if __name__ == "__main__":
     main()

@@ -8,7 +8,7 @@ import sys
 from flask import Flask
 from flask import request
 
-log = logging.getLogger('cnsmo.serverapp')
+log = logging.getLogger('cnsmo.vpn.server.app')
 
 
 app = Flask(__name__)
@@ -75,7 +75,7 @@ def build_server():
             log.debug("building docker...")
             subprocess.Popen(shlex.split("docker build -t vpn-server ."))
             log.debug("docker build")
-            app.config["service_build"] = True
+            app.config["service_built"] = True
             return "", 204
         else:
             return "Config is not ready: " + str(app.config["config_files"]), 409
@@ -88,12 +88,13 @@ def start_server():
     try:
         if app.config["service_built"]:
             log.debug("running docker...")
-            subprocess.Popen(shlex.split(
+            output = subprocess.check_output(shlex.split(
                 "docker run --net=host  --privileged -v /dev/net/:/dev/net/ --name server-vpn -d vpn-server"))
-            log.debug("docker run")
+
+            log.debug("docker run. output: " + output)
             app.config["service_running"] = True
             return "", 204
-        return "",  409
+        return "Service is not yet built",  409
     except Exception as e:
         return str(e), 409
 
@@ -103,10 +104,10 @@ def stop_server():
     try:
         if app.config["service_running"]:
             subprocess.Popen(shlex.split("docker kill server-vpn"))
-            subprocess.Popen(shlex.split("docker rm server-vpn"))
+            subprocess.Popen(shlex.split("docker rm -f server-vpn"))
             app.config["service_running"] = False
             return "", 204
-        return "",  409
+        return "Service is not yet running",  409
     except Exception as e:
         return str(e), 409
 
