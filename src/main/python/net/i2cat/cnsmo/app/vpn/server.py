@@ -1,11 +1,14 @@
 import getopt
 import os
-
+import logging
+import shlex
 import subprocess
 
 import sys
 from flask import Flask
 from flask import request
+
+log = logging.getLogger('cnsmo.serverapp')
 
 
 app = Flask(__name__)
@@ -16,72 +19,102 @@ POST = "POST"
 
 @app.route("/vpn/server/dh/", methods=[POST])
 def set_dh():
-    save_file(request.files['file'], "dh2048.pem")
-    app.config["config_files"]["dh_ready"] = True
-    return 204, ""
+    try:
+        save_file(request.files['file'], "dh2048.pem")
+        app.config["config_files"]["dh_ready"] = True
+        return "", 204
+    except Exception as e:
+        return str(e), 409
 
 
 @app.route("/vpn/server/config/", methods=[POST])
 def set_config_file():
-    save_file(request.files['file'], "server.conf")
-    app.config["config_files"]["config_ready"] = True
-    return 204, ""
+    try:
+        save_file(request.files['file'], "server.conf")
+        app.config["config_files"]["config_ready"] = True
+        return "", 204
+    except Exception as e:
+        return str(e), 409
 
 
 @app.route("/vpn/server/cert/ca/", methods=[POST])
 def set_ca_cert():
-    save_file(request.files['file'], "ca.crt")
-    app.config["config_files"]["ca_ready"] = True
-    return 204, ""
+    try:
+        save_file(request.files['file'], "ca.crt")
+        app.config["config_files"]["ca_cert_ready"] = True
+        return "", 204
+    except Exception as e:
+        return str(e), 409
 
 
 @app.route("/vpn/server/cert/server/", methods=[POST])
 def set_server_cert():
-    save_file(request.files['file'], "server.crt")
-    app.config["config_files"]["server_cert_ready"] = True
-    return 204, ""
+    try:
+        save_file(request.files['file'], "server.crt")
+        app.config["config_files"]["server_cert_ready"] = True
+        return "", 204
+    except Exception as e:
+        return str(e), 409
 
 
 @app.route("/vpn/server/key/server/", methods=[POST])
 def set_server_key():
-    save_file(request.files['file'], "server.key")
-    app.config["config_files"]["server_key_ready"] = True
-    return 204, ""
+    try:
+        save_file(request.files['file'], "server.key")
+        app.config["config_files"]["server_key_ready"] = True
+        return "", 204
+    except Exception as e:
+        return str(e), 409
 
 
 @app.route("/vpn/server/build/", methods=[POST])
-def build_server(server_name):
-    result = reduce(lambda x, y: x and y, app.config["config_files"].values())
-    if result:
-        subprocess.Popen("docker build -t vpn-server .")
-        app.config["service_build"] = True
-        return 204, ""
-    else:
-        return 409, "Config is not ready"
+def build_server():
+    try:
+        result = reduce(lambda x, y: x and y, app.config["config_files"].values())
+        if result:
+            log.debug("building docker...")
+            subprocess.Popen(shlex.split("docker build -t vpn-server ."))
+            log.debug("docker build")
+            app.config["service_build"] = True
+            return "", 204
+        else:
+            return "Config is not ready: " + str(app.config["config_files"]), 409
+    except Exception as e:
+        return str(e), 409
 
 
 @app.route("/vpn/server/start/", methods=[POST])
 def start_server():
-    if app.config["service_built"]:
-        subprocess.Popen(
-            "docker run -t --net=host  --privileged -v /dev/net/:/dev/net/ --name server-vpn -d vpn-server")
-        app.config["service_running"] = True
-        return 204, ""
-    return 409, ""
+    try:
+        if app.config["service_built"]:
+            log.debug("running docker...")
+            subprocess.Popen(shlex.split(
+                "docker run --net=host  --privileged -v /dev/net/:/dev/net/ --name server-vpn -d vpn-server"))
+            log.debug("docker run")
+            app.config["service_running"] = True
+            return "", 204
+        return "",  409
+    except Exception as e:
+        return str(e), 409
 
 
 @app.route("/vpn/server/stop/", methods=[POST])
 def stop_server():
-    if app.config["service_running"]:
-        subprocess.Popen("docker kill server-vpn")
-        subprocess.Popen("docker rm server-vpn")
-        return 204, ""
-    return 409, ""
+    try:
+        if app.config["service_running"]:
+            subprocess.Popen(shlex.split("docker kill server-vpn"))
+            subprocess.Popen(shlex.split("docker rm server-vpn"))
+            app.config["service_running"] = False
+            return "", 204
+        return "",  409
+    except Exception as e:
+        return str(e), 409
 
 
-def save_file(file, file_name):
-    # filename = secure_filename(file.filename)
-    file.save(os.path.join(app.config['UPLOAD_FOLDER'], file_name))
+def save_file(file_handler, file_name):
+    # filename = secure_filename(file_handler.filename)
+    log.debug("saving file to " + app.config['UPLOAD_FOLDER'])
+    file_handler.save(os.path.join(app.config['UPLOAD_FOLDER'], file_name))
 
 
 def prepare_config():
@@ -103,11 +136,12 @@ if __name__ == "__main__":
     port = 9092
     for opt, arg in opts:
         if opt == "-w" or "--working-dir":
-            app.config["UPLOAD_FOLDER"] = arg
+            working_dir = arg
         elif opt == "-a":
             host = arg
-        elif opt == "p":
+        elif opt == "-p":
             port = arg
 
+    app.config["UPLOAD_FOLDER"] = working_dir
     prepare_config()
-    app.run(host=host, port=port, debug=False)
+    app.run(host=host, port=port, debug=True)
