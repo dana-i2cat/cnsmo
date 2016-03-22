@@ -1,14 +1,14 @@
 import requests
 import time
 
-url_dh = "http://127.0.0.1:9092/vpn/server/dh/"
-url_server_conf = "http://127.0.0.1:9092/vpn/server/config/"
-url_ca_cert = "http://127.0.0.1:9092/vpn/server/cert/ca/"
-url_server_cert = "http://127.0.0.1:9092/vpn/server/cert/server/"
-url_server_key = "http://127.0.0.1:9092/vpn/server/key/server/"
-url_build = "http://127.0.0.1:9092/vpn/server/build/"
-url_start = "http://127.0.0.1:9092/vpn/server/start/"
-url_stop = "http://127.0.0.1:9092/vpn/server/stop/"
+url_dh = "http://127.0.0.1:9094/vpn/server/dh/"
+url_server_conf = "http://127.0.0.1:9094/vpn/server/config/"
+url_ca_cert = "http://127.0.0.1:9094/vpn/server/cert/ca/"
+url_server_cert = "http://127.0.0.1:9094/vpn/server/cert/server/"
+url_server_key = "http://127.0.0.1:9094/vpn/server/key/server/"
+url_build = "http://127.0.0.1:9094/vpn/server/build/"
+url_start = "http://127.0.0.1:9094/vpn/server/start/"
+url_stop = "http://127.0.0.1:9094/vpn/server/stop/"
 
 
 def main():
