@@ -28,8 +28,6 @@ class VPNManager:
 
         self.__status = "power_off"
 
-
-
     def __configure_system_state(self):
         self.__system_state_manager = SystemStateFactory.generate_system_state_client(self.__bind_address, "myVpn", "VPNManager",
                                                                                       self.__status, ["Server", "Client", "CredentialManager"],
@@ -97,10 +95,8 @@ class VPNManager:
         print "Deploying VPN..."
 
         print "generating security mechanism..."
-        # Generate DH (skipped by now, too slow)
-        # self.__configuration_manager.generate_dh()
 
-        # Generate CA
+        # Generate DH and CA cert
         self.__configuration_manager.generate_ca_cert()
 
         print "generating vpn server configuration..."
@@ -137,16 +133,16 @@ class VPNManager:
         """
         Helper method that configures server service with given configuration and starts the service
         """
-        print "configuring vpn server..."
+        print "configuring vpn server " + name + " ..."
         self.__server_service.set_dh(dh)
         self.__server_service.set_ca_cert(ca_crt)
         self.__server_service.set_server_key(server_key)
         self.__server_service.set_server_cert(server_crt)
         self.__server_service.set_config_file(server_conf)
 
-        self.__server_service.build_server(name)
+        self.__server_service.build_server()
 
-        print "starting vpn server..."
+        print "starting vpn server " + name + " ..."
         self.__server_service.start_server()
 
     def __configure_and_start_vpn_client(self, client_service, name, ca_crt, client_key, client_crt, client_conf):
@@ -159,6 +155,6 @@ class VPNManager:
         client_service.set_server_cert(client_crt)
         client_service.set_config_file(client_conf)
 
-        client_service.build_server(name)
+        client_service.build_client()
         print "starting vpn client " + name + " ..."
         client_service.start_server()
