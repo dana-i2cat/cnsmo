@@ -2,6 +2,7 @@ import os
 import sys
 import unittest
 import threading
+import time
 
 
 class ConfiguratorServiceTest(unittest.TestCase):
@@ -12,7 +13,7 @@ class ConfiguratorServiceTest(unittest.TestCase):
 
         # Configuring each service in a different Thread to make things feel real
         self.configurator_t = threading.Thread(target=self.deploy_service, args=
-            (redis_address, "VPNConfigurer-234", "VPNConfigurer", bash_deployer, self.get_configurator_app_request()))
+            (redis_address, "VPNConfigurer-234", "VPNConfigManager", bash_deployer, self.get_configurator_app_request()))
 
         self.server_t = threading.Thread(target=self.deploy_service, args=
             (redis_address, "VPNServerService-234", "VPNServer", bash_deployer, self.get_server_app_request()))
@@ -27,14 +28,36 @@ class ConfiguratorServiceTest(unittest.TestCase):
         self.vpn_manager_t = threading.Thread(target=self.vpn_manager.start)
 
         self.configurator_t.start()
+        time.sleep(1)
         self.server_t.start()
-        #self.client1_t.start()
-        #self.client2_t.start()
+        time.sleep(1)
+        self.client1_t.start()
+        time.sleep(1)
+        self.client2_t.start()
+        time.sleep(1)
         # self.vpn_manager_t.start()
         self.vpn_manager.start()
+        time.sleep(1)
 
     def test_vpn_manager_should_register_all_services(self):
-        print self.vpn_manager
+        time.sleep(10)
+        self.assertTrue(self.vpn_manager._VPNManager__server_service)
+        self.assertTrue(self.vpn_manager._VPNManager__configuration_manager)
+        self.assertTrue(self.vpn_manager._VPNManager__client_services)
+        self.assertEquals(2, len(self.vpn_manager._VPNManager__client_services))
+
+    def test_vpn_manager_gets_ready_to_deploy(self):
+        time.sleep(10)
+        self.assertEquals("ready", self.vpn_manager._VPNManager__status)
+
+    # def test_vpn_manager_should_run_deployment_without_error(self):
+    #     self.vpn_manager.deploy()
+
+    # def test_after_deployment_server_has_his_files(self):
+    #     pass
+
+    # def test_after_deployment_clients_have_their_files(self):
+    #     pass
 
     def deploy_service(self, redis_address, service_name, service_type, deployer, request):
 
