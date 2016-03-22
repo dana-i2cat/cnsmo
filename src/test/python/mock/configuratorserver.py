@@ -1,3 +1,6 @@
+import getopt
+
+import sys
 from flask import Flask
 
 
@@ -64,3 +67,19 @@ def get_server_key():
 
 def main(host, port):
     app.run(host, port, debug=False)
+
+if __name__ == "__main__":
+
+    opts, _ = getopt.getopt(sys.argv[1:], "a:p:w:", ["working-dir="])
+
+    host = "127.0.0.1"
+    port = 9094
+    for opt, arg in opts:
+        if opt in ("-w", "--working-dir"):
+            working_dir = arg
+        elif opt == "-a":
+            host = arg
+        elif opt == "-p":
+            port = int(arg)
+
+    main(host, port)
