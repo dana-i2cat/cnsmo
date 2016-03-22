@@ -70,16 +70,27 @@ def main(host, port):
 
 if __name__ == "__main__":
 
-    opts, _ = getopt.getopt(sys.argv[1:], "a:p:w:", ["working-dir="])
+    opts, _ = getopt.getopt(sys.argv[1:], "a:p:w:s:m:v:o:", ["working-dir="])
 
-    host = "127.0.0.1"
-    port = 9094
+    address = "127.0.0.1"
+    port = 9093
+
     for opt, arg in opts:
+        print opt, arg
         if opt in ("-w", "--working-dir"):
             working_dir = arg
         elif opt == "-a":
-            host = arg
+            address = arg
         elif opt == "-p":
             port = int(arg)
+        elif opt == "-s":
+            server_address = arg
+        elif opt == "-m":
+            vpn_mask = arg
+        elif opt == "-v":
+            print opt, arg
+            vpn_address = arg
+        elif opt == "-o":
+            vpn_port = arg
 
-    main(host, port)
+    main(address, port)
