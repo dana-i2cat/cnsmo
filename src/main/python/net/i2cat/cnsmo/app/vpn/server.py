@@ -134,14 +134,14 @@ if __name__ == "__main__":
     opts, _ = getopt.getopt(sys.argv[1:], "a:p:w:", ["working-dir="])
 
     host = "127.0.0.1"
-    port = 9092
+    port = 9094
     for opt, arg in opts:
-        if opt == "-w" or "--working-dir":
+        if opt in ("-w", "--working-dir"):
             working_dir = arg
         elif opt == "-a":
             host = arg
         elif opt == "-p":
-            port = arg
+            port = int(arg)
 
     app.config["UPLOAD_FOLDER"] = working_dir
     prepare_config()
