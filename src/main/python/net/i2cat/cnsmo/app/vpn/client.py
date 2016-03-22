@@ -95,12 +95,12 @@ if __name__ == "__main__":
     host = "127.0.0.1"
     port = 9092
     for opt, arg in opts:
-        if opt == "-w" or "--working-dir":
+        if opt in ("-w", "--working-dir"):
             app.config["UPLOAD_FOLDER"] = arg
         elif opt == "-a":
             host = arg
-        elif opt == "p":
-            port = arg
+        elif opt == "-p":
+            port = int(arg)
 
     prepare_config()
     app.run(host=host, port=port, debug=True)
