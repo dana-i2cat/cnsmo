@@ -15,13 +15,13 @@ def get_app_request():
 
              dependencies=[],
 
-             endpoints=[{"uri":"/vpn/client/config/", "driver":"REST", "logic":"upload", "name":"set_config"},
-                        {"uri":"/vpn/client/cert/ca/", "driver":"REST", "logic":"upload", "name":"set_ca"},
-                        {"uri":"/vpn/client/cert/", "driver":"REST", "logic":"upload", "name":"set_client_cert"},
-                        {"uri":"/vpn/client/key/",  "driver":"REST", "logic":"upload", "name":"set_client_key"},
-                        {"uri":"/vpn/client/build/", "driver":"REST", "logic":"post", "name":"build_client"},
-                        {"uri":"/vpn/client/start/",  "driver":"REST", "logic":"post", "name":"start"},
-                        {"uri":"/vpn/server/stop/", "driver":"REST", "logic":"post", "name":"stop"},])
+             endpoints=[{"uri":"http://127.0.0.1:9092/vpn/client/config/", "driver":"REST", "logic":"upload", "name":"set_config"},
+                        {"uri":"http://127.0.0.1:9092/vpn/client/cert/ca/", "driver":"REST", "logic":"upload", "name":"set_ca"},
+                        {"uri":"http://127.0.0.1:9092/vpn/client/cert/", "driver":"REST", "logic":"upload", "name":"set_client_cert"},
+                        {"uri":"http://127.0.0.1:9092/vpn/client/key/",  "driver":"REST", "logic":"upload", "name":"set_client_key"},
+                        {"uri":"http://127.0.0.1:9092/vpn/client/build/", "driver":"REST", "logic":"post", "name":"build_client"},
+                        {"uri":"http://127.0.0.1:9092/vpn/client/start/",  "driver":"REST", "logic":"post", "name":"start"},
+                        {"uri":"http://127.0.0.1:9092/vpn/server/stop/", "driver":"REST", "logic":"post", "name":"stop"},])
     return d
 
 
