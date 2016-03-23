@@ -38,7 +38,7 @@ def set_ca_cert():
 
 
 @app.route("/vpn/client/cert/", methods=[POST])
-def set_server_cert():
+def set_client_cert():
     try:
         save_file(request.files['file'], "server.crt")
         app.config["config_files"]["server_cert_ready"] = True
@@ -48,7 +48,7 @@ def set_server_cert():
 
 
 @app.route("/vpn/client/key/", methods=[POST])
-def set_server_key():
+def set_client_key():
     try:
         save_file(request.files['file'], "server.key")
         app.config["config_files"]["server_key_ready"] = True
@@ -58,7 +58,7 @@ def set_server_key():
 
 
 @app.route("/vpn/client/build/", methods=[POST])
-def build_server():
+def build_client():
     try:
         result = reduce(lambda x, y: x and y, app.config["config_files"].values())
         if result:
@@ -72,7 +72,7 @@ def build_server():
 
 
 @app.route("/vpn/client/start/", methods=[POST])
-def start_server():
+def start_client():
     try:
         if app.config["service_built"]:
             app.config["service_running"] = True
@@ -83,7 +83,7 @@ def start_server():
 
 
 @app.route("/vpn/client/stop/", methods=[POST])
-def stop_server():
+def stop_client():
     try:
         if app.config["service_running"]:
             app.config["service_running"] = False
