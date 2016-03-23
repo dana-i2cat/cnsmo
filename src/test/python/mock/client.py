@@ -40,7 +40,7 @@ def set_ca_cert():
 @app.route("/vpn/client/cert/", methods=[POST])
 def set_client_cert():
     try:
-        save_file(request.files['file'], "server.crt")
+        save_file(request.files['file'], "client.crt")
         app.config["config_files"]["server_cert_ready"] = True
         return "", 204
     except Exception as e:
@@ -50,7 +50,7 @@ def set_client_cert():
 @app.route("/vpn/client/key/", methods=[POST])
 def set_client_key():
     try:
-        save_file(request.files['file'], "server.key")
+        save_file(request.files['file'], "client.key")
         app.config["config_files"]["server_key_ready"] = True
         return "", 204
     except Exception as e:
