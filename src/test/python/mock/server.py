@@ -1,8 +1,12 @@
 import getopt
+import os
 import logging
+import shlex
+import subprocess
 
 import sys
 from flask import Flask
+from flask import request
 
 log = logging.getLogger('cnsmo.vpn.server.app')
 
@@ -15,58 +19,94 @@ POST = "POST"
 
 @app.route("/vpn/server/dh/", methods=[POST])
 def set_dh():
-    app.config["config_files"]["dh_ready"] = True
-    return "ServerDHSet", 200
+    try:
+        save_file(request.files['file'], "dh2048.pem")
+        app.config["config_files"]["dh_ready"] = True
+        return "", 204
+    except Exception as e:
+        return str(e), 409
 
 
 @app.route("/vpn/server/config/", methods=[POST])
 def set_config_file():
-    app.config["config_files"]["config_ready"] = True
-    return "ServerConfigSet", 200
+    try:
+        save_file(request.files['file'], "server.conf")
+        app.config["config_files"]["config_ready"] = True
+        return "", 204
+    except Exception as e:
+        return str(e), 409
 
 
 @app.route("/vpn/server/cert/ca/", methods=[POST])
 def set_ca_cert():
-    app.config["config_files"]["ca_cert_ready"] = True
-    return "ServerCASet", 200
+    try:
+        save_file(request.files['file'], "ca.crt")
+        app.config["config_files"]["ca_cert_ready"] = True
+        return "", 204
+    except Exception as e:
+        return str(e), 409
 
 
 @app.route("/vpn/server/cert/server/", methods=[POST])
 def set_server_cert():
-    app.config["config_files"]["server_cert_ready"] = True
-    return "ServerCertSet", 200
+    try:
+        save_file(request.files['file'], "server.crt")
+        app.config["config_files"]["server_cert_ready"] = True
+        return "", 204
+    except Exception as e:
+        return str(e), 409
 
 
 @app.route("/vpn/server/key/server/", methods=[POST])
 def set_server_key():
-    app.config["config_files"]["server_key_ready"] = True
-    return "ServerKeySet", 200
+    try:
+        save_file(request.files['file'], "server.key")
+        app.config["config_files"]["server_key_ready"] = True
+        return "", 204
+    except Exception as e:
+        return str(e), 409
 
 
 @app.route("/vpn/server/build/", methods=[POST])
 def build_server():
+    try:
         result = reduce(lambda x, y: x and y, app.config["config_files"].values())
         if result:
+            log.debug("building docker...")
             app.config["service_built"] = True
-            return "ServerBuilt", 200
+            return "dockerBuilt", 204
         else:
             return "Config is not ready: " + str(app.config["config_files"]), 409
+    except Exception as e:
+        return str(e), 409
 
 
 @app.route("/vpn/server/start/", methods=[POST])
 def start_server():
-    if app.config["service_built"]:
-        app.config["service_running"] = True
-        return "ServerRunning", 200
-    return "Service is not yet built",  409
+    try:
+        if app.config["service_built"]:
+            app.config["service_running"] = True
+            return "DockerRunning", 204
+        return "Service is not yet built",  409
+    except Exception as e:
+        return str(e), 409
 
 
 @app.route("/vpn/server/stop/", methods=[POST])
 def stop_server():
-    if app.config["service_running"]:
-        app.config["service_running"] = False
-        return "Server Stopped", 200
-    return "Service is not yet running",  409
+    try:
+        if app.config["service_running"]:
+            app.config["service_running"] = False
+            return "DockerRunning", 204
+        return "Service is not yet running",  409
+    except Exception as e:
+        return str(e), 409
+
+
+def save_file(file_handler, file_name):
+    # filename = secure_filename(file_handler.filename)
+    log.debug("saving file to " + app.config['UPLOAD_FOLDER'])
+    file_handler.save(os.path.join(app.config['UPLOAD_FOLDER'], file_name))
 
 
 def prepare_config():
@@ -79,11 +119,6 @@ def prepare_config():
 
     app.config["service_built"] = False
     app.config["service_running"] = False
-
-
-def main(my_host, my_port):
-    prepare_config()
-    app.run(host=my_host, port=my_port, debug=True)
 
 if __name__ == "__main__":
 
@@ -99,4 +134,6 @@ if __name__ == "__main__":
         elif opt == "-p":
             port = int(arg)
 
-    main(host, port)
+    app.config["UPLOAD_FOLDER"] = working_dir
+    prepare_config()
+    app.run(host=host, port=port, debug=True)
