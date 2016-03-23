@@ -92,18 +92,18 @@ class VPNManager:
         print "generating security mechanism..."
 
         # Generate DH and CA cert
-        self.__configuration_manager.generate_ca_cert()
+        self.__configuration_manager.generate_ca_cert(None)
 
         print "generating vpn server configuration..."
         # Generate server key and cert
-        self.__configuration_manager.generate_server_cert()
+        self.__configuration_manager.generate_server_cert(None)
 
         # Get all config files
-        dh = self.__configuration_manager.get_dh()
-        ca_crt = self.__configuration_manager.get_ca_cert()
-        server_key = self.__configuration_manager.get_server_key()
-        server_crt = self.__configuration_manager.get_server_cert()
-        server_conf = self.__configuration_manager.get_server_config()
+        dh = self.__configuration_manager.get_dh(None).content
+        ca_crt = self.__configuration_manager.get_ca_cert(None).content
+        server_key = self.__configuration_manager.get_server_key(None).content
+        server_crt = self.__configuration_manager.get_server_cert(None).content
+        server_conf = self.__configuration_manager.get_server_config(None).content
 
         # TODO find a proper name for the server
         self.__configure_and_start_vpn_server("server", dh, ca_crt, server_key, server_crt, server_conf)
@@ -113,10 +113,10 @@ class VPNManager:
         i = 0
         for client_service in self.__client_services:
             print "generating vpn client configuration..."
-            self.__configuration_manager.generate_client_cert()
-            client_key = self.__configuration_manager.get_client_key()
-            client_crt = self.__configuration_manager.get_client_cert()
-            client_conf = self.__configuration_manager.get_client_config()
+            self.__configuration_manager.generate_client_cert(None)
+            client_key = self.__configuration_manager.get_client_key(None).content
+            client_crt = self.__configuration_manager.get_client_cert(None).content
+            client_conf = self.__configuration_manager.get_client_config(None).content
 
             # TODO find a proper name for each client
             self.__configure_and_start_vpn_client(client_service, "client-" + str(i), ca_crt, client_key, client_crt, client_conf)
@@ -129,26 +129,26 @@ class VPNManager:
         Helper method that configures server service with given configuration and starts the service
         """
         print "configuring vpn server " + name + " ..."
-        self.__server_service.set_dh(dh)
-        self.__server_service.set_ca_cert(ca_crt)
-        self.__server_service.set_server_key(server_key)
-        self.__server_service.set_server_cert(server_crt)
-        self.__server_service.set_config_file(server_conf)
+        self.__server_service.set_dh({"file":("dh2048.pem", dh)})
+        self.__server_service.set_ca_cert({"file":("ca.crt", ca_crt)})
+        self.__server_service.set_server_key({"file":("server.key", server_key)})
+        self.__server_service.set_server_cert({"file":("server.crt", server_crt)})
+        self.__server_service.set_config_file({"file":("server.conf", server_conf)})
 
-        self.__server_service.build_server()
+        self.__server_service.build_server({})
 
         print "starting vpn server " + name + " ..."
-        self.__server_service.start_server()
+        self.__server_service.start_server({})
 
     def __configure_and_start_vpn_client(self, client_service, name, ca_crt, client_key, client_crt, client_conf):
         """
         Helper method that configures given client service with given configuration and starts the service
         """
         print "configuring vpn client " + name + " ..."
-        client_service.set_ca_cert(ca_crt)
-        client_service.set_server_key(client_key)
-        client_service.set_server_cert(client_crt)
-        client_service.set_config_file(client_conf)
+        client_service.set_ca_cert({"file":("ca.crt", ca_crt)})
+        client_service.set_client_key({"file":("client.key", client_key)})
+        client_service.set_client_cert({"file":("client.crt", client_crt)})
+        client_service.set_config({"file":("client.conf", client_conf)})
 
         client_service.build_client()
         print "starting vpn client " + name + " ..."
