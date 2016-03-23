@@ -30,14 +30,14 @@ def set_ca_cert():
 
 
 @app.route("/vpn/client/cert/", methods=[POST])
-def set_server_cert():
+def set_client_cert():
     save_file(request.files['file'], "client.crt")
     app.config["config_files"]["client_cert_ready"] = True
     return "", 204
 
 
 @app.route("/vpn/client/key/", methods=[POST])
-def set_server_key():
+def set_client_key():
     save_file(request.files['file'], "client.key")
     app.config["config_files"]["client_key_ready"] = True
     return "", 204
@@ -55,7 +55,7 @@ def build_client():
 
 
 @app.route("/vpn/client/start/", methods=[POST])
-def start_server():
+def start_client():
     if app.config["service_built"]:
         subprocess.Popen(
             shlex.split("docker run -t --net=host  --privileged -v /dev/net/:/dev/net/ --name client-vpn -d client-vpn"))
@@ -65,7 +65,7 @@ def start_server():
 
 
 @app.route("/vpn/server/stop/", methods=[POST])
-def stop_server():
+def stop_client():
     if app.config["service_running"]:
         subprocess.Popen(shlex.split("docker kill client-vpn"))
         subprocess.Popen(shlex.split("docker rm client-vpn"))
