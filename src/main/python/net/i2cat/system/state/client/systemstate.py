@@ -40,7 +40,9 @@ class SystemStateClient:
             self.__publisher.start()
 
             self.subscribe_all()
-            self.advertise()
+            #TODO Check wether advertise is needed whne the system state starts or not
+            #TODO Since at this moment there is no check of the CNSMO Container APP it may not be needed
+            #self.advertise()
             self.__listener.start()
 
     def subscribe_all(self):

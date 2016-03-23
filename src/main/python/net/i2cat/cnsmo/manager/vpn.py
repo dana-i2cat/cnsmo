@@ -30,7 +30,7 @@ class VPNManager:
 
     def __configure_system_state(self):
         self.__system_state_manager = SystemStateFactory.generate_system_state_client(self.__bind_address, "myVpn", "VPNManager",
-                                                                                      self.__status, ["Server", "Client", "CredentialManager"],
+                                                                                      self.__status, ["VPNServer", "VPNClient", "VPNConfigManager"],
                                                                                       self.register_service)
 
     def start(self):
@@ -38,7 +38,6 @@ class VPNManager:
         self.__system_state_manager.start()
 
     def deploy(self):
-        print self.__status
         if self.__status == "ready":
             self.__deploy_vpn()
         else:
@@ -61,16 +60,12 @@ class VPNManager:
             self.__client_services.add(client_service)
 
         elif service.get_service_type() == "VPNServer":
-            print "Making Server Service..."
             server_service = ServiceMaker().make_service("Server", self.__system_state_manager.load(service.get_service_id()).get_endpoints())
             self.__server_service = server_service
-            print self.__server_service.__dict__
 
         elif service.get_service_type() == "VPNConfigManager":
-            print "Making Credential Manager..."
             cred_service = ServiceMaker().make_service("CredentialManager", self.__system_state_manager.load(service.get_service_id()).get_endpoints())
             self.__configuration_manager = cred_service
-            print self.__configuration_manager.__dict__
         else:
             return
 
@@ -78,7 +73,7 @@ class VPNManager:
 
     def __update_state(self):
 
-        self.__client_services = True
+        #self.__client_services = True
         if self.__server_service and self.__client_services and self.__configuration_manager:
             self.__status = "ready"
             [ t.start() for t in self.__thread_pool]

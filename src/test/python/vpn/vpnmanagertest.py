@@ -5,11 +5,28 @@ import threading
 import time
 
 
+
+configurator_path = os.path.dirname(os.path.abspath(__file__))
+src_dir = configurator_path + "/../../../../"
+if not src_dir in sys.path:
+    sys.path.append(src_dir)
+
+from src.main.python.net.i2cat.cnsmo.deployment.bash import BashDeployer
+from src.main.python.net.i2cat.cnsmo.manager.cnsmo import CNSMOManager
+from src.main.python.net.i2cat.cnsmo.manager.vpn import VPNManager
+from main.python.net.i2cat.factory.system.state.factory import SystemStateFactory
+
+
 class ConfiguratorServiceTest(unittest.TestCase):
 
     def setUp(self):
         redis_address = "localhost:6379"
         bash_deployer = BashDeployer(None)
+
+        system_state = SystemStateFactory.generate_system_state_manager("localhost:6379")
+        system_state_t = threading.Thread(target=system_state.start)
+        system_state_t.start()
+        time.sleep(1)
 
         # Configuring each service in a different Thread to make things feel real
         self.configurator_t = threading.Thread(target=self.deploy_service, args=
@@ -27,6 +44,9 @@ class ConfiguratorServiceTest(unittest.TestCase):
         self.vpn_manager = VPNManager(redis_address)
         self.vpn_manager_t = threading.Thread(target=self.vpn_manager.start)
 
+
+        self.vpn_manager.start()
+        time.sleep(5)
         self.configurator_t.start()
         time.sleep(1)
         self.server_t.start()
@@ -34,33 +54,109 @@ class ConfiguratorServiceTest(unittest.TestCase):
         self.client1_t.start()
         time.sleep(1)
         self.client2_t.start()
-        time.sleep(1)
-        # self.vpn_manager_t.start()
-        self.vpn_manager.start()
-        time.sleep(1)
+        time.sleep(3)
 
     def test_vpn_manager_should_register_all_services(self):
-        time.sleep(10)
+
+        print "VPNMANAGER:", self.vpn_manager.__dict__
+        time.sleep(2)
         self.assertTrue(self.vpn_manager._VPNManager__server_service)
         self.assertTrue(self.vpn_manager._VPNManager__configuration_manager)
         self.assertTrue(self.vpn_manager._VPNManager__client_services)
         self.assertEquals(2, len(self.vpn_manager._VPNManager__client_services))
-
-    def test_vpn_manager_gets_ready_to_deploy(self):
-        time.sleep(10)
+        print "ALL Service are created"
+        print "Checking the VPN Internal State..."
         self.assertEquals("ready", self.vpn_manager._VPNManager__status)
 
-    # def test_vpn_manager_should_run_deployment_without_error(self):
-    #     self.vpn_manager.deploy()
+        configurator = self.vpn_manager._VPNManager__configuration_manager
+        client_1, client_2 = self.vpn_manager._VPNManager__client_services
+        server = self.vpn_manager._VPNManager__server_service
 
-    # def test_after_deployment_server_has_his_files(self):
-    #     pass
+        print "Testing Configurator"
+        print configurator.__dict__
+        print configurator.generate_ca_cert(None)
+        print configurator.generate_server_cert(None)
 
-    # def test_after_deployment_clients_have_their_files(self):
-    #     pass
+        dh = configurator.get_dh(None).content
+        ca = configurator.get_ca_cert(None).content
+        server_cert =  configurator.get_server_cert(None).content
+        server_key = configurator.get_server_key(None).content
+        config = configurator.get_server_config(None).content
+
+        self.assertEquals("GotDH", dh)
+        self.assertEquals("GotCACert", ca)
+        self.assertEquals("GotServerKey", server_key)
+        self.assertEquals("GotServerCert", server_cert)
+        self.assertEquals("GotServerConfig", config)
+
+        print "Starting Server Test"
+        print dh
+
+        dh_added = server.set_dh({"file":("test", dh)})
+
+        ca_added = server.set_ca_cert({"file":("test", ca)})
+        server_cert_added = server.set_server_cert({"file":("test", server_cert)})
+        server_key_added = server.set_server_key({"file":("test", server_key)})
+        server_config_added = server.set_config_file({"file":("test", config)})
+
+        print dh_added.content
+        print ca_added.content
+        print server_cert_added.content
+        print server_key_added.content
+        print server_config_added.content
+
+        self.assertTrue(os.path.exists("/home/CNSMO/ENVS/VPNServerService-234/ca.crt"))
+        self.assertTrue(os.path.exists("/home/CNSMO/ENVS/VPNServerService-234/dh2048.pem"))
+        self.assertTrue(os.path.exists("/home/CNSMO/ENVS/VPNServerService-234/server.key"))
+        self.assertTrue(os.path.exists("/home/CNSMO/ENVS/VPNServerService-234/server.conf"))
+        self.assertTrue(os.path.exists("/home/CNSMO/ENVS/VPNServerService-234/server.crt"))
+        self.assertTrue(os.path.exists("/home/CNSMO/ENVS/VPNServerService-234/server.py"))
+
+        print "Testing Client 1"
+
+        client_config_generated = configurator.generate_client_cert(None)
+        client_cert_generated = configurator.generate_client_cert(None)
+
+        client_cert = configurator.get_client_cert(None).content
+        client_key = configurator.get_client_key(None).content
+        client_config = configurator.get_client_config(None).content
+
+        client_1.set_ca_cert({"file":("test", ca)})
+        client_1.set_config({"file":("test", client_config)})
+        client_1.set_client_cert({"file":("test", client_cert)})
+        client_1.set_client_key({"file":("test", client_key)})
+
+        self.assertTrue(os.path.exists("/home/CNSMO/ENVS/ClientVPN-1-234/ca.crt"))
+        self.assertTrue(os.path.exists("/home/CNSMO/ENVS/ClientVPN-1-234/client.key"))
+        self.assertTrue(os.path.exists("/home/CNSMO/ENVS/ClientVPN-1-234/client.conf"))
+        self.assertTrue(os.path.exists("/home/CNSMO/ENVS/ClientVPN-1-234/client.crt"))
+        self.assertTrue(os.path.exists("/home/CNSMO/ENVS/ClientVPN-1-234/client.py"))
+
+
+        print "Testing Client 2"
+
+        client_config_generated = configurator.generate_client_cert(None)
+        client_cert_generated = configurator.generate_client_cert(None)
+
+        client_cert = configurator.get_client_cert(None).content
+        client_key = configurator.get_client_key(None).content
+        client_config = configurator.get_client_config(None).content
+
+        client_2.set_ca_cert({"file":("test", ca)})
+        client_2.set_config({"file":("test", client_config)})
+        client_2.set_client_cert({"file":("test", client_cert)})
+        client_2.set_client_key({"file":("test", client_key)})
+
+        self.assertTrue(os.path.exists("/home/CNSMO/ENVS/ClientVPN-2-234/ca.crt"))
+        self.assertTrue(os.path.exists("/home/CNSMO/ENVS/ClientVPN-2-234/client.key"))
+        self.assertTrue(os.path.exists("/home/CNSMO/ENVS/ClientVPN-2-234/client.conf"))
+        self.assertTrue(os.path.exists("/home/CNSMO/ENVS/ClientVPN-2-234/client.crt"))
+        self.assertTrue(os.path.exists("/home/CNSMO/ENVS/ClientVPN-2-234/client.py"))
+
+        print "Test Done!"
+
 
     def deploy_service(self, redis_address, service_name, service_type, deployer, request):
-
         service_manager = CNSMOManager(redis_address, service_name, service_type, deployer, None)
         service_manager.start()
         service_manager.compose_service(**request)
@@ -93,7 +189,7 @@ class ConfiguratorServiceTest(unittest.TestCase):
                  dependencies=[],
 
                  endpoints=[{"uri":"http://127.0.0.1:9092/vpn/client/config/", "driver":"REST", "logic":"upload", "name":"set_config"},
-                            {"uri":"http://127.0.0.1:9092/vpn/client/cert/ca/", "driver":"REST", "logic":"upload", "name":"set_ca"},
+                            {"uri":"http://127.0.0.1:9092/vpn/client/cert/ca/", "driver":"REST", "logic":"upload", "name":"set_ca_cert"},
                             {"uri":"http://127.0.0.1:9092/vpn/client/cert/", "driver":"REST", "logic":"upload", "name":"set_client_cert"},
                             {"uri":"http://127.0.0.1:9092/vpn/client/key/",  "driver":"REST", "logic":"upload", "name":"set_client_key"},
                             {"uri":"http://127.0.0.1:9092/vpn/client/build/", "driver":"REST", "logic":"post", "name":"build_client"},
@@ -110,7 +206,7 @@ class ConfiguratorServiceTest(unittest.TestCase):
                  dependencies=[],
 
                  endpoints=[{"uri":"http://127.0.0.1:9091/vpn/client/config/", "driver":"REST", "logic":"upload", "name":"set_config"},
-                            {"uri":"http://127.0.0.1:9091/vpn/client/cert/ca/", "driver":"REST", "logic":"upload", "name":"set_ca"},
+                            {"uri":"http://127.0.0.1:9091/vpn/client/cert/ca/", "driver":"REST", "logic":"upload", "name":"set_ca_cert"},
                             {"uri":"http://127.0.0.1:9091/vpn/client/cert/", "driver":"REST", "logic":"upload", "name":"set_client_cert"},
                             {"uri":"http://127.0.0.1:9091/vpn/client/key/",  "driver":"REST", "logic":"upload", "name":"set_client_key"},
                             {"uri":"http://127.0.0.1:9091/vpn/client/build/", "driver":"REST", "logic":"post", "name":"build_client"},
