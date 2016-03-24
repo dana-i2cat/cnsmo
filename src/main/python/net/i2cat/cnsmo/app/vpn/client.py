@@ -58,7 +58,7 @@ def build_client():
 def start_client():
     if app.config["service_built"]:
         subprocess.Popen(
-            shlex.split("docker run --net=host  --privileged -v /dev/net/:/dev/net/ --name client-vpn -d client-vpn"))
+            shlex.split("docker run --net=host --privileged -v /dev/net/:/dev/net/ --name client-vpn -d client-vpn"))
         app.config["service_running"] = True
         return "", 204
     return "", 409
