@@ -9,7 +9,11 @@ def main(redis_address):
         if vpn_manager.get_status() == "ready":
             vpn_manager.deploy()
             break
-        time.sleep(0.5)
+        time.sleep(1)
+        print vpn_manager.get_status()
+        print "====================================================="
+        print vpn_manager.__dict__
+        print "====================================================="
 
 
 if __name__ == "__main__":
