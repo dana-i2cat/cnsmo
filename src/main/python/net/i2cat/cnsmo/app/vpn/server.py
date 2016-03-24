@@ -73,7 +73,7 @@ def build_server():
         result = reduce(lambda x, y: x and y, app.config["config_files"].values())
         if result:
             log.debug("building docker...")
-            subprocess.Popen(shlex.split("docker build -t vpn-server ."))
+            subprocess.check_call(shlex.split("docker build -t vpn-server ."))
             log.debug("docker build")
             app.config["service_built"] = True
             return "", 204
@@ -88,7 +88,7 @@ def start_server():
     try:
         if app.config["service_built"]:
             log.debug("running docker...")
-            output = subprocess.check_output(shlex.split(
+            output = subprocess.check_call(shlex.split(
                 "docker run --net=host  --privileged -v /dev/net/:/dev/net/ --name server-vpn -d vpn-server"))
 
             log.debug("docker run. output: " + output)
@@ -103,8 +103,8 @@ def start_server():
 def stop_server():
     try:
         if app.config["service_running"]:
-            subprocess.Popen(shlex.split("docker kill server-vpn"))
-            subprocess.Popen(shlex.split("docker rm -f server-vpn"))
+            subprocess.check_call(shlex.split("docker kill server-vpn"))
+            subprocess.check_call(shlex.split("docker rm -f server-vpn"))
             app.config["service_running"] = False
             return "", 204
         return "Service is not yet running",  409

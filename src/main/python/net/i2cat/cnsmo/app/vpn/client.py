@@ -47,7 +47,7 @@ def set_client_key():
 def build_client():
     result = reduce(lambda x, y: x and y, app.config["config_files"].values())
     if result:
-        subprocess.Popen(shlex.split("docker build -t client-vpn ."))
+        subprocess.check_call(shlex.split("docker build -t client-vpn ."))
         app.config["service_built"] = True
         return "", 204
     else:
@@ -57,8 +57,8 @@ def build_client():
 @app.route("/vpn/client/start/", methods=[POST])
 def start_client():
     if app.config["service_built"]:
-        subprocess.Popen(
-            shlex.split("docker run --net=host --privileged -v /dev/net/:/dev/net/ --name client-vpn -d client-vpn"))
+        subprocess.check_call(
+            shlex.split("docker run --net=host  --privileged -v /dev/net/:/dev/net/ --name client-vpn -d client-vpn"))
         app.config["service_running"] = True
         return "", 204
     return "", 409
@@ -67,8 +67,8 @@ def start_client():
 @app.route("/vpn/server/stop/", methods=[POST])
 def stop_client():
     if app.config["service_running"]:
-        subprocess.Popen(shlex.split("docker kill client-vpn"))
-        subprocess.Popen(shlex.split("docker rm client-vpn"))
+        subprocess.check_call(shlex.split("docker kill client-vpn"))
+        subprocess.check_call(shlex.split("docker rm client-vpn"))
         return "",204
     return "",409
 
