@@ -119,7 +119,7 @@ class VPNConfigManager:
 
     def generate_ca_and_dh(self):
         command = "sh %s../gen_ca.sh" % self.key_dir
-        subprocess.check_call(shlex.split(command), shell=True)
+        subprocess.check_call(shlex.split(command), shell=False)
 
     def generate_client_certs(self):
         command = "sh %s../gen_client.sh" % self.key_dir
