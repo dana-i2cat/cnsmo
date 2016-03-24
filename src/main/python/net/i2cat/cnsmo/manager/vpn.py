@@ -46,6 +46,9 @@ class VPNManager:
             except:
                 pass
 
+    def get_status(self):
+        return self.__status
+
     def register_service(self, service):
         """
         Meant to be registered by the systemState, This manger expects 3 services (only 2 for the PoC)
