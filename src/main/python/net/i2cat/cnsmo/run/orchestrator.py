@@ -24,7 +24,7 @@ if __name__ == "__main__":
     if not src_dir in sys.path:
        sys.path.append(src_dir)
 
-    from main.python.net.i2cat.cnsmo.manager.vpn import VPNManager
+    from src.main.python.net.i2cat.cnsmo.manager.vpn import VPNManager
 
     opts, _ = getopt.getopt(sys.argv[1:], "r:", [])
     redis_address = "127.0.0.1:6379"

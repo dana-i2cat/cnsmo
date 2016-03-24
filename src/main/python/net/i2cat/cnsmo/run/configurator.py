@@ -33,7 +33,7 @@ def get_app_request(host, port, service_id, vpn_server_address, vpn_server_port,
 def main(host, port, redis_address, service_id, vpn_server_address, vpn_server_port, vpn_address, vpn_port):
 
     bash_deployer = BashDeployer(None)
-    configurer = CNSMOManager(redis_address, service_id, "CredentialManager", bash_deployer, None)
+    configurer = CNSMOManager(redis_address, service_id, "VPNConfigManager", bash_deployer, None)
     configurer.start()
     configurer.compose_service(**get_app_request(host, port,service_id, vpn_server_address, vpn_server_port, vpn_address))
     configurer.launch_service(service_id)
@@ -57,7 +57,7 @@ if __name__ == "__main__":
     host = "0.0.0.0"
     port = "9093"
     redis_address = "127.0.0.1:6379"
-    service_id = "ClientVPN"
+    service_id = "VPNConfig"
     vpn_server_ip = "1.1.1.1"
     vpn_server_port = "1194"
     vpn_address = "10.10.10.0"
