@@ -196,7 +196,7 @@ verb 3
 
 VPN_CLIENT_CONFIG_TEMPLATE = """
 client
-dev tun
+dev tap
 proto udp
 remote {{ server_ip }} {{ port }}
 resolv-retry infinite

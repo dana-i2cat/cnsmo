@@ -153,6 +153,6 @@ class VPNManager:
         client_service.set_client_cert({"file":("client.crt", client_crt)})
         client_service.set_config({"file":("client.conf", client_conf)})
 
-        client_service.build_client()
+        client_service.build_client({})
         print "starting vpn client " + name + " ..."
-        client_service.start_server()
+        client_service.start_client({})
