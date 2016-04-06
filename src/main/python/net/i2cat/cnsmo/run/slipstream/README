@@ -1,0 +1,17 @@
+This directory contains the set of scripts SlipStream runs to deploy the VPN.
+
+SlipStream defines the following phases which are run in this order in each VM:
+pre-install, install, post-install, deployment and reporting.
+
+In the install phase, the following packages must be installed in both client and server VMs:
+curl
+cython
+git
+python-pip
+
+About the scripts:
+vpn-client-postinstall.sh is meant to run in the VPN-client VM at post-install phase.
+vpn-client-deployment.py is meant to run in the VPN-client VM at deployment phase, after post-install.
+vpn-server-postinstall.sh is meant to run in the VPN-server VM at post-install phase.
+vpn-server-deployment.py is meant to run in the VPN-server VM at deployment phase, after post-install.
+
