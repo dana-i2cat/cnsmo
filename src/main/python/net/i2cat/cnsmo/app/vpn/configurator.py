@@ -22,10 +22,10 @@ def generate_server_cert():
     return "", 204
 
 
-@app.route("/vpn/configs/certs/client/", methods=[POST])
-def generate_client_cert():
+@app.route("/vpn/configs/certs/client/<client_id>", methods=[POST])
+def generate_client_cert(client_id):
     manager = app.config["manager"]
-    manager.generate_client_certs()
+    manager.generate_client_certs(client_id)
     return "", 204
 
 
@@ -54,8 +54,8 @@ def get_server_config():
     return response
 
 
-@app.route("/vpn/configs/client/", methods=[GET])
-def get_client_config():
+@app.route("/vpn/configs/client/<client_id>", methods=[GET])
+def get_client_config(client_id):
     manager = app.config["manager"]
     raw_config = manager.get_client_config()
     response = make_response(raw_config)
@@ -72,19 +72,19 @@ def get_ca_cert():
     return response
 
 
-@app.route("/vpn/configs/certs/client/", methods=[GET])
-def get_client_cert():
+@app.route("/vpn/configs/certs/client/<client_id>", methods=[GET])
+def get_client_cert(client_id):
     manager = app.config["manager"]
-    raw_config = manager.get_client_cert()
+    raw_config = manager.get_client_cert(client_id)
     response = make_response(raw_config)
     response.headers["Content-Disposition"] = "attachment; filename=client.crt"
     return response
 
 
-@app.route("/vpn/configs/keys/client/", methods=[GET])
-def get_client_key():
+@app.route("/vpn/configs/keys/client/<client_id>", methods=[GET])
+def get_client_key(client_id):
     manager = app.config["manager"]
-    raw_config = manager.get_client_key()
+    raw_config = manager.get_client_key(client_id)
     response = make_response(raw_config)
     response.headers["Content-Disposition"] = "attachment; filename=client.key"
     return response
@@ -121,22 +121,22 @@ class VPNConfigManager:
         command = "sh %s../gen_ca.sh" % self.key_dir
         subprocess.check_call(shlex.split(command), shell=False)
 
-    def generate_client_certs(self):
-        command = "sh %s../gen_client.sh" % self.key_dir
+    def generate_client_certs(self, client_id):
+        command = "sh %s../gen_client.sh -u %s" % (self.key_dir, client_id)
         subprocess.check_call(shlex.split(command))
 
     def generate_server_certs(self):
         command = "sh %s../gen_server.sh" % self.key_dir
         subprocess.check_call(shlex.split(command))
 
-    def get_client_cert(self):
-        f = open(self.key_dir + "client.crt")
+    def get_client_cert(self, client_id):
+        f = open(self.key_dir + "%s.crt" % client_id)
         content = f.read()
         f.close()
         return content
 
-    def get_client_key(self):
-        f = open(self.key_dir + "client.key")
+    def get_client_key(self, client_id):
+        f = open(self.key_dir + "%s.key" % client_id)
         content = f.read()
         f.close()
         return content
