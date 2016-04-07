@@ -14,7 +14,7 @@ if not src_dir in sys.path:
 from src.main.python.net.i2cat.cnsmo.deployment.bash import BashDeployer
 from src.main.python.net.i2cat.cnsmo.manager.cnsmo import CNSMOManager
 from src.main.python.net.i2cat.cnsmo.manager.vpn import VPNManager
-from main.python.net.i2cat.factory.system.state.factory import SystemStateFactory
+from src.main.python.net.i2cat.factory.system.state.factory import SystemStateFactory
 
 
 class ConfiguratorServiceTest(unittest.TestCase):
@@ -113,13 +113,17 @@ class ConfiguratorServiceTest(unittest.TestCase):
         self.assertTrue(os.path.exists("/home/CNSMO/ENVS/VPNServerService-234/server.py"))
 
         print "Testing Client 1"
+        client_id = "Client-1"
+        client_config_generated = configurator.generate_client_cert(client_id, None).content
+        self.assertEquals("ClientCert " + client_id, client_config_generated)
 
-        client_config_generated = configurator.generate_client_cert(None)
-        client_cert_generated = configurator.generate_client_cert(None)
+        client_cert = configurator.get_client_cert(client_id).content
+        client_key = configurator.get_client_key(client_id).content
+        client_config = configurator.get_client_config(client_id).content
 
-        client_cert = configurator.get_client_cert(None).content
-        client_key = configurator.get_client_key(None).content
-        client_config = configurator.get_client_config(None).content
+        self.assertEquals("GotClientKey " + client_id, client_key)
+        self.assertEquals("GotClientCert " + client_id, client_cert)
+        self.assertEquals("GotClientConfig " + client_id, client_config)
 
         client_1.set_ca_cert({"file":("test", ca)})
         client_1.set_config({"file":("test", client_config)})
@@ -134,13 +138,17 @@ class ConfiguratorServiceTest(unittest.TestCase):
 
 
         print "Testing Client 2"
+        client_id = "Client-2"
+        client_config_generated = configurator.generate_client_cert(client_id, None).content
+        self.assertEquals("ClientCert " + client_id, client_config_generated)
 
-        client_config_generated = configurator.generate_client_cert(None)
-        client_cert_generated = configurator.generate_client_cert(None)
+        client_cert = configurator.get_client_cert(client_id).content
+        client_key = configurator.get_client_key(client_id).content
+        client_config = configurator.get_client_config(client_id).content
 
-        client_cert = configurator.get_client_cert(None).content
-        client_key = configurator.get_client_key(None).content
-        client_config = configurator.get_client_config(None).content
+        self.assertEquals("GotClientKey " + client_id, client_key)
+        self.assertEquals("GotClientCert " + client_id, client_cert)
+        self.assertEquals("GotClientConfig " + client_id, client_config)
 
         client_2.set_ca_cert({"file":("test", ca)})
         client_2.set_config({"file":("test", client_config)})
@@ -222,14 +230,14 @@ class ConfiguratorServiceTest(unittest.TestCase):
                  dependencies=[],
                  endpoints=[{"uri":"http://127.0.0.1:9093/vpn/configs/dh/", "driver":"REST", "logic":"get", "name":"get_dh"},
                             {"uri":"http://127.0.0.1:9093/vpn/configs/server/", "driver":"REST", "logic":"get", "name":"get_server_config"},
-                            {"uri":"http://127.0.0.1:9093/vpn/configs/client/", "driver":"REST", "logic":"get", "name":"get_client_config"},
+                            {"uri":"http://127.0.0.1:9093/vpn/configs/client/{param}/", "driver":"REST", "logic":"get", "name":"get_client_config"},
                             {"uri":"http://127.0.0.1:9093/vpn/configs/certs/ca/", "driver":"REST", "logic":"get", "name":"get_ca_cert"},
-                            {"uri":"http://127.0.0.1:9093/vpn/configs/certs/client/", "driver":"REST", "logic":"get", "name":"get_client_cert"},
-                            {"uri":"http://127.0.0.1:9093/vpn/configs/keys/client/", "driver":"REST", "logic":"get", "name":"get_client_key"},
+                            {"uri":"http://127.0.0.1:9093/vpn/configs/certs/client/{param}/", "driver":"REST", "logic":"get", "name":"get_client_cert"},
+                            {"uri":"http://127.0.0.1:9093/vpn/configs/keys/client/{param}/", "driver":"REST", "logic":"get", "name":"get_client_key"},
                             {"uri":"http://127.0.0.1:9093/vpn/configs/certs/server/", "driver":"REST", "logic":"get", "name":"get_server_cert"},
                             {"uri":"http://127.0.0.1:9093/vpn/configs/keys/server/", "driver":"REST", "logic":"get", "name":"get_server_key"},
                             {"uri":"http://127.0.0.1:9093/vpn/configs/certs/ca/", "driver":"REST", "logic":"post", "name":"generate_ca_cert"},
-                            {"uri":"http://127.0.0.1:9093/vpn/configs/certs/client/", "driver":"REST", "logic":"post", "name":"generate_client_cert"},
+                            {"uri":"http://127.0.0.1:9093/vpn/configs/certs/client/{param}/", "driver":"REST", "logic":"post", "name":"generate_client_cert"},
                             {"uri":"http://127.0.0.1:9093/vpn/configs/certs/server/", "driver":"REST", "logic":"post", "name":"generate_server_cert"},])
         return d
 

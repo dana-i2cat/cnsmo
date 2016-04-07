@@ -115,14 +115,16 @@ class VPNManager:
         # Generate client config, get it and configure the client service
         i = 0
         for client_service in self.__client_services:
-            print "generating vpn client configuration..."
-            self.__configuration_manager.generate_client_cert(None)
-            client_key = self.__configuration_manager.get_client_key(None).content
-            client_crt = self.__configuration_manager.get_client_cert(None).content
-            client_conf = self.__configuration_manager.get_client_config(None).content
-
             # TODO find a proper name for each client
-            self.__configure_and_start_vpn_client(client_service, "client-" + str(i), ca_crt, client_key, client_crt, client_conf)
+            client_id = "client-" + str(i)
+
+            print "generating vpn client configuration..."
+            self.__configuration_manager.generate_client_cert(client_id, None)
+            client_key = self.__configuration_manager.get_client_key(client_id).content
+            client_crt = self.__configuration_manager.get_client_cert(client_id).content
+            client_conf = self.__configuration_manager.get_client_config(client_id).content
+
+            self.__configure_and_start_vpn_client(client_service, client_id, ca_crt, client_key, client_crt, client_conf)
             i += 1
 
         print "VPN deployed."
