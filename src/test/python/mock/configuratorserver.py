@@ -15,9 +15,9 @@ def generate_server_cert():
     return "ServerCert", 200
 
 
-@app.route("/vpn/configs/certs/client/", methods=[POST])
-def generate_client_cert():
-    return "ClientCert", 200
+@app.route("/vpn/configs/certs/client/<client_id>/", methods=[POST])
+def generate_client_cert(client_id):
+    return "ClientCert " + client_id, 200
 
 
 @app.route("/vpn/configs/certs/ca/", methods=[POST])
@@ -35,9 +35,9 @@ def get_server_config():
     return "GotServerConfig", 200
 
 
-@app.route("/vpn/configs/client/", methods=[GET])
-def get_client_config():
-    return "GotClientConfig", 200
+@app.route("/vpn/configs/client/<client_id>/", methods=[GET])
+def get_client_config(client_id):
+    return "GotClientConfig " + client_id, 200
 
 
 @app.route("/vpn/configs/certs/ca/", methods=[GET])
@@ -45,14 +45,14 @@ def get_ca_cert():
     return "GotCACert", 200
 
 
-@app.route("/vpn/configs/certs/client/", methods=[GET])
-def get_client_cert():
-    return "GotClientCert", 200
+@app.route("/vpn/configs/certs/client/<client_id>/", methods=[GET])
+def get_client_cert(client_id):
+    return "GotClientCert " + client_id, 200
 
 
-@app.route("/vpn/configs/keys/client/", methods=[GET])
-def get_client_key():
-    return "GotClientKey", 200
+@app.route("/vpn/configs/keys/client/<client_id>/", methods=[GET])
+def get_client_key(client_id):
+    return "GotClientKey " + client_id, 200
 
 
 @app.route("/vpn/configs/certs/server/", methods=[GET])
