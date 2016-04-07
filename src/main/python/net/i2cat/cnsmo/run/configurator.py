@@ -19,14 +19,14 @@ def get_app_request(host, port, service_id, vpn_server_address, vpn_server_port,
              dependencies=[],
              endpoints=[{"uri":"http://%s:%s/vpn/configs/dh/" %(host, port), "driver":"REST", "logic":"get", "name":"get_dh"},
                         {"uri":"http://%s:%s/vpn/configs/server/" %(host, port), "driver":"REST", "logic":"get", "name":"get_server_config"},
-                        {"uri":"http://%s:%s/vpn/configs/client/{param}" %(host, port), "driver":"REST", "logic":"get", "name":"get_client_config"},
+                        {"uri":"http://%s:%s/vpn/configs/client/{param}/" %(host, port), "driver":"REST", "logic":"get", "name":"get_client_config"},
                         {"uri":"http://%s:%s/vpn/configs/certs/ca/" %(host, port), "driver":"REST", "logic":"get", "name":"get_ca_cert"},
-                        {"uri":"http://%s:%s/vpn/configs/certs/client/{param}" %(host, port), "driver":"REST", "logic":"get", "name":"get_client_cert"},
-                        {"uri":"http://%s:%s/vpn/configs/keys/client/{param}" %(host, port), "driver":"REST", "logic":"get", "name":"get_client_key"},
+                        {"uri":"http://%s:%s/vpn/configs/certs/client/{param}/" %(host, port), "driver":"REST", "logic":"get", "name":"get_client_cert"},
+                        {"uri":"http://%s:%s/vpn/configs/keys/client/{param}/" %(host, port), "driver":"REST", "logic":"get", "name":"get_client_key"},
                         {"uri":"http://%s:%s/vpn/configs/certs/server/" %(host, port), "driver":"REST", "logic":"get", "name":"get_server_cert"},
                         {"uri":"http://%s:%s/vpn/configs/keys/server/" %(host, port), "driver":"REST", "logic":"get", "name":"get_server_key"},
                         {"uri":"http://%s:%s/vpn/configs/certs/ca/" %(host, port), "driver":"REST", "logic":"post", "name":"generate_ca_cert"},
-                        {"uri":"http://%s:%s/vpn/configs/certs/client/{param}" %(host, port), "driver":"REST", "logic":"post", "name":"generate_client_cert"},
+                        {"uri":"http://%s:%s/vpn/configs/certs/client/{param}/" %(host, port), "driver":"REST", "logic":"post", "name":"generate_client_cert"},
                         {"uri":"http://%s:%s/vpn/configs/certs/server/" %(host, port), "driver":"REST", "logic":"post", "name":"generate_server_cert"},])
     return d
 

@@ -22,7 +22,7 @@ def generate_server_cert():
     return "", 204
 
 
-@app.route("/vpn/configs/certs/client/<client_id>", methods=[POST])
+@app.route("/vpn/configs/certs/client/<client_id>/", methods=[POST])
 def generate_client_cert(client_id):
     manager = app.config["manager"]
     manager.generate_client_certs(client_id)
@@ -54,7 +54,7 @@ def get_server_config():
     return response
 
 
-@app.route("/vpn/configs/client/<client_id>", methods=[GET])
+@app.route("/vpn/configs/client/<client_id>/", methods=[GET])
 def get_client_config(client_id):
     manager = app.config["manager"]
     raw_config = manager.get_client_config()
@@ -72,7 +72,7 @@ def get_ca_cert():
     return response
 
 
-@app.route("/vpn/configs/certs/client/<client_id>", methods=[GET])
+@app.route("/vpn/configs/certs/client/<client_id>/", methods=[GET])
 def get_client_cert(client_id):
     manager = app.config["manager"]
     raw_config = manager.get_client_cert(client_id)
@@ -81,7 +81,7 @@ def get_client_cert(client_id):
     return response
 
 
-@app.route("/vpn/configs/keys/client/<client_id>", methods=[GET])
+@app.route("/vpn/configs/keys/client/<client_id>/", methods=[GET])
 def get_client_key(client_id):
     manager = app.config["manager"]
     raw_config = manager.get_client_key(client_id)

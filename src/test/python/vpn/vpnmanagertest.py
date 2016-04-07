@@ -113,13 +113,13 @@ class ConfiguratorServiceTest(unittest.TestCase):
         self.assertTrue(os.path.exists("/home/CNSMO/ENVS/VPNServerService-234/server.py"))
 
         print "Testing Client 1"
-        client_id = "Client1"
+        client_id = "Client-1"
         client_config_generated = configurator.generate_client_cert(client_id, None).content
         self.assertEquals("ClientCert " + client_id, client_config_generated)
 
-        client_cert = configurator.get_client_cert(client_id, None).content
-        client_key = configurator.get_client_key(client_id, None).content
-        client_config = configurator.get_client_config(client_id, None).content
+        client_cert = configurator.get_client_cert(client_id).content
+        client_key = configurator.get_client_key(client_id).content
+        client_config = configurator.get_client_config(client_id).content
 
         self.assertEquals("GotClientKey " + client_id, client_key)
         self.assertEquals("GotClientCert " + client_id, client_cert)
@@ -138,13 +138,13 @@ class ConfiguratorServiceTest(unittest.TestCase):
 
 
         print "Testing Client 2"
-        client_id = "Client2"
+        client_id = "Client-2"
         client_config_generated = configurator.generate_client_cert(client_id, None).content
         self.assertEquals("ClientCert " + client_id, client_config_generated)
 
-        client_cert = configurator.get_client_cert(client_id, None).content
-        client_key = configurator.get_client_key(client_id, None).content
-        client_config = configurator.get_client_config(client_id, None).content
+        client_cert = configurator.get_client_cert(client_id).content
+        client_key = configurator.get_client_key(client_id).content
+        client_config = configurator.get_client_config(client_id).content
 
         self.assertEquals("GotClientKey " + client_id, client_key)
         self.assertEquals("GotClientCert " + client_id, client_cert)

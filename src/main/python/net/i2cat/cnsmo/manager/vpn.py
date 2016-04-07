@@ -119,10 +119,10 @@ class VPNManager:
             client_id = "client-" + str(i)
 
             print "generating vpn client configuration..."
-            self.__configuration_manager.generate_client_cert((client_id, None))
-            client_key = self.__configuration_manager.get_client_key((client_id, None)).content
-            client_crt = self.__configuration_manager.get_client_cert((client_id, None)).content
-            client_conf = self.__configuration_manager.get_client_config((client_id, None)).content
+            self.__configuration_manager.generate_client_cert(client_id, None)
+            client_key = self.__configuration_manager.get_client_key(client_id).content
+            client_crt = self.__configuration_manager.get_client_cert(client_id).content
+            client_conf = self.__configuration_manager.get_client_config(client_id).content
 
             self.__configure_and_start_vpn_client(client_service, client_id, ca_crt, client_key, client_crt, client_conf)
             i += 1
