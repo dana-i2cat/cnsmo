@@ -74,7 +74,7 @@ class ServiceMaker:
                 func = lambda *x : lib(url=clean_uri % x[:-1], files=x[-1])
 
             else:
-                func = lambda *x: lib(url=clean_uri % str(x))
+                func = lambda *x: lib(url=clean_uri % x)
 
         else:
             if logic == "post":
