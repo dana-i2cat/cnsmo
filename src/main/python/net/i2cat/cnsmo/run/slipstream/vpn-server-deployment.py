@@ -16,7 +16,7 @@ from slipstream.SlipStreamHttpClient import SlipStreamHttpClient
 from slipstream.ConfigHolder import ConfigHolder
 
 path = os.path.dirname(os.path.abspath(__file__))
-src_dir = path + "/cnsmo/cnsmo/"
+src_dir = path + "/../../../../../../../../"
 if not src_dir in sys.path:
     sys.path.append(src_dir)
 
