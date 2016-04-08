@@ -7,8 +7,8 @@ sudo usermod -aG docker ubuntu
 # download cnsmo
 mkdir cnsmo
 cd cnsmo
-git clone https://github.com/dana-i2cat/cnsmo.git
-git clone https://github.com/dana-i2cat/cnsmo-net-services.git
+git clone --single-branch https://github.com/dana-i2cat/cnsmo.git
+git clone --single-branch https://github.com/dana-i2cat/cnsmo-net-services.git
 cd ..
 
 # install cnsmo requirements
