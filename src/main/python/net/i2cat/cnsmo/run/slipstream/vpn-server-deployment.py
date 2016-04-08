@@ -35,7 +35,7 @@ def main():
     redis_address = "%s:%s" % (hostname, dss_port)
 
     date = call('date')
-    f = open("/home/CNSMO/vpn.log", "w+")
+    f = open("/tmp/cnsmo/vpn.log", "w+")
     f.write("Launching CNSMO at %s" % date)
     f.close()
 
@@ -56,7 +56,7 @@ def main():
     call('ss-display \"CNSMO is ready!\"')
 
     date = call('date')
-    f = open("/home/CNSMO/vpn.log", "w+")
+    f = open("/tmp/cnsmo/vpn.log", "w+")
     f.write("Deploying VPN at %s" % date)
     f.close()
     call('ss-display \"Deploying VPN components...\"')
@@ -116,7 +116,7 @@ def main():
     print "finished!"
 
     date = call('date')
-    f = open("/home/CNSMO/vpn.log", "w+")
+    f = open("/tmp/cnsmo/vpn.log", "w+")
     f.write("VPN deployed at %s" % date)
     f.close()
 
