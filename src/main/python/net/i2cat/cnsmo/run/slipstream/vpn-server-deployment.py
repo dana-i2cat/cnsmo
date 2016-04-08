@@ -37,7 +37,6 @@ def main():
     date = call('date')
     f = open("/tmp/cnsmo/vpn.log", "w+")
     f.write("Launching CNSMO at %s" % date)
-    f.close()
 
     # Launch REDIS
     tr = threading.Thread(target=launchRedis, args=(hostname, dss_port))
@@ -56,9 +55,7 @@ def main():
     call('ss-display \"CNSMO is ready!\"')
 
     date = call('date')
-    f = open("/tmp/cnsmo/vpn.log", "w+")
     f.write("Deploying VPN at %s" % date)
-    f.close()
     call('ss-display \"Deploying VPN components...\"')
 
     # Launch VPN orchestrator
@@ -112,13 +109,13 @@ def main():
 
     # Communicate that the VPN has been established
     call('ss-set net.i2cat.cnsmo.service.vpn.ready true')
-    call('ss-display \"VPN: VPN has been established!\"')
-    print "finished!"
 
     date = call('date')
-    f = open("/tmp/cnsmo/vpn.log", "w+")
     f.write("VPN deployed at %s" % date)
     f.close()
+
+    call('ss-display \"VPN: VPN has been established!\"')
+    print "VPN deployed!"
 
 
 def launchRedis(hostname, dss_port):
