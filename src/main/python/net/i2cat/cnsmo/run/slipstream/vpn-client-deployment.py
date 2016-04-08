@@ -24,6 +24,11 @@ def main():
     # TODO get this from slipstream context, by inspecting roles each component has
     server_instance_id = "VPN_server.1"
 
+    date = call('date')
+    f = open("/tmp/cnsmo/vpn.log", "w+")
+    f.write("Waiting for CNSMO at %s" % date)
+    f.close()
+
     call('ss-display \"Waiting for CNSMO...\"')
     call("ss-get --timeout=1800 %s:net.i2cat.cnsmo.core.ready" % server_instance_id)
 
@@ -31,10 +36,20 @@ def main():
 
     call('ss-display \"Deploying VPN components...\"')
 
+    date = call('date')
+    f = open("/tmp/cnsmo/vpn.log", "w+")
+    f.write("Waiting for VPN orchestrator at %s" % date)
+    f.close()
+
     call('ss-display \"VPN: Waiting for VPN orchestrator...\"')
     call("ss-get --timeout=1800 %s:net.i2cat.cnsmo.service.vpn.orchestrator.ready" % server_instance_id)
 
     hostname = call('ss-get hostname').rstrip('\n')
+
+    date = call('date')
+    f = open("/tmp/cnsmo/vpn.log", "w+")
+    f.write("launching VPN client at %s" % date)
+    f.close()
 
     tc = threading.Thread(target=launchVPNClient, args=(hostname, redis_address, instance_id))
     tc.start()
@@ -42,9 +57,18 @@ def main():
     time.sleep(1)
     call('ss-set net.i2cat.cnsmo.service.vpn.client.listening true')
 
+    date = call('date')
+    f = open("/tmp/cnsmo/vpn.log", "w+")
+    f.write("Waiting for VPN to be deployed at %s" % date)
+    f.close()
+
     call('ss-display \"VPN: Waiting for VPN to be established...\"')
     call("ss-get --timeout=1800 %s:net.i2cat.cnsmo.service.vpn.ready" % server_instance_id)
 
+    date = call('date')
+    f = open("/tmp/cnsmo/vpn.log", "w+")
+    f.write("VPN deployed at %s" % date)
+    f.close()
     call('ss-display \"VPN: VPN has been established!\"')
 
 
