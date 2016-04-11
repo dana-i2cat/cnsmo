@@ -1,20 +1,15 @@
 import os
 import sys
-import unittest
 import threading
 import time
-
-
+import unittest
 
 configurator_path = os.path.dirname(os.path.abspath(__file__))
 src_dir = configurator_path + "/../../../../"
 if not src_dir in sys.path:
     sys.path.append(src_dir)
 
-from src.main.python.net.i2cat.cnsmo.deployment.bash import BashDeployer
-from src.main.python.net.i2cat.cnsmo.manager.cnsmo import CNSMOManager
-from src.main.python.net.i2cat.cnsmo.manager.vpn import VPNManager
-from src.main.python.net.i2cat.factory.system.state.factory import SystemStateFactory
+from src.main.python.net.i2cat.cnsmo.factory.system.state.factory import SystemStateFactory
 
 
 class ConfiguratorServiceTest(unittest.TestCase):
@@ -250,6 +245,6 @@ if __name__ == "__main__":
 
     from src.main.python.net.i2cat.cnsmo.deployment.bash import BashDeployer
     from src.main.python.net.i2cat.cnsmo.manager.cnsmo import CNSMOManager
-    from src.main.python.net.i2cat.cnsmo.manager.vpn import VPNManager
+    from src.main.python.net.i2cat.cnsmoservices.vpn.manager.vpn import VPNManager
 
     unittest.main()

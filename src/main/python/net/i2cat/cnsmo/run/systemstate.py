@@ -20,12 +20,12 @@ if __name__ == "__main__":
             port = arg
 
     path = os.path.dirname(os.path.abspath(__file__))
-    src_dir = path + "/../../../../../../../"
+    src_dir = path + "/../../../../../../"
     print src_dir
     if not src_dir in sys.path:
-       sys.path.append(src_dir)
+        sys.path.append(src_dir)
 
-    from src.main.python.net.i2cat.factory.system.state.factory import SystemStateFactory
+    from src.main.python.net.i2cat.cnsmo.factory.system.state.factory import SystemStateFactory
 
     redis_address = host + ":" + port
     main(redis_address)
