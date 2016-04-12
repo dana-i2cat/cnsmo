@@ -16,7 +16,7 @@ from slipstream.ConfigHolder import ConfigHolder
 from slipstream.SlipStreamHttpClient import SlipStreamHttpClient
 
 path = os.path.dirname(os.path.abspath(__file__))
-src_dir = path + "/../../../../../../../../"
+src_dir = path + "/../../../../../../../../../"
 if not src_dir in sys.path:
     sys.path.append(src_dir)
 

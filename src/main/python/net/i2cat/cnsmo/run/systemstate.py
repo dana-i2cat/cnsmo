@@ -20,7 +20,7 @@ if __name__ == "__main__":
             port = arg
 
     path = os.path.dirname(os.path.abspath(__file__))
-    src_dir = path + "/../../../../../../"
+    src_dir = path + "/../../../../../../../"
     print src_dir
     if not src_dir in sys.path:
         sys.path.append(src_dir)
