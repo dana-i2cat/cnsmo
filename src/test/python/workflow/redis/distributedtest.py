@@ -1,6 +1,6 @@
-from main.python.net.i2cat.system.state.driver.redis.listener import RedisListener
-from src.main.python.net.i2cat.factory.system.state.factory import SystemStateFactory
-from src.main.python.net.i2cat.system.state.driver.redis.publisher import RedisPublisher
+from src.main.python.net.i2cat.cnsmo.system.state.driver.redis.listener import RedisListener
+from src.main.python.net.i2cat.cnsmo.factory.system.state.factory import SystemStateFactory
+from src.main.python.net.i2cat.cnsmo.system.state.driver.redis.publisher import RedisPublisher
 import time
 import threading
 import multiprocessing

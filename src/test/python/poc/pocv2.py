@@ -1,10 +1,12 @@
-from main.python.net.i2cat.lib.model.service import Service
-from src.main.python.net.i2cat.cnsmo.manager.vpn import VPNManager
-from src.main.python.net.i2cat.cnsmo.manager.cnsmo import CNSMOManager
-from src.main.python.net.i2cat.cnsmo.deployment.bash import BashDeployer
-from src.main.python.net.i2cat.factory.system.state.factory import SystemStateFactory
 import threading
 import time
+
+from src.main.python.net.i2cat.cnsmo.lib.model.service import Service
+
+from src.main.python.net.i2cat.cnsmo.deployment.bash import BashDeployer
+from src.main.python.net.i2cat.cnsmo.manager.cnsmo import CNSMOManager
+from src.main.python.net.i2cat.cnsmoservices.vpn.manager.vpn import VPNManager
+from src.main.python.net.i2cat.cnsmo.factory.system.state.factory import SystemStateFactory
 
 
 def get_server_app_request():

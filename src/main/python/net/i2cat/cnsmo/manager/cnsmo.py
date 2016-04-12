@@ -1,5 +1,5 @@
-from src.main.python.net.i2cat.lib.model.service import Service
-from src.main.python.net.i2cat.factory.system.state.factory import SystemStateFactory
+from src.main.python.net.i2cat.cnsmo.lib.model.service import Service
+from src.main.python.net.i2cat.cnsmo.factory.system.state.factory import SystemStateFactory
 
 
 class CNSMOManager:

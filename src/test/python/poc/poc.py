@@ -1,6 +1,6 @@
-from src.main.python.net.i2cat.cnsmo.manager.vpn import VPNManager
-from src.main.python.net.i2cat.cnsmo.manager.cnsmo import CNSMOManager
 from src.main.python.net.i2cat.cnsmo.deployment.bash import BashDeployer
+from src.main.python.net.i2cat.cnsmo.manager.cnsmo import CNSMOManager
+from src.main.python.net.i2cat.cnsmoservices.vpn.manager.vpn import VPNManager
 
 
 def get_server_app_request():
