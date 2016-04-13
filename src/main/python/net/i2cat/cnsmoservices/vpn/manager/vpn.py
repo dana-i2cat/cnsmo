@@ -1,4 +1,5 @@
 import threading
+import time
 
 from src.main.python.net.i2cat.cnsmo.service.maker import ServiceMaker
 from src.main.python.net.i2cat.cnsmo.factory.system.state.factory import SystemStateFactory
@@ -46,6 +47,14 @@ class VPNManager:
             except:
                 pass
 
+    def deploy_blocking(self)
+        while True:
+            if self.__status == "ready":
+                break
+            time.sleep(0.2)
+
+        self.__deploy_vpn()
+
     def get_status(self):
         return self.__status
 
@@ -76,7 +85,6 @@ class VPNManager:
 
     def __update_state(self):
 
-        #self.__client_services = True
         if self.__server_service and self.__client_services and self.__configuration_manager:
             self.__status = "ready"
             [ t.start() for t in self.__thread_pool]
