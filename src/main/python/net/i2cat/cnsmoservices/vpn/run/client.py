@@ -62,7 +62,7 @@ if __name__ == "__main__":
             port = arg
         elif opt == "-r":
             redis_address = arg
-        elif opt == "s":
+        elif opt == "-s":
             service_id = arg
 
     main(host, port, redis_address, service_id)
