@@ -113,7 +113,7 @@ def main():
 
     # Deploy VPN
     call('ss-display \"VPN: Deploying VPN...\"')
-    vpn_orchestrator.deploy()
+    vpn_orchestrator.deploy_blocking()
 
     # Communicate that the VPN has been established
     call('ss-set net.i2cat.cnsmo.service.vpn.ready true')

@@ -47,7 +47,7 @@ class VPNManager:
             except:
                 pass
 
-    def deploy_blocking(self)
+    def deploy_blocking(self):
         while True:
             if self.__status == "ready":
                 break
