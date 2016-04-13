@@ -2,7 +2,8 @@
 
 # install docker
 curl -fsSL https://get.docker.com/ | sh
-sudo usermod -aG docker ubuntu
+current_user=$(whoami)
+sudo usermod -aG docker ${current_user}
 
 # download cnsmo
 mkdir cnsmo
