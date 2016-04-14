@@ -1,7 +1,8 @@
-import unittest
 import threading
+import unittest
+
 from src.main.python.net.i2cat.cnsmo.service.maker import ServiceMaker
-from src.test.python.mock.configuratorserver import main
+from src.test.python.cnsmoservices.vpn.mock.configuratorserver import main
 
 t = threading.Thread(target=main, args=("127.0.0.1",9093))
 

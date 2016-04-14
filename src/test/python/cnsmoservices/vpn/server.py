@@ -38,7 +38,7 @@ def main():
 if __name__ == "__main__":
 
     server_path = os.path.dirname(os.path.abspath(__file__))
-    src_dir = server_path + "/../../../../"
+    src_dir = server_path + "/../../../../../"
     if src_dir not in sys.path:
         sys.path.append(src_dir)
 
