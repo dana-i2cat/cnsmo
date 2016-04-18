@@ -34,7 +34,7 @@ def build_server():
             return "Service already built", 409
 
         log.debug("building docker...")
-        subprocess.check_call(shlex.split("docker build -t vpn-server ."))
+        subprocess.check_call(shlex.split("docker build -t fw-docker ."))
         log.debug("docker built")
         app.config["service_built"] = True
         return "", 204
@@ -55,7 +55,7 @@ def add_rule():
         log.debug("running docker add...")
         output = subprocess.check_call(shlex.split(
             "docker run -t --rm --net=host --privileged fw-docker add {direction} {protocol} {dst_port} {ip_range} {action}".format(**rule)))
-        log.debug("docker run. output: " + output)
+        log.debug("docker run. output: " + str(output))
         return "", 204
     except Exception as e:
         return str(e), 500
@@ -75,7 +75,7 @@ def delete_rule():
         output = subprocess.check_call(shlex.split(
             "docker run -t --rm --net=host --privileged fw-docker del {direction} {protocol} {dst_port} {ip_range} {action}".format(
                 **rule)))
-        log.debug("docker run. output: " + output)
+        log.debug("docker run. output: " + str(output))
         return "", 204
 
     except Exception as e:
