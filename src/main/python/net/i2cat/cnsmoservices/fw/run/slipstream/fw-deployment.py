@@ -4,6 +4,13 @@
 # This script is meant to be run by SlipStream, using a privileged user
 #
 # All ss-get/ss-set applies to local node variables, unless a node instance_id is prefixed.
+#
+# Requires the following variables to be declared in the SlipStream component:
+# - net.i2cat.cnsmo.service.fw.server.listening: Output variable. Tells when the firewall is up and listening
+#
+# Uses the following SlipStream application run context variables:
+# - CNSMO_server.1:net.i2cat.cnsmo.dss.address: Address of the distributed system state
+# - CNSMO_server.1:net.i2cat.cnsmo.core.ready: Tells when CNSMO core is ready
 ###
 
 import subprocess

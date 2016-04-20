@@ -4,6 +4,10 @@
 # This script is meant to be run by SlipStream, using a privileged user
 #
 # All ss-get/ss-set applies to local node variables, unless a node instance_id is prefixed.
+#
+# Requires the following variables to be declared in the SlipStream component:
+# - net.i2cat.cnsmo.dss.address: Output variable. Address of the CNSMO distributed system state
+# - net.i2cat.cnsmo.core.ready: Output variable. Tells when CNSMO core is ready
 ###
 
 import os
