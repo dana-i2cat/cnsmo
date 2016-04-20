@@ -32,8 +32,8 @@ if __name__ == "__main__":
 
     path = os.path.dirname(os.path.abspath(__file__))
     src_dir = path + "/../../../../../../../../"
-    if not src_dir in sys.path:
-       sys.path.append(src_dir)
+    if src_dir not in sys.path:
+        sys.path.append(src_dir)
 
     opts, _ = getopt.getopt(sys.argv[1:], "a:p:r:s:", [])
 
