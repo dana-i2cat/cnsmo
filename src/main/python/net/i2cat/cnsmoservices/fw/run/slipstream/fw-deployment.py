@@ -6,13 +6,15 @@
 # All ss-get/ss-set applies to local node variables, unless a node instance_id is prefixed.
 #
 # Requires the following variables to be declared in the SlipStream component:
-# - net.i2cat.cnsmo.service.fw.server.listening: Output variable. Tells when the firewall is up and listening
+# - net.i2cat.cnsmo.service.fw.server.listening: Output variable. Tells when the firewall agent is up and listening
+# - net.i2cat.cnsmo.service.fw.ready: Output variable. Tells when the firewall service is ready to manage rules.
 #
 # Uses the following SlipStream application run context variables:
 # - CNSMO_server.1:net.i2cat.cnsmo.dss.address: Address of the distributed system state
 # - CNSMO_server.1:net.i2cat.cnsmo.core.ready: Tells when CNSMO core is ready
 ###
 
+import requests
 import subprocess
 import threading
 import time
@@ -52,6 +54,7 @@ def launch_fw(server_instance_id):
     call('ss-display \"Deploying FW components...\"')
 
     hostname = call('ss-get hostname').rstrip('\n')
+    port = "9095"
 
     date = call('date')
     f = None
@@ -62,11 +65,17 @@ def launch_fw(server_instance_id):
         if f:
             f.close()
 
-    tc = threading.Thread(target=launchFWServer, args=(hostname, redis_address, instance_id))
+    tc = threading.Thread(target=launchFWServer, args=(hostname, port, redis_address, instance_id))
     tc.start()
     # TODO implement proper way to detect when the server is ready (using systemstate?)
     time.sleep(1)
     call('ss-set net.i2cat.cnsmo.service.fw.server.listening true')
+
+    # build the FW
+    r = requests.post("http://%s:%s/fw/build/" % (hostname, port))
+    r.raise_for_status()
+
+    call('ss-set net.i2cat.cnsmo.service.fw.ready true')
 
     date = call('date')
     f = None
@@ -81,9 +90,9 @@ def launch_fw(server_instance_id):
     print "FW deployed!"
 
 
-def launchFWServer(hostname, redis_address, instance_id):
+def launchFWServer(hostname, port, redis_address, instance_id):
     call('ss-display \"FW: Launching FW server...\"')
-    call("python cnsmo/cnsmo/src/main/python/net/i2cat/cnsmoservices/fw/run/server.py -a %s -p 9095 -r %s -s FWServer-%s" % (hostname, redis_address, instance_id))
+    call("python cnsmo/cnsmo/src/main/python/net/i2cat/cnsmoservices/fw/run/server.py -a %s -p %s -r %s -s FWServer-%s" % (hostname, port, redis_address, instance_id))
 
 
 main()
