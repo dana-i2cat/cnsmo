@@ -6,6 +6,9 @@
 # All ss-get/ss-set applies to local node variables, unless a node instance_id is prefixed.
 #
 # Requires the following variables to be declared in the SlipStream component:
+# - net.i2cat.cnsmo.service.fw.rules: Input variable. Json list with FW rules in the format:
+# [{"direction":"in/out", "protocol":"tcp/udp/...", "dst_port":"[0,65535]", "ip_range":"cidr_notation", "action":"drop/acpt"},
+# {...}, {...}]
 # - net.i2cat.cnsmo.service.fw.server.listening: Output variable. Tells when the firewall agent is up and listening
 # - net.i2cat.cnsmo.service.fw.ready: Output variable. Tells when the firewall service is ready to manage rules.
 #
@@ -14,6 +17,7 @@
 # - CNSMO_server.1:net.i2cat.cnsmo.core.ready: Tells when CNSMO core is ready
 ###
 
+import json
 import requests
 import subprocess
 import threading
@@ -75,7 +79,7 @@ def launch_fw(server_instance_id):
     r = requests.post("http://%s:%s/fw/build/" % (hostname, port))
     r.raise_for_status()
 
-    call('ss-set net.i2cat.cnsmo.service.fw.ready true')
+    call('ss-set net.i2cat.cnsmo.service.fw.server.listening true')
 
     date = call('date')
     f = None
@@ -88,6 +92,20 @@ def launch_fw(server_instance_id):
 
     call('ss-display \"FW: FW has been created!\"')
     print "FW deployed!"
+
+    call('ss-display \"FW: Configuring FW rules...\"')
+
+    rules_srt = call('ss-get net.i2cat.cnsmo.service.fw.rules').rstrip('\n')
+    print rules_srt
+
+    rules = json.loads(rules_srt)
+    for rule in rules:
+        print rule
+        r = requests.post("http://%s:%s/fw/" % (hostname, port), data=rule)
+        r.raise_for_status()
+
+    call('ss-set net.i2cat.cnsmo.service.fw.ready true')
+    print "FW configured!"
 
 
 def launchFWServer(hostname, port, redis_address, instance_id):
