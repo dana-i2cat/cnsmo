@@ -93,6 +93,7 @@ def launch_fw(server_instance_id):
     call('ss-display \"FW: FW has been created!\"')
     print "FW deployed!"
 
+    # Configure rules from input parameter
     call('ss-display \"FW: Configuring FW rules...\"')
 
     rules_srt = call('ss-get net.i2cat.cnsmo.service.fw.rules').rstrip('\n')
@@ -101,15 +102,17 @@ def launch_fw(server_instance_id):
     rules = json.loads(rules_srt)
     for rule in rules:
         print rule
-        r = requests.post("http://%s:%s/fw/" % (hostname, port), data=rule)
+        r = requests.post("http://%s:%s/fw/" % (hostname, port), data=json.dumps(rule))
         r.raise_for_status()
 
     call('ss-set net.i2cat.cnsmo.service.fw.ready true')
+    call('ss-display \"FW: Firewall configured!\"')
     print "FW configured!"
 
 
 def launchFWServer(hostname, port, redis_address, instance_id):
     call('ss-display \"FW: Launching FW server...\"')
+    print "Launching FW"
     call("python cnsmo/cnsmo/src/main/python/net/i2cat/cnsmoservices/fw/run/server.py -a %s -p %s -r %s -s FWServer-%s" % (hostname, port, redis_address, instance_id))
 
 
