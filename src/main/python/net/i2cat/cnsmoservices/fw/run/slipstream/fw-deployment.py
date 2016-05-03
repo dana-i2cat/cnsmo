@@ -72,13 +72,13 @@ def launch_fw(server_instance_id):
     tc = threading.Thread(target=launchFWServer, args=(hostname, port, redis_address, instance_id))
     tc.start()
     # TODO implement proper way to detect when the server is ready (using systemstate?)
-    time.sleep(1)
+    time.sleep(5)
     call('ss-set net.i2cat.cnsmo.service.fw.server.listening true')
 
     # build the FW
     r = requests.post("http://%s:%s/fw/build/" % (hostname, port))
     r.raise_for_status()
-
+    time.sleep(1)
     call('ss-set net.i2cat.cnsmo.service.fw.server.listening true')
 
     date = call('date')
