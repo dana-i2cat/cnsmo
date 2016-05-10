@@ -9,8 +9,8 @@
 # - net.i2cat.cnsmo.service.fw.rules: Input variable. Json list with FW rules in the format:
 # [{"direction":"in/out", "protocol":"tcp/udp/...", "dst_port":"[0,65535]", "ip_range":"cidr_notation", "action":"drop/acpt"},
 # {...}, {...}]
-# - net.i2cat.cnsmo.service.fw.server.listening: Output variable. Tells when the firewall agent is up and listening
-# - net.i2cat.cnsmo.service.fw.ready: Output variable. Tells when the firewall service is ready to manage rules.
+# - net.i2cat.cnsmo.service.fw.server.listening: Output variable. Tells when the firewall agent is up and listening.
+# - net.i2cat.cnsmo.service.fw.ready: Output variable. Tells when the firewall service is already configured with specified rules.
 #
 # Uses the following SlipStream application run context variables:
 # - CNSMO_server.1:net.i2cat.cnsmo.dss.address: Address of the distributed system state
