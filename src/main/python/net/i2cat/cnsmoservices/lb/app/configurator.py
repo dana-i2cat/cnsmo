@@ -47,10 +47,19 @@ class LBConfigManager:
         self.backend_servers = backend_servers
 
     def get_config(self):
+        """
+        Generates an haproxy.cfg file content according to constructor input parameters.
+        :return: The content for the haproxy.cfg file.
+        """
         template = Template(HAPROXY_CONFIG_TEMPLATE)
         return template.render(ip=self.ip, port=str(self.port), balance_mode=self.balance_mode, backend_servers=self.backend_servers)
 
     def get_dockerfile(self):
+        """
+        Generates a Dockerfile content defining a container able to run HAProxy.
+        Generated Dockerfile requires a start.bash file in order to run.
+        :return: The content for the Dockerfile.
+        """
         template = Template(DOCKERFILE_TEMPLATE)
         return template.render(ip=self.ip, port=str(self.port))
 
