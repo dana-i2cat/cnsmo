@@ -14,7 +14,7 @@ def get_app_request(host, port, service_id, lb_address, lb_port, lb_mode, lb_bac
                           ],
              dependencies=[],
              endpoints=[{"uri":"http://%s:%s/lb/configs/haproxy/" %(host, port), "driver":"REST", "logic":"get", "name":"get_haproxy_config"},
-                        {"uri":"http://%s:%s/vpn/configs/docker/" %(host, port), "driver":"REST", "logic":"get", "name":"get_dockerfile"},])
+                        {"uri":"http://%s:%s/lb/configs/docker/" %(host, port), "driver":"REST", "logic":"get", "name":"get_dockerfile"},])
     return d
 
 
