@@ -64,8 +64,13 @@ def build_lb():
     try:
         result = reduce(lambda x, y: x and y, app.config["config_files"].values())
         if result:
+            # retrieving lb_port from config
+            if not app.config["lb_port"]:
+                return "An LB port needs to be specified", 409
+            lb_port = app.config["lb_port"]
+
             log.debug("building docker...")
-            subprocess.check_call(shlex.split("docker build -t lb-server ."))
+            subprocess.check_call(shlex.split("docker build -t lb-server-{} .".format(lb_port)))
             log.debug("docker build")
             app.config["service_built"] = True
             return "", 204
@@ -103,7 +108,7 @@ def start_lb():
         lb_backend_servers_str = lb_backend_servers_str[:-1]    # removing last ','
 
         log.debug("running docker...")
-        command = "docker run -t -d -p {}:{} -e COUCHDB_SERVERS={} --name lb-docker lb-server".format(lb_port, lb_port, lb_backend_servers_str)
+        command = "docker run -t -d -p {}:{} -e COUCHDB_SERVERS={} --name lb-docker-{} lb-server-{}".format(lb_port, lb_port, lb_backend_servers_str, lb_port, lb_port)
         log.debug(command)
         output = subprocess.check_call(shlex.split(command))
 
@@ -126,8 +131,9 @@ def stop_lb():
     """
     try:
         if app.config["service_running"]:
-            subprocess.check_call(shlex.split("docker kill lb-docker"))
-            subprocess.check_call(shlex.split("docker rm -f lb-docker"))
+            lb_port = app.config["lb_port"]
+            subprocess.check_call(shlex.split("docker kill lb-docker-{}".format(lb_port)))
+            subprocess.check_call(shlex.split("docker rm -f lb-docker-{}".format(lb_port)))
             app.config["service_running"] = False
             return "", 204
         return "Service is not yet running", 409
