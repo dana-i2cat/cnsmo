@@ -15,10 +15,12 @@ cd ..
 # install cnsmo requirements
 sudo pip install -r cnsmo/cnsmo/requirements.txt
 
+
 #build new-easy-rsa docker
-cd /tmp/cnsmo/cnsmo-net-services/src/main/docker/vpn/easy-rsa
+cwd=${PWD}
+cd ${cwd}/cnsmo/cnsmo-net-services/src/main/docker/vpn/easy-rsa
 docker build -t new-easy-rsa .
-cd /tmp
+cd ${cwd}
 
 #install redis
 wget http://download.redis.io/releases/redis-3.0.7.tar.gz

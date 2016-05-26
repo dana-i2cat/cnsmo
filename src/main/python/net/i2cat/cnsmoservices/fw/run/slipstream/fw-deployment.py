@@ -22,6 +22,7 @@ import requests
 import subprocess
 import threading
 import time
+import os
 
 from slipstream.SlipStreamHttpClient import SlipStreamHttpClient
 from slipstream.ConfigHolder import ConfigHolder
@@ -40,15 +41,10 @@ def launch_fw(server_instance_id):
     ss_nodename = call('ss-get nodename').rstrip('\n')
     ss_node_instance = call('ss-get id').rstrip('\n')
     instance_id = "%s.%s" % (ss_nodename, ss_node_instance)
+    log_file = os.getcwd() + "/cnsmo/fw.log"
 
     date = call('date')
-    f = None
-    try:
-        f = open("/tmp/cnsmo/fw.log", "w+")
-        f.write("Waiting for CNSMO at %s" % date)
-    finally:
-        if f:
-            f.close()
+    logToFile("Waiting for CNSMO at %s" % date, log_file, "w+")
 
     call('ss-display \"Waiting for CNSMO...\"')
     call("ss-get --timeout=1800 %s:net.i2cat.cnsmo.core.ready" % server_instance_id)
@@ -61,13 +57,7 @@ def launch_fw(server_instance_id):
     port = "9095"
 
     date = call('date')
-    f = None
-    try:
-        f = open("/tmp/cnsmo/fw.log", "a")
-        f.write("Launching Firewall server at %s" % date)
-    finally:
-        if f:
-            f.close()
+    logToFile("Launching Firewall server at %s" % date, log_file, "a")
 
     tc = threading.Thread(target=launchFWServer, args=(hostname, port, redis_address, instance_id))
     tc.start()
@@ -82,13 +72,7 @@ def launch_fw(server_instance_id):
     call('ss-set net.i2cat.cnsmo.service.fw.server.listening true')
 
     date = call('date')
-    f = None
-    try:
-        f = open("/tmp/cnsmo/fw.log", "a")
-        f.write("FW deployed at %s" % date)
-    finally:
-        if f:
-            f.close()
+    logToFile("FW deployed at %s" % date, log_file, "a")
 
     call('ss-display \"FW: FW has been created!\"')
     print "FW deployed!"
@@ -105,6 +89,9 @@ def launch_fw(server_instance_id):
         r = requests.post("http://%s:%s/fw/" % (hostname, port), data=json.dumps(rule))
         r.raise_for_status()
 
+    date = call('date')
+    logToFile("FW configured successfully at %s" % date, log_file, "a")
+
     call('ss-set net.i2cat.cnsmo.service.fw.ready true')
     call('ss-display \"FW: Firewall configured!\"')
     print "FW configured!"
@@ -115,5 +102,14 @@ def launchFWServer(hostname, port, redis_address, instance_id):
     print "Launching FW"
     call("python cnsmo/cnsmo/src/main/python/net/i2cat/cnsmoservices/fw/run/server.py -a %s -p %s -r %s -s FWServer-%s" % (hostname, port, redis_address, instance_id))
 
+
+def logToFile(message, filename, filemode):
+    f = None
+    try:
+        f = open(filename, filemode)
+        f.write(message)
+    finally:
+        if f:
+            f.close()
 
 main()
