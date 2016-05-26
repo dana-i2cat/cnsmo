@@ -33,19 +33,14 @@ def deploycnsmo():
     ss_nodename = call('ss-get nodename').rstrip('\n')
     ss_node_instance = call('ss-get id').rstrip('\n')
     instance_id = "%s.%s" % (ss_nodename, ss_node_instance)
+    log_file = os.getcwd() + "/cnsmo/cnsmo.log"
 
     hostname = call('ss-get hostname').rstrip('\n')
     dss_port = "6379"
     redis_address = "%s:%s" % (hostname, dss_port)
 
     date = call('date')
-    f = None
-    try:
-        f = open("/tmp/cnsmo/cnsmo.log", "w+")
-        f.write("Launching CNSMO at %s" % date)
-    finally:
-        if f:
-            f.close()
+    logToFile("Launching CNSMO at %s" % date, log_file, "w+")
 
     # Launch REDIS
     tr = threading.Thread(target=launchRedis, args=(hostname, dss_port))
@@ -73,5 +68,14 @@ def launchSystemState(hostname, dss_port):
     call('ss-display \"Launching CNSMO...\"')
     call("python cnsmo/cnsmo/src/main/python/net/i2cat/cnsmo/run/systemstate.py -a %s -p %s" % (hostname, dss_port))
 
+
+def logToFile(message, filename, filemode):
+    f = None
+    try:
+        f = open(filename, filemode)
+        f.write(message)
+    finally:
+        if f:
+            f.close()
 
 main()
