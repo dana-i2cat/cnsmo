@@ -173,17 +173,7 @@ def logToFile(message, filename, filemode):
 def ss_getinstances():
     # ss:groups  cyclone-fr2:VPN,cyclone-fr1:client2,cyclone-fr2:client1
 
-    # FIXME: "ss-get ss:groups" does not currently work.
-    #        Corresponding bug issue: https://github.com/slipstream/SlipStreamServer/issues/627
-    # groups = call("ss-get ss:groups")
-
-    # NOTE: This is a workaround for the previous bug in order to GET the groups.
-    call('touch /tmp/slipstream.client.conf')
-    ch = ConfigHolder()
-    ssc = SlipStreamHttpClient(ch)
-    ssc._retrieveAndSetRun()
-    groups = ssc.run_dom.attrib.get('groups')
-
+    groups = call("ss-get ss:groups")
     cloud_node_pairs = groups.split(",")
 
     nodes = list()
