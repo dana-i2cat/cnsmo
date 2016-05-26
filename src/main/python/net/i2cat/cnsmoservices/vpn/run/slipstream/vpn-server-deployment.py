@@ -17,7 +17,7 @@ from slipstream.SlipStreamHttpClient import SlipStreamHttpClient
 
 path = os.path.dirname(os.path.abspath(__file__))
 src_dir = path + "/../../../../../../../../../"
-if not src_dir in sys.path:
+if src_dir not in sys.path:
     sys.path.append(src_dir)
 
 from src.main.python.net.i2cat.cnsmoservices.vpn.manager.vpn import VPNManager
@@ -26,20 +26,23 @@ call = lambda command: subprocess.check_output(command, shell=True)
 
 
 def main():
+    deploycnsmo()
+    deployvpn()
+
+
+def deploycnsmo():
     ss_nodename = call('ss-get nodename').rstrip('\n')
     ss_node_instance = call('ss-get id').rstrip('\n')
     instance_id = "%s.%s" % (ss_nodename, ss_node_instance)
+    log_file = os.getcwd() + "/cnsmo/vpn.log"
 
     hostname = call('ss-get hostname').rstrip('\n')
     dss_port = "6379"
     redis_address = "%s:%s" % (hostname, dss_port)
 
     date = call('date')
-    try:
-        f = open("/tmp/cnsmo/vpn.log", "w+")
-        f.write("Launching CNSMO at %s" % date)
-    finally:
-        f.close()
+    logToFile("Launching CNSMO at %s" % date, log_file, "w+")
+
 
     # Launch REDIS
     tr = threading.Thread(target=launchRedis, args=(hostname, dss_port))
@@ -57,12 +60,20 @@ def main():
     call('ss-set net.i2cat.cnsmo.core.ready true')
     call('ss-display \"CNSMO is ready!\"')
 
+
+def deployvpn():
+    ss_nodename = call('ss-get nodename').rstrip('\n')
+    ss_node_instance = call('ss-get id').rstrip('\n')
+    instance_id = "%s.%s" % (ss_nodename, ss_node_instance)
+    hostname = call('ss-get hostname').rstrip('\n')
+    log_file = os.getcwd() + "/cnsmo/vpn.log"
+
+    # wait for CNSMO core
+    call('ss-get net.i2cat.cnsmo.core.ready')
+    redis_address = call("ss-get net.i2cat.cnsmo.dss.address").rstrip('\n')
+
     date = call('date')
-    try:
-        f = open("/tmp/cnsmo/vpn.log", "a")
-        f.write("Deploying VPN at %s" % date)
-    finally:
-        f.close()
+    logToFile("Deploying VPN at %s" % date, log_file, "a")
 
     call('ss-display \"Deploying VPN components...\"')
 
@@ -119,11 +130,7 @@ def main():
     call('ss-set net.i2cat.cnsmo.service.vpn.ready true')
 
     date = call('date')
-    try:
-        f = open("/tmp/cnsmo/vpn.log", "a")
-        f.write("VPN deployed at %s" % date)
-    finally:
-        f.close()
+    logToFile("VPN deployed at %s" % date, log_file, "a")
 
     call('ss-display \"VPN: VPN has been established!\"')
     print "VPN deployed!"
@@ -148,6 +155,15 @@ def launchVPNServer(hostname, redis_address, instance_id):
     call('ss-display \"VPN: Launching VPN server...\"')
     call("python cnsmo/cnsmo/src/main/python/net/i2cat/cnsmoservices/vpn/run/server.py -a %s -p 9092 -r %s -s VPNServer-%s" % (hostname, redis_address, instance_id))
 
+
+def logToFile(message, filename, filemode):
+    f = None
+    try:
+        f = open(filename, filemode)
+        f.write(message)
+    finally:
+        if f:
+            f.close()
 
 # Gets the instances that compose the deployment
 # NOTE: Currently there is no way to directly retrieve all nodes intances in a deployment.
