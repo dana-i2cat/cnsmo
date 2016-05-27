@@ -165,6 +165,7 @@ def logToFile(message, filename, filemode):
         if f:
             f.close()
 
+
 # Gets the instances that compose the deployment
 # NOTE: Currently there is no way to directly retrieve all nodes intances in a deployment.
 #       As of now we have to find them out by parsing the ss:groups, and then the node's
@@ -173,7 +174,7 @@ def logToFile(message, filename, filemode):
 def ss_getinstances():
     # ss:groups  cyclone-fr2:VPN,cyclone-fr1:client2,cyclone-fr2:client1
 
-    groups = call("ss-get ss:groups")
+    groups = call("ss-get ss:groups").rstrip('\n')
     cloud_node_pairs = groups.split(",")
 
     nodes = list()
