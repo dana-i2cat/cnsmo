@@ -22,6 +22,7 @@ def main():
     ss_node_instance = call('ss-get id').rstrip('\n')
     instance_id = "%s.%s" % (ss_nodename, ss_node_instance)
     log_file = os.getcwd() + "/cnsmo/vpn.log"
+    ifaces_prev = getCurrentInterfaces()
 
     # TODO get this from slipstream context, by inspecting roles each component has
     server_instance_id = "VPN_server.1"
@@ -62,13 +63,40 @@ def main():
     date = call('date')
     logToFile("VPN deployed at %s" % date, log_file, "a")
 
-    call('ss-display \"VPN: VPN has been established!\"')
+    # assuming the VPN interface (probably tap0) is the only one created during this script execution
+    vpn_iface = None
+    for current_iface in getCurrentInterfaces():
+        if current_iface not in ifaces_prev:
+            vpn_iface = current_iface
+
+    if not vpn_iface:
+        call('ss-abort \"Failed to create tap interface, required for the VPN\"')
+        return
+
+    vpn_local_ipv4_address = getInterfaceIPv4Address(vpn_iface)
+    vpn_local_ipv6_address = getInterfaceIPv6Address(vpn_iface)
+    logToFile("VPN using interface %s with ipaddr %s and ipv6addr %s" %
+              (vpn_iface, vpn_local_ipv4_address, vpn_local_ipv6_address), log_file, "a")
+
+    call("ss-display \"VPN: VPN has been established! Using interface %s with ipaddr %s and ipv6addr %s\"" %
+         (vpn_iface, vpn_local_ipv4_address, vpn_local_ipv6_address))
     print "VPN deployed!"
 
 
 def launchVPNClient(hostname, redis_address, instance_id):
     call('ss-display \"VPN: Launching VPN client...\"')
     call("python cnsmo/cnsmo/src/main/python/net/i2cat/cnsmoservices/vpn/run/client.py -a %s -p 9091 -r %s -s VPNClient-%s" % (hostname, redis_address, instance_id))
+
+
+def getCurrentInterfaces():
+    return call("""ls /sys/class/net | sed -e s/^\(.*\)$/\1/ | paste -sd ','""").rstrip('\n').split(',')
+
+
+def getInterfaceIPv4Address(iface):
+    return call("ifconfig " + iface + " | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}'").rstrip('\n')
+
+def getInterfaceIPv6Address(iface):
+    return call("ifconfig " + iface + " | grep 'inet6 addr:' | cut -d: -f2 | awk '{ print $1}'").rstrip('\n')
 
 
 def logToFile(message, filename, filemode):
