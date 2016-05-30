@@ -100,7 +100,7 @@ def getInterfaceIPv4Address(iface):
 
 
 def getInterfaceIPv6Address(iface):
-    return call("ifconfig " + iface + " | grep 'inet6 addr:' | cut -d: -f2 | awk '{ print $1}'").rstrip('\n')
+    return call("ifconfig " + iface + "| awk '/inet6 / { print $3 }'").rstrip('\n')
 
 
 def logToFile(message, filename, filemode):
