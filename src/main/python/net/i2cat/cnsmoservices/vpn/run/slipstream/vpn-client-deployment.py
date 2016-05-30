@@ -60,6 +60,8 @@ def main():
     call('ss-display \"VPN: Waiting for VPN to be established...\"')
     call("ss-get --timeout=1800 %s:net.i2cat.cnsmo.service.vpn.ready" % server_instance_id)
 
+    time.sleep(5)
+
     date = call('date')
     logToFile("VPN deployed at %s" % date, log_file, "a")
 
