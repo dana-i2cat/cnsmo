@@ -70,7 +70,7 @@ def main():
             vpn_iface = current_iface
 
     if not vpn_iface:
-        call('ss-abort \"Failed to create tap interface, required for the VPN\"')
+        call("ss-abort \"%s:Failed to create tap interface, required for the VPN\"" % instance_id)
         return
 
     vpn_local_ipv4_address = getInterfaceIPv4Address(vpn_iface)
