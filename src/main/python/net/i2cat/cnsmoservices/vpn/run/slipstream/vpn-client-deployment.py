@@ -78,6 +78,9 @@ def main():
     logToFile("VPN using interface %s with ipaddr %s and ipv6addr %s" %
               (vpn_iface, vpn_local_ipv4_address, vpn_local_ipv6_address), log_file, "a")
 
+    call("ss-set vpn.address %s" % vpn_local_ipv4_address)
+    call("ss-set vpn.address6 %s" % vpn_local_ipv6_address)
+
     call("ss-display \"VPN: VPN has been established! Using interface %s with ipaddr %s and ipv6addr %s\"" %
          (vpn_iface, vpn_local_ipv4_address, vpn_local_ipv6_address))
     print "VPN deployed!"
@@ -94,6 +97,7 @@ def getCurrentInterfaces():
 
 def getInterfaceIPv4Address(iface):
     return call("ifconfig " + iface + " | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}'").rstrip('\n')
+
 
 def getInterfaceIPv6Address(iface):
     return call("ifconfig " + iface + " | grep 'inet6 addr:' | cut -d: -f2 | awk '{ print $1}'").rstrip('\n')
