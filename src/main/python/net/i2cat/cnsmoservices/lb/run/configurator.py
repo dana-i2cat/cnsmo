@@ -47,7 +47,7 @@ if __name__ == "__main__":
     opts, _ = getopt.getopt(sys.argv[1:], "a:p:r:s:", ["lb-address=", "lb-port=", "lb-mode=", "lb-backend-servers="])
 
     host = "0.0.0.0"
-    port = "9097"
+    port = "9096"
     redis_address = "127.0.0.1:6379"
     service_id = "LBConfig"
     lb_mode = "roundrobin"
