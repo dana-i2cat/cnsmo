@@ -62,6 +62,7 @@ class LBManager:
                 break
             time.sleep(0.2)
 
+        time.sleep(5)
         self.__deploy_lb()
 
     def get_status(self):
@@ -82,8 +83,8 @@ class LBManager:
                 self.__update_state()
 
             elif service.get_service_type() == "LBConfigManager":
-                cred_service = ServiceMaker().make_service("ConfigManager", self.__system_state_manager.load(service.get_service_id()).get_endpoints())
-                self.__configuration_manager = cred_service
+                config_service = ServiceMaker().make_service("ConfigManager", self.__system_state_manager.load(service.get_service_id()).get_endpoints())
+                self.__configuration_manager = config_service
                 self.__update_state()
 
     def __update_state(self):
