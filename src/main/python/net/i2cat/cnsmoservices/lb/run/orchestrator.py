@@ -21,6 +21,15 @@ def main(host, redis_address, lb_port, lb_mode, lb_backend_servers):
     server_sid = "LBServer-{}".format(lb_port)
     service_ids = [config_sid, server_sid]
 
+    # run manager with previous ids, lb_backend_servers
+    print("Launching manager")
+    # launch_manager(service_ids, lb_backend_servers, redis_address)
+    tm = threading.Thread(target=launch_manager, args=(service_ids, lb_backend_servers, redis_address))
+    tm.start()
+
+    # wait for it to be up
+    time.sleep(5)
+
     # launch configurator with lb_mode, lb_backend_servers, lb_port, lb_address
     config_port = "9096"
     config_host = host
@@ -38,15 +47,6 @@ def main(host, redis_address, lb_port, lb_mode, lb_backend_servers):
     # launch_server(server_host, server_port, redis_address, server_sid, lb_port)
     ts = threading.Thread(target=launch_server, args=(server_host, server_port, redis_address, server_sid, lb_port))
     ts.start()
-
-    # wait for them
-    time.sleep(5)
-
-    # run manager with previous ids, lb_backend_servers
-    print("Launching manager")
-    # launch_manager(service_ids, lb_backend_servers, redis_address)
-    tm = threading.Thread(target=launch_manager, args=(service_ids, lb_backend_servers, redis_address))
-    tm.start()
 
 
 def launch_manager(service_ids, lb_backend_servers, redis_address):
