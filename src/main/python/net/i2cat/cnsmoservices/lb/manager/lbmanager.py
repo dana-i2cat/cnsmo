@@ -1,5 +1,17 @@
+import sys
+import os
+import getopt
+import json
 import threading
 import time
+
+path = os.path.dirname(os.path.abspath(__file__))
+src_dir = path + "/../../../../../../../../"
+if src_dir not in sys.path:
+    sys.path.append(src_dir)
+
+from src.main.python.net.i2cat.cnsmo.service.maker import ServiceMaker
+from src.main.python.net.i2cat.cnsmo.factory.system.state.factory import SystemStateFactory
 
 
 class LBManager:
@@ -116,18 +128,6 @@ class LBManager:
 
 
 if __name__ == "__main__":
-    import sys
-    import os
-    import getopt
-    import json
-
-    path = os.path.dirname(os.path.abspath(__file__))
-    src_dir = path + "/../../../../../../../../"
-    if src_dir not in sys.path:
-        sys.path.append(src_dir)
-
-    from src.main.python.net.i2cat.cnsmo.service.maker import ServiceMaker
-    from src.main.python.net.i2cat.cnsmo.factory.system.state.factory import SystemStateFactory
 
     opts, _ = getopt.getopt(sys.argv[1:], "i:b:r:")
 
