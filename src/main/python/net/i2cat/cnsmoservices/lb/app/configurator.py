@@ -100,7 +100,7 @@ DOCKERFILE_TEMPLATE = """
 FROM ubuntu:14.04
 
 RUN \
-  sed -i 's/^# \(.*-backports\s\)/\1/g' /etc/apt/sources.list && \
+  sed -i 's/^# \(.*-backports\s\)/\\1/g' /etc/apt/sources.list && \
   apt-get update && \
   apt-get install -y haproxy python && \
   sed -i 's/^ENABLED=.*/ENABLED=1/' /etc/default/haproxy && \
