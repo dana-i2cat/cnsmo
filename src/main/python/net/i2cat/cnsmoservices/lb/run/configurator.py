@@ -11,6 +11,7 @@ if src_dir not in sys.path:
 from src.main.python.net.i2cat.cnsmo.deployment.bash import BashDeployer
 from src.main.python.net.i2cat.cnsmo.manager.cnsmo import CNSMOManager
 
+
 def get_app_request(host, port, service_id, lb_address, lb_port, lb_mode, lb_backend_servers):
 
     d = dict(service_id=service_id,

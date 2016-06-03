@@ -14,6 +14,7 @@ from src.main.python.net.i2cat.cnsmoservices.lb.manager.lbmanager import LBManag
 from src.main.python.net.i2cat.cnsmoservices.lb.run.server import launch_server
 from src.main.python.net.i2cat.cnsmoservices.lb.run.configurator import launch_configurator
 
+
 def main(host, redis_address, lb_port, lb_mode, lb_backend_servers):
 
     # define service ids
