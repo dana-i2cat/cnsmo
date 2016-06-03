@@ -100,12 +100,13 @@ def start_lb():
             return "An LB port needs to be specified", 409
         lb_port = app.config["lb_port"]
 
-        # retrieving backend_servers from request.data
+        log.debug("Retrieving backend servers")
         lb_backend_servers = json.loads(request.data)
         lb_backend_servers_str = ""
         for server in lb_backend_servers:
             lb_backend_servers_str = lb_backend_servers_str + server + ","
         lb_backend_servers_str = lb_backend_servers_str[:-1]    # removing last ','
+        log.debug("Backend servers: " + lb_backend_servers_str)
 
         log.debug("running docker...")
         command = "docker run -t -d -p {}:{} -e COUCHDB_SERVERS={} --name lb-docker-{} lb-server-{}".format(lb_port, lb_port, lb_backend_servers_str, lb_port, lb_port)
