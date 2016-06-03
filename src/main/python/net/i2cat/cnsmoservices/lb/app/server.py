@@ -14,7 +14,7 @@ from flask import request
 # Use the following command in order to invoke the application:
 # python server.py -a 127.0.0.1 -p 9097 -t LB-PORT -w "/tmp/cnsmo/lb/"
 ###
-
+logging.basicConfig(filename='lb.server.log', level=logging.DEBUG)
 log = logging.getLogger('cnsmoservices.lb.app.server')
 
 app = Flask(__name__)
