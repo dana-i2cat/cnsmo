@@ -17,7 +17,7 @@ from slipstream.SlipStreamHttpClient import SlipStreamHttpClient
 
 path = os.path.dirname(os.path.abspath(__file__))
 src_dir = path + "/../../../../../../../../../"
-if not src_dir in sys.path:
+if src_dir not in sys.path:
     sys.path.append(src_dir)
 
 from src.main.python.net.i2cat.cnsmoservices.vpn.manager.vpn import VPNManager
@@ -26,20 +26,23 @@ call = lambda command: subprocess.check_output(command, shell=True)
 
 
 def main():
+    deploycnsmo()
+    deployvpn()
+
+
+def deploycnsmo():
     ss_nodename = call('ss-get nodename').rstrip('\n')
     ss_node_instance = call('ss-get id').rstrip('\n')
     instance_id = "%s.%s" % (ss_nodename, ss_node_instance)
+    log_file = os.getcwd() + "/cnsmo/vpn.log"
 
     hostname = call('ss-get hostname').rstrip('\n')
     dss_port = "6379"
     redis_address = "%s:%s" % (hostname, dss_port)
 
     date = call('date')
-    try:
-        f = open("/tmp/cnsmo/vpn.log", "w+")
-        f.write("Launching CNSMO at %s" % date)
-    finally:
-        f.close()
+    logToFile("Launching CNSMO at %s" % date, log_file, "w+")
+
 
     # Launch REDIS
     tr = threading.Thread(target=launchRedis, args=(hostname, dss_port))
@@ -57,12 +60,21 @@ def main():
     call('ss-set net.i2cat.cnsmo.core.ready true')
     call('ss-display \"CNSMO is ready!\"')
 
+
+def deployvpn():
+    ss_nodename = call('ss-get nodename').rstrip('\n')
+    ss_node_instance = call('ss-get id').rstrip('\n')
+    instance_id = "%s.%s" % (ss_nodename, ss_node_instance)
+    hostname = call('ss-get hostname').rstrip('\n')
+    log_file = os.getcwd() + "/cnsmo/vpn.log"
+    ifaces_prev = getCurrentInterfaces()
+
+    # wait for CNSMO core
+    call('ss-get net.i2cat.cnsmo.core.ready')
+    redis_address = call("ss-get net.i2cat.cnsmo.dss.address").rstrip('\n')
+
     date = call('date')
-    try:
-        f = open("/tmp/cnsmo/vpn.log", "a")
-        f.write("Deploying VPN at %s" % date)
-    finally:
-        f.close()
+    logToFile("Deploying VPN at %s" % date, log_file, "a")
 
     call('ss-display \"Deploying VPN components...\"')
 
@@ -115,17 +127,35 @@ def main():
     call('ss-display \"VPN: Deploying VPN...\"')
     vpn_orchestrator.deploy_blocking()
 
+    time.sleep(5)
+
     # Communicate that the VPN has been established
     call('ss-set net.i2cat.cnsmo.service.vpn.ready true')
 
     date = call('date')
-    try:
-        f = open("/tmp/cnsmo/vpn.log", "a")
-        f.write("VPN deployed at %s" % date)
-    finally:
-        f.close()
+    logToFile("VPN deployed at %s" % date, log_file, "a")
 
-    call('ss-display \"VPN: VPN has been established!\"')
+    # assuming the VPN interface (probably tap0) is the only one created during this script execution
+    vpn_iface = None
+    for current_iface in getCurrentInterfaces():
+        if current_iface not in ifaces_prev:
+            vpn_iface = current_iface
+
+    if not vpn_iface:
+        call("ss-abort \"%s:Failed to create tap interface, required for the VPN\"" % instance_id)
+        return
+
+    vpn_local_ipv4_address = getInterfaceIPv4Address(vpn_iface)
+    vpn_local_ipv6_address = getInterfaceIPv6Address(vpn_iface)
+    logToFile("VPN using interface %s with ipaddr %s and ipv6addr %s" %
+              (vpn_iface, vpn_local_ipv4_address, vpn_local_ipv6_address), log_file, "a")
+
+    call("ss-set vpn.address %s" % vpn_local_ipv4_address)
+    call("ss-set vpn.address6 %s" % vpn_local_ipv6_address)
+
+    call("ss-display \"VPN: VPN has been established! Using interface %s with ipaddr %s and ipv6addr %s\"" %
+         (vpn_iface, vpn_local_ipv4_address, vpn_local_ipv6_address))
+
     print "VPN deployed!"
 
 
@@ -149,6 +179,28 @@ def launchVPNServer(hostname, redis_address, instance_id):
     call("python cnsmo/cnsmo/src/main/python/net/i2cat/cnsmoservices/vpn/run/server.py -a %s -p 9092 -r %s -s VPNServer-%s" % (hostname, redis_address, instance_id))
 
 
+def getCurrentInterfaces():
+    return call("""ls /sys/class/net | sed -e s/^\(.*\)$/\1/ | paste -sd ','""").rstrip('\n').split(',')
+
+
+def getInterfaceIPv4Address(iface):
+    return call("ifconfig " + iface + " | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}'").rstrip('\n')
+
+
+def getInterfaceIPv6Address(iface):
+    return call("ifconfig " + iface + "| awk '/inet6 / { print $3 }'").rstrip('\n')
+
+
+def logToFile(message, filename, filemode):
+    f = None
+    try:
+        f = open(filename, filemode)
+        f.write(message)
+    finally:
+        if f:
+            f.close()
+
+
 # Gets the instances that compose the deployment
 # NOTE: Currently there is no way to directly retrieve all nodes intances in a deployment.
 #       As of now we have to find them out by parsing the ss:groups, and then the node's
@@ -157,17 +209,7 @@ def launchVPNServer(hostname, redis_address, instance_id):
 def ss_getinstances():
     # ss:groups  cyclone-fr2:VPN,cyclone-fr1:client2,cyclone-fr2:client1
 
-    # FIXME: "ss-get ss:groups" does not currently work.
-    #        Corresponding bug issue: https://github.com/slipstream/SlipStreamServer/issues/627
-    # groups = call("ss-get ss:groups")
-
-    # NOTE: This is a workaround for the previous bug in order to GET the groups.
-    call('touch /tmp/slipstream.client.conf')
-    ch = ConfigHolder()
-    ssc = SlipStreamHttpClient(ch)
-    ssc._retrieveAndSetRun()
-    groups = ssc.run_dom.attrib.get('groups')
-
+    groups = call("ss-get ss:groups").rstrip('\n')
     cloud_node_pairs = groups.split(",")
 
     nodes = list()
