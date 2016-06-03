@@ -107,7 +107,7 @@ class LBManager:
 
         # Get all config files
         haproxy_config = self.__configuration_manager.get_haproxy_config(None).content
-        dockerfile = self.__configuration_manager.get_docker(None).content
+        dockerfile = self.__configuration_manager.get_dockerfile(None).content
 
         # TODO find a proper name for the server
         self.__configure_and_start_lb_server("lb-server", haproxy_config, dockerfile, self.__load_balanced_addresses)
@@ -125,6 +125,7 @@ class LBManager:
         self.__server_service.build_lb({})
 
         print "starting lb server " + name + " ..."
+        print json.dumps(load_balanced_addresses)
         self.__server_service.start_lb(load_balanced_addresses)
 
 
