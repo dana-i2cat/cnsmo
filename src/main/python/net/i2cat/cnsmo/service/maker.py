@@ -80,7 +80,7 @@ class ServiceMaker:
             if logic == "post":
                 func = lambda x : lib(url=clean_uri, json=x)
 
-            if logic == "upload":
+            elif logic == "upload":
                 func = lambda x : lib(url=clean_uri, files=x)
 
             else:
