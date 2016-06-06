@@ -28,7 +28,7 @@ class LBManager:
         self.__bind_address = bind_address
         self.__system_state_manager = system_state_manager
         self.__name = "LB_SERVICE_MANAGER"
-        self.__load_balanced_addresses = load_balanced_addresses
+        self.__load_balanced_addresses = load_balanced_addresses.split(",")
 
         self.__related_service_ids = related_service_ids
         self.__server_service = None
@@ -138,7 +138,7 @@ if __name__ == "__main__":
             formatted_service_ids = json.loads(arg)
 
         elif opt == "-b":
-            formatted_balanced_services = arg.split(",")
+            formatted_balanced_services = arg
 
         elif opt == "-r":
             redis_address = arg
