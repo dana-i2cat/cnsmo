@@ -22,10 +22,14 @@ def main(host, redis_address, lb_port, lb_mode, lb_backend_servers):
     server_sid = "LBServer-{}".format(lb_port)
     service_ids = [config_sid, server_sid]
 
+    print("Retrieving backend servers")
+    lb_backend_servers_str = ",".join(lb_backend_servers)
+    print("Backend servers: " + lb_backend_servers_str)
+
     # run manager with previous ids, lb_backend_servers
     print("Launching manager")
     # launch_manager(service_ids, lb_backend_servers, redis_address)
-    tm = threading.Thread(target=launch_manager, args=(service_ids, lb_backend_servers, redis_address))
+    tm = threading.Thread(target=launch_manager, args=(service_ids, lb_backend_servers_str, redis_address))
     tm.start()
 
     # wait for it to be up
@@ -38,7 +42,7 @@ def main(host, redis_address, lb_port, lb_mode, lb_backend_servers):
     print("Launching configurator")
     # launch_configurator(config_host, config_port, redis_address, config_sid, lb_address, lb_port, lb_mode, lb_backend_servers)
     tc = threading.Thread(target=launch_configurator, args=(config_host, config_port, redis_address, config_sid,
-                                                            lb_address, lb_port, lb_mode, lb_backend_servers))
+                                                            lb_address, lb_port, lb_mode, lb_backend_servers_str))
     tc.start()
 
     # launch server with lb_port

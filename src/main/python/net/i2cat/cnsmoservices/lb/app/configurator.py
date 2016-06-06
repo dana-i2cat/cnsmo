@@ -40,11 +40,12 @@ def get_dockerfile():
 
 class LBConfigManager:
 
-    def __init__(self, lb_ip, lb_port, balance_mode, backend_servers):
+    def __init__(self, lb_ip, lb_port, balance_mode, backend_servers_str):
         self.ip = lb_ip
         self.port = lb_port
         self.balance_mode = balance_mode
-        self.backend_servers = backend_servers
+        self.backend_servers_str = backend_servers_str
+        self.backend_servers = backend_servers_str.split(",")
 
     def get_config(self):
         """
@@ -61,7 +62,7 @@ class LBConfigManager:
         :return: The content for the Dockerfile.
         """
         template = Template(DOCKERFILE_TEMPLATE)
-        return template.render(ip=self.ip, port=str(self.port))
+        return template.render(ip=self.ip, port=str(self.port), backend_servers=self.backend_servers_str)
 
 
 HAPROXY_CONFIG_TEMPLATE = """
@@ -112,7 +113,7 @@ ADD start.bash /haproxy-start
 WORKDIR /etc/haproxy
 
 #default value, may be overwritten with docker run -e COUCHDB_SERVERS=ip1:port,ip2:port
-ENV COUCHDB_SERVERS="localhost:{{ port }}"
+ENV COUCHDB_SERVERS="{{ backend_servers }}"
 
 ENV COUCHDB_USERNAME=""
 ENV COUCHDB_PASSWORD=""
@@ -144,11 +145,9 @@ if __name__ == "__main__":
         elif opt in ("-m", "--lb-balance-mode"):
             balance_mode = arg
         elif opt in ("-b", "--backend-servers"):
-            backend_servers = arg
-            backend_servers = backend_servers.split(",")
+            backend_servers_str = arg
 
-
-    manager = LBConfigManager(lb_ip, lb_port, balance_mode, backend_servers)
+    manager = LBConfigManager(lb_ip, lb_port, balance_mode, backend_servers_str)
     app.config["manager"] = manager
 
     app.run(host=address, port=port, debug=True)

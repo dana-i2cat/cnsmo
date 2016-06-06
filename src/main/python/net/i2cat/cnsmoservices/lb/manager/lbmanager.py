@@ -19,7 +19,7 @@ class LBManager:
     def __init__(self, related_service_ids, load_balanced_addresses, bind_address, system_state_manager=None):
         """
         :param related_service_ids: List with the service id of related LBServer and LBConfigManager
-        :param load_balanced_addresses: List with addresses being balanced in the format ["ip:port", "ip:port",...]
+        :param load_balanced_addresses: Comma separated list with addresses being balanced in the format ip:port,ip:port
         :param bind_address:
         :param system_state_manager:
         """
@@ -138,7 +138,7 @@ if __name__ == "__main__":
             formatted_service_ids = json.loads(arg)
 
         elif opt == "-b":
-            formatted_balanced_services = json.loads(arg)
+            formatted_balanced_services = arg.split(",")
 
         elif opt == "-r":
             redis_address = arg
