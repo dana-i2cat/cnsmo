@@ -15,7 +15,7 @@ from src.main.python.net.i2cat.cnsmoservices.lb.run.server import launch_server
 from src.main.python.net.i2cat.cnsmoservices.lb.run.configurator import launch_configurator
 
 
-def main(host, redis_address, lb_port, lb_mode, lb_backend_servers):
+def deploy_lb(host, redis_address, lb_port, lb_mode, lb_backend_servers):
 
     # define service ids
     config_sid = "LBConfigManager-{}".format(lb_port)
@@ -28,8 +28,9 @@ def main(host, redis_address, lb_port, lb_mode, lb_backend_servers):
 
     # run manager with previous ids, lb_backend_servers
     print("Launching manager")
-    # launch_manager(service_ids, lb_backend_servers, redis_address)
-    tm = threading.Thread(target=launch_manager, args=(service_ids, lb_backend_servers_str, redis_address))
+    manager = LBManager(service_ids, lb_backend_servers, redis_address)
+    # manager.start()
+    tm = threading.Thread(target=manager.start)
     tm.start()
 
     # wait for it to be up
@@ -53,12 +54,8 @@ def main(host, redis_address, lb_port, lb_mode, lb_backend_servers):
     ts = threading.Thread(target=launch_server, args=(server_host, server_port, redis_address, server_sid, lb_port))
     ts.start()
 
-
-def launch_manager(service_ids, lb_backend_servers, redis_address):
-    manager = LBManager(service_ids, lb_backend_servers, redis_address)
-    manager.start()
+    # deploy the lb
     manager.deploy_blocking()
-
 
 if __name__ == "__main__":
 
@@ -80,4 +77,4 @@ if __name__ == "__main__":
         elif opt == "--lb-backend-servers":
             lb_backend_servers = json.loads(arg)
 
-    main(host, redis_address, lb_port, lb_mode, lb_backend_servers)
+    deploy_lb(host, redis_address, lb_port, lb_mode, lb_backend_servers)
