@@ -103,7 +103,9 @@ def deploylb():
     # Assuming the ip address is the public one!!!
     ips_to_lb = list()
     for instance in instances_to_lb:
-        ips_to_lb.append(call('ss-get %s:hostname' % instance).rstrip('\n'))
+        # never use lb_address as a lb_backend_server
+        if instance != instance_id:
+            ips_to_lb.append(call('ss-get %s:hostname' % instance).rstrip('\n'))
 
     # 6. Build comma-separated list of ip:port to balance
     lb_backend_servers = [x + ":" + lb_port for x in ips_to_lb]
@@ -113,6 +115,10 @@ def deploylb():
     logToFile("LB backend servers: " + str(lb_backend_servers))
 
     # 7. Retrieve IP address of the LB with ss-get hostname (already done)
+
+    # 8. Check hostname is not a lb_backend_server
+    if hostname + ":" + lb_port in lb_backend_servers:
+        call("ss-abort \"%s:Invalid input. Can't use LB address as backend address!\"")
 
     # Launch orchestrator with gathered data
     date = call('date')
