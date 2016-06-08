@@ -34,7 +34,7 @@ call = lambda command: subprocess.check_output(command, shell=True)
 
 
 def main():
-    deploycnsmo()
+    # deploycnsmo()
     deploylb()
 
 
@@ -81,7 +81,7 @@ def deploylb():
     redis_address = call("ss-get net.i2cat.cnsmo.dss.address").rstrip('\n')
 
     date = call('date')
-    logToFile("Gathering LB input at %s" % date, log_file, "a")
+    logToFile("Gathering LB input at %s" % date, log_file, "w+")
     call('ss-display \"LB: Gathering LB input...\"')
 
     # retrieve instances to be load balanced:
