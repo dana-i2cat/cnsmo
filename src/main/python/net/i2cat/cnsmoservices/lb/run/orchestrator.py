@@ -28,7 +28,7 @@ def deploy_lb(host, redis_address, lb_port, lb_mode, lb_backend_servers):
 
     # run manager with previous ids, lb_backend_servers
     print("Launching manager")
-    manager = LBManager(service_ids, lb_backend_servers, redis_address)
+    manager = LBManager(service_ids, lb_backend_servers_str, redis_address)
     # manager.start()
     tm = threading.Thread(target=manager.start)
     tm.start()
