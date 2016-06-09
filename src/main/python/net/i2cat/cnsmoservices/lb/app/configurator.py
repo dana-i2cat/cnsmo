@@ -79,7 +79,7 @@ defaults
         srvtimeout      50000
 
 frontend lb
-        bind {{ ip }}:{{ port }}
+        bind 0.0.0.0:{{ port }}
         mode tcp
         timeout client 3600s
         default_backend servers
