@@ -8,7 +8,7 @@
 # Requires the following parameters in slipstream application component:
 # Input parameters:
 # lb.port: Indicates the tcp port to load balance
-# lb.node: Indicates tne SlipStream node whose instances will be load balanced.
+# lb.node: Indicates the SlipStream node whose instances will be load balanced.
 # lb.mode: Indicates the load balancer mode. Accepted values: leastconn/roundrobin/source. Defaults to leastconn.
 #
 # Output parameters:
@@ -77,11 +77,13 @@ def deploylb():
     log_file = os.getcwd() + "/cnsmo/lb.log"
 
     # wait for CNSMO core
+    date = call('date')
+    logToFile("Waitig for CNSMO core %s" % date, log_file, "w+")
     call('ss-get net.i2cat.cnsmo.core.ready')
     redis_address = call("ss-get net.i2cat.cnsmo.dss.address").rstrip('\n')
 
     date = call('date')
-    logToFile("Gathering LB input at %s" % date, log_file, "w+")
+    logToFile("Gathering LB input at %s" % date, log_file, "a")
     call('ss-display \"LB: Gathering LB input...\"')
 
     # retrieve instances to be load balanced:
@@ -110,9 +112,9 @@ def deploylb():
     # 6. Build comma-separated list of ip:port to balance
     lb_backend_servers = [x + ":" + lb_port for x in ips_to_lb]
 
-    logToFile("LB port: " + lb_port)
-    logToFile("LB mode: " + lb_mode)
-    logToFile("LB backend servers: " + str(lb_backend_servers))
+    logToFile("LB port: " + lb_port, log_file, "a")
+    logToFile("LB mode: " + lb_mode, log_file, "a")
+    logToFile("LB backend servers: " + str(lb_backend_servers), log_file, "a")
 
     # 7. Retrieve IP address of the LB with ss-get hostname (already done)
 
