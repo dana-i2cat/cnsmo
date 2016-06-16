@@ -7,11 +7,10 @@
 #
 # Requires the following parameters in slipstream application component:
 # Input parameters:
-# vpn.server.instanceid: Indicates the instanceid of the component acting as VPN server
+# vpn.server.nodeinstanceid: Indicates the node.id of the component acting as VPN server
 #
 # Output parameters:
 # net.i2cat.cnsmo.service.vpn.client.listening: Used to communicate the client to be listening for orchestrator orders
-# net.i2cat.cnsmo.service.vpn.client.ready: Used to communicate the client to be configured properly
 # vpn.address: Used to communicate the IPv4 address of this component
 # vpn.address6: Used to communicate the IPv6 address of this component
 #
@@ -40,7 +39,7 @@ def main():
     log_file = os.getcwd() + "/cnsmo/vpn.log"
     ifaces_prev = getCurrentInterfaces()
 
-    server_instance_id = call('ss-get vpn.server.instanceid').rstrip('\n')
+    server_instance_id = call('ss-get vpn.server.nodeinstanceid').rstrip('\n')
 
     date = call('date')
     logToFile("Waiting for CNSMO at %s" % date, log_file, "w+")
