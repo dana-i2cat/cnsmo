@@ -69,6 +69,8 @@ def deployvpn():
     log_file = os.getcwd() + "/cnsmo/vpn.log"
     ifaces_prev = getCurrentInterfaces()
 
+    call('ss-set vpn.server.nodeinstanceid %s' % instance_id)
+
     # wait for CNSMO core
     call('ss-get net.i2cat.cnsmo.core.ready')
     redis_address = call("ss-get net.i2cat.cnsmo.dss.address").rstrip('\n')
