@@ -4,6 +4,22 @@
 # This script is meant to be run by SlipStream, using a privileged user
 #
 # All ss-get/ss-set applies to local node variables, unless a node instance_id is prefixed.
+#
+# Requires the following parameters in slipstream application component:
+# Input parameters:
+# vpn.server.instanceid: Indicates the instanceid of the component acting as VPN server
+#
+# Output parameters:
+# net.i2cat.cnsmo.service.vpn.client.listening: Used to communicate the client to be listening for orchestrator orders
+# net.i2cat.cnsmo.service.vpn.client.ready: Used to communicate the client to be configured properly
+# vpn.address: Used to communicate the IPv4 address of this component
+# vpn.address6: Used to communicate the IPv6 address of this component
+#
+# Requires the following output parameters from the VPN server:
+# net.i2cat.cnsmo.core.ready: Used to communicate CNSMO core is ready.
+# net.i2cat.cnsmo.dss.address: Used to communicate CNSMO distributed system state address.
+# net.i2cat.cnsmo.service.vpn.orchestrator.ready: Used to communicate the vpn orchestrator is ready
+# net.i2cat.cnsmo.service.vpn.ready: Used to communicate the VPN service to be configured properly
 ###
 
 import subprocess
@@ -24,8 +40,7 @@ def main():
     log_file = os.getcwd() + "/cnsmo/vpn.log"
     ifaces_prev = getCurrentInterfaces()
 
-    # TODO get this from slipstream context, by inspecting roles each component has
-    server_instance_id = "VPN_server.1"
+    server_instance_id = call('ss-get vpn.server.instanceid').rstrip('\n')
 
     date = call('date')
     logToFile("Waiting for CNSMO at %s" % date, log_file, "w+")
