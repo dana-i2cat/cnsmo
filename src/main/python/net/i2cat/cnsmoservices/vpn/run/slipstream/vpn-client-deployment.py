@@ -39,7 +39,7 @@ def main():
     log_file = os.getcwd() + "/cnsmo/vpn.log"
     ifaces_prev = getCurrentInterfaces()
 
-    server_instance_id = call('ss-get vpn.server.nodeinstanceid').rstrip('\n')
+    server_instance_id = call('ss-get --timeout=1200 vpn.server.nodeinstanceid').rstrip('\n')
 
     date = call('date')
     logToFile("Waiting for CNSMO at %s" % date, log_file, "w+")
