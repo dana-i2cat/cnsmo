@@ -40,6 +40,9 @@ def main():
     ifaces_prev = getCurrentInterfaces()
 
     server_instance_id = call('ss-get --timeout=1200 vpn.server.nodeinstanceid').rstrip('\n')
+    if not server_instance_id:
+        # timeout! Abort the script immediately (ss-get will abort the whole deployment in short time)
+        return
 
     date = call('date')
     logToFile("Waiting for CNSMO at %s" % date, log_file, "w+")
