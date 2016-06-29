@@ -12,9 +12,6 @@ import sys
 import threading
 import time
 
-from slipstream.ConfigHolder import ConfigHolder
-from slipstream.SlipStreamHttpClient import SlipStreamHttpClient
-
 path = os.path.dirname(os.path.abspath(__file__))
 src_dir = path + "/../../../../../../../../../"
 if src_dir not in sys.path:
