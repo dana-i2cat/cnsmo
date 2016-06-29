@@ -131,9 +131,6 @@ def deployvpn():
 
     time.sleep(5)
 
-    # Communicate that the VPN has been established
-    call('ss-set net.i2cat.cnsmo.service.vpn.ready true')
-
     date = call('date')
     logToFile("VPN deployed at %s" % date, log_file, "a")
 
@@ -150,6 +147,9 @@ def deployvpn():
 
     call("ss-set vpn.address %s" % vpn_local_ipv4_address)
     call("ss-set vpn.address6 %s" % vpn_local_ipv6_address)
+
+    # Communicate that the VPN has been established
+    call('ss-set net.i2cat.cnsmo.service.vpn.ready true')
 
     call("ss-display \"VPN: VPN has been established! Using interface %s with ipaddr %s and ipv6addr %s\"" %
          (vpn_iface, vpn_local_ipv4_address, vpn_local_ipv6_address))
