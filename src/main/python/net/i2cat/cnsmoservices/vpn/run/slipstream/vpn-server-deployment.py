@@ -138,14 +138,10 @@ def deployvpn():
     logToFile("VPN deployed at %s" % date, log_file, "a")
 
     # assuming the VPN interface (probably tap0) is the only one created during this script execution
-    vpn_iface = None
-    for current_iface in getCurrentInterfaces():
-        if current_iface not in ifaces_prev:
-            vpn_iface = current_iface
-
+    vpn_iface = detect_new_interface_in_30_sec(ifaces_prev)
     if not vpn_iface:
-        call("ss-abort \"%s:Failed to create tap interface, required for the VPN\"" % instance_id)
-        return
+        call("ss-abort \"%s:Timeout! Failed to locate tap interface, created by the VPN\"" % instance_id)
+        return -1
 
     vpn_local_ipv4_address = getInterfaceIPv4Address(vpn_iface)
     vpn_local_ipv6_address = getInterfaceIPv6Address(vpn_iface)
@@ -159,6 +155,24 @@ def deployvpn():
          (vpn_iface, vpn_local_ipv4_address, vpn_local_ipv6_address))
 
     print "VPN deployed!"
+
+
+def detect_new_interface_in_30_sec(ifaces_prev):
+    vpn_iface = do_detect_new_interface(ifaces_prev)
+    attempts = 0
+    while not vpn_iface and attempts < 6:
+        time.sleep(5)
+        vpn_iface = do_detect_new_interface(ifaces_prev)
+        attempts += 1
+    return vpn_iface
+
+
+def do_detect_new_interface(ifaces_prev):
+    vpn_iface = None
+    for current_iface in getCurrentInterfaces():
+        if current_iface not in ifaces_prev:
+            vpn_iface = current_iface
+    return vpn_iface
 
 
 def launchRedis(hostname, dss_port):
