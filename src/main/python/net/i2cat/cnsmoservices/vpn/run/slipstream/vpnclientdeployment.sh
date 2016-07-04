@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 cwd=${PWD}
-python ${cwd}/cnsmo/cnsmo/src/main/python/net/i2cat/cnsmoservices/vpn/run/slipstream/vpn-client-deployment.py &
+python ${cwd}/cnsmo/cnsmo/src/main/python/net/i2cat/cnsmoservices/vpn/run/slipstream/vpnclientdeployment.py &
 disown $!
 serverid=$(ss-get --timeout=1200 vpn.server.nodeinstanceid)
 # In case of timeout, serverid will not be set. But next ss-get will fail with Unknown key error.
