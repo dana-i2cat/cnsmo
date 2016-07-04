@@ -33,6 +33,10 @@ call = lambda command: subprocess.check_output(command, shell=True)
 
 
 def main():
+    deployvpn()
+
+
+def deployvpn():
     ss_nodename = call('ss-get nodename').rstrip('\n')
     ss_node_instance = call('ss-get id').rstrip('\n')
     instance_id = "%s.%s" % (ss_nodename, ss_node_instance)

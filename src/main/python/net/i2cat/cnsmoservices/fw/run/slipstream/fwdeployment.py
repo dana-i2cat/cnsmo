@@ -37,6 +37,10 @@ def main():
     launch_fw(server_instance_id)
 
 
+def deployfw(server_instance_id):
+    launch_fw(server_instance_id)
+
+
 def launch_fw(server_instance_id):
     ss_nodename = call('ss-get nodename').rstrip('\n')
     ss_node_instance = call('ss-get id').rstrip('\n')
