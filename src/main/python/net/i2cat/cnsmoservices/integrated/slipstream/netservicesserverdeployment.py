@@ -33,6 +33,7 @@ call = lambda command: subprocess.check_output(command, shell=True)
 
 
 def main():
+    call('ss-display \"Running net services server deployment script\"')
     netservices = get_net_services_to_enable()
     call('ss-display \"Deploying network services %s\"' % netservices)
     netservices_enabled = list()

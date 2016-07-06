@@ -34,7 +34,9 @@ call = lambda command: subprocess.check_output(command, shell=True)
 
 
 def main():
+    call('ss-display \"Running net services client deployment script\"')
     netservices = get_net_services_to_enable()
+    call('ss-display \"Deploying network services %s\"' % netservices)
     netservices_enabled = list()
     cnsmo_server_instance_id = call('ss-get --timeout=1200 cnsmo.server.nodeinstanceid').rstrip('\n')
     if not cnsmo_server_instance_id:
