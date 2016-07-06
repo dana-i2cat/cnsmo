@@ -34,6 +34,7 @@ call = lambda command: subprocess.check_output(command, shell=True)
 
 def main():
     netservices = get_net_services_to_enable()
+    call('ss-display \"Deploying network services %s\"' % netservices)
     netservices_enabled = list()
 
     ss_nodename = call('ss-get nodename').rstrip('\n')
