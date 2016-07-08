@@ -31,39 +31,7 @@ logger = logging.getLogger('net.i2cat.cnsmoservices.vpn.run.slipstream.vpnserver
 
 
 def main():
-    deploycnsmo()
     return deployvpn()
-
-
-def deploycnsmo():
-    ss_nodename = call('ss-get nodename').rstrip('\n')
-    ss_node_instance = call('ss-get id').rstrip('\n')
-    instance_id = "%s.%s" % (ss_nodename, ss_node_instance)
-    log_file = os.getcwd() + "/cnsmo/vpn.log"
-
-    hostname = call('ss-get hostname').rstrip('\n')
-    dss_port = "6379"
-    redis_address = "%s:%s" % (hostname, dss_port)
-
-    date = call('date')
-    logToFile("Launching CNSMO at %s" % date, log_file, "w+")
-
-
-    # Launch REDIS
-    tr = threading.Thread(target=launchRedis, args=(hostname, dss_port))
-    tr.start()
-    # TODO implement proper way to detect when the redis server is ready
-    time.sleep(1)
-
-    # Launch CNSMO
-    call('ss-display \"Launching CNSMO...\"')
-    tss = threading.Thread(target=launchSystemState, args=(hostname, dss_port))
-    tss.start()
-    # TODO implement proper way to detect when the system state is ready
-    time.sleep(1)
-    call("ss-set net.i2cat.cnsmo.dss.address %s" % redis_address)
-    call('ss-set net.i2cat.cnsmo.core.ready true')
-    call('ss-display \"CNSMO is ready!\"')
 
 
 def deployvpn():
@@ -243,16 +211,6 @@ def getInterfaceIPv4Address(iface):
 
 def getInterfaceIPv6Address(iface):
     return call("ifconfig " + iface + "| awk '/inet6 / { print $3 }'").rstrip('\n')
-
-
-def logToFile(message, filename, filemode):
-    f = None
-    try:
-        f = open(filename, filemode)
-        f.write(message)
-    finally:
-        if f:
-            f.close()
 
 
 # Gets the instances that compose the deployment
