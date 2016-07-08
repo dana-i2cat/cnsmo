@@ -33,7 +33,11 @@ from src.main.python.net.i2cat.cnsmoservices.lb.run.slipstream.lborchestratordep
 
 call = lambda command: subprocess.check_output(command, shell=True)
 
-logging.basicConfig(filename="cnsmo.log")
+logging.basicConfig(filename="cnsmo-deployment.log",
+                    filemode='a',
+                    format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
+                    datefmt='%H:%M:%S',
+                    level=logging.DEBUG)
 logger = logging.getLogger('net.i2cat.cnsmoservices.integrated.run.slipstream.netservicesserverdeployment')
 
 
