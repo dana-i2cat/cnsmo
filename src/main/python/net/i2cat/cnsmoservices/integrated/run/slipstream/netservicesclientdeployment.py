@@ -34,7 +34,7 @@ from src.main.python.net.i2cat.cnsmoservices.fw.run.slipstream.fwdeployment impo
 
 call = lambda command: subprocess.check_output(command, shell=True)
 
-logging.basicConfig(filename="cnsmo-deployment.log",
+logging.basicConfig(filename="cnsmo-integrated-deployment.log",
                     filemode='a',
                     format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
                     datefmt='%H:%M:%S',

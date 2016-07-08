@@ -29,7 +29,7 @@ import os
 
 call = lambda command: subprocess.check_output(command, shell=True)
 
-logging.basicConfig(filename="cnsmo-deployment.log",
+logging.basicConfig(filename="cnsmo-vpn-deployment.log",
                     filemode='a',
                     format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
                     datefmt='%H:%M:%S',

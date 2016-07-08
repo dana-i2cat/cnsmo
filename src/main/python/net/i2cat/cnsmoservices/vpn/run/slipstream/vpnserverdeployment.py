@@ -22,7 +22,7 @@ from src.main.python.net.i2cat.cnsmoservices.vpn.manager.vpn import VPNManager
 
 call = lambda command: subprocess.check_output(command, shell=True)
 
-logging.basicConfig(filename="cnsmo-deployment.log",
+logging.basicConfig(filename="cnsmo-vpn-deployment.log",
                     filemode='a',
                     format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
                     datefmt='%H:%M:%S',
@@ -119,7 +119,7 @@ def deployvpn():
         if not response:
             logger.error("Timeout! Waiting for VPN client %s" % client_id)
             return -1
-
+        logger.debug("Finished waiting for all VPN clients.")
 
     # Deploy VPN
     logger.debug("Deploying VPN...")
