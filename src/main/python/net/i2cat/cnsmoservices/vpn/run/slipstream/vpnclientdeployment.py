@@ -29,20 +29,16 @@ import os
 
 call = lambda command: subprocess.check_output(command, shell=True)
 
-logging.basicConfig(filename="cnsmo-vpn-deployment.log",
-                    filemode='a',
-                    format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
-                    datefmt='%H:%M:%S',
-                    level=logging.DEBUG)
-logger = logging.getLogger('net.i2cat.cnsmoservices.vpn.run.slipstream.vpnclientdeployment')
-
 
 def main():
+    config_logging()
+    logger = logging.getLogger(__name__)
     logger.debug("Running VPN client deployment script...")
     return deployvpn()
 
 
 def deployvpn():
+    logger = logging.getLogger(__name__)
     logger.debug("Deploying VPN client on a SlipStream application...")
 
     ss_nodename = call('ss-get nodename').rstrip('\n')
@@ -147,6 +143,7 @@ def do_detect_new_interface(ifaces_prev):
 
 
 def launchVPNClient(hostname, redis_address, instance_id):
+    logger = logging.getLogger(__name__)
     logger.debug("Launching VPN client...")
     call('ss-display \"VPN: Launching VPN client...\"')
     response = call("python cnsmo/cnsmo/src/main/python/net/i2cat/cnsmoservices/vpn/run/client.py -a %s -p 9091 -r %s -s VPNClient-%s"
@@ -174,5 +171,13 @@ def logToFile(message, filename, filemode):
     finally:
         if f:
             f.close()
+
+
+def config_logging():
+    logging.basicConfig(filename="cnsmo-vpn-deployment.log",
+                        filemode='a',
+                        format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
+                        datefmt='%H:%M:%S',
+                        level=logging.DEBUG)
 
 main()

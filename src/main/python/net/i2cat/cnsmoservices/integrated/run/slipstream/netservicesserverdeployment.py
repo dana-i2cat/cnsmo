@@ -33,15 +33,10 @@ from src.main.python.net.i2cat.cnsmoservices.lb.run.slipstream.lborchestratordep
 
 call = lambda command: subprocess.check_output(command, shell=True)
 
-logging.basicConfig(filename="cnsmo-integrated-deployment.log",
-                    filemode='a',
-                    format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
-                    datefmt='%H:%M:%S',
-                    level=logging.DEBUG)
-logger = logging.getLogger('net.i2cat.cnsmoservices.integrated.run.slipstream.netservicesserverdeployment')
-
 
 def main():
+    config_logging()
+    logger = logging.getLogger(__name__)
     logger.debug("Running net services server deployment script")
     call('ss-display \"Running net services server deployment script\"')
     netservices = get_net_services_to_enable()
@@ -83,6 +78,7 @@ def main():
 
 
 def deploy_vpn_and_wait():
+    logger = logging.getLogger(__name__)
     logger.debug("Deploying VPN...")
     tvpn = threading.Thread(target=deployvpn)
     tvpn.start()
@@ -97,6 +93,7 @@ def deploy_vpn_and_wait():
 
 
 def deploy_fw_and_wait(cnsmo_server_instance_id):
+    logger = logging.getLogger(__name__)
     logger.debug("Deploying FW...")
     tfw = threading.Thread(target=deployfw, args=cnsmo_server_instance_id)
     tfw.start()
@@ -111,6 +108,7 @@ def deploy_fw_and_wait(cnsmo_server_instance_id):
 
 
 def deploy_lb_and_wait():
+    logger = logging.getLogger(__name__)
     logger.debug("Deploying LB...")
     tlb = threading.Thread(target=deploylb)
     tlb.start()
@@ -131,6 +129,14 @@ def get_net_services_to_enable():
     netservices_str = call('ss-get net.services.enable').rstrip('\n')
     netservices = json.loads(netservices_str)
     return netservices
+
+
+def config_logging():
+    logging.basicConfig(filename="cnsmo-integrated-deployment.log",
+                        filemode='a',
+                        format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
+                        datefmt='%H:%M:%S',
+                        level=logging.DEBUG)
 
 main()
 
