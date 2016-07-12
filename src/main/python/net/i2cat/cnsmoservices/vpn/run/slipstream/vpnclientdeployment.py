@@ -181,4 +181,5 @@ def config_logging():
                         level=logging.DEBUG,
                         disable_existing_loggers=False)
 
-main()
+if __name__ == "__main__":
+    main()
