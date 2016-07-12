@@ -120,11 +120,12 @@ def get_net_services_to_enable():
 
 
 def config_logging():
-    logging.basicConfig(filename="cnsmo-integrated-deployment.log",
+    logging.basicConfig(filename='cnsmo-integrated-deployment.log',
                         filemode='a',
                         format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
                         datefmt='%H:%M:%S',
-                        level=logging.DEBUG)
+                        level=logging.DEBUG,
+                        disable_existing_loggers=False)
 
 main()
 

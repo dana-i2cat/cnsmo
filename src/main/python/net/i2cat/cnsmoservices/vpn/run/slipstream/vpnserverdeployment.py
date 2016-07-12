@@ -242,10 +242,11 @@ def ss_getinstances():
 
 
 def config_logging():
-    logging.basicConfig(filename="cnsmo-vpn-deployment.log",
+    logging.basicConfig(filename='cnsmo-vpn-deployment.log',
                         filemode='a',
                         format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
                         datefmt='%H:%M:%S',
-                        level=logging.DEBUG)
+                        level=logging.DEBUG,
+                        disable_existing_loggers=False)
 
 main()
