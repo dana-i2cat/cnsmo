@@ -40,9 +40,8 @@ def main():
     logger.debug("Running net services server deployment script")
     call('ss-display \"Running net services server deployment script\"')
     netservices = get_net_services_to_enable()
-    logger.debug("Will deploy following services %s" % netservices)
-    call('ss-display \"Deploying network services %s\"' % netservices)
-    netservices_enabled = list()
+    logger.debug("Will deploy following services %s" % json.dumps(netservices))
+    call('ss-display \"Deploying network services %s\"' % json.dumps(netservices))
 
     ss_nodename = call('ss-get nodename').rstrip('\n')
     ss_node_instance = call('ss-get id').rstrip('\n')
@@ -53,27 +52,31 @@ def main():
     logger.debug("Set cnsmo.server.nodeinstanceid= %s" % cnsmo_server_instance_id)
 
     logger.debug("Deploying net services...")
+    netservices_enabled = list()
     if 'vpn' in netservices:
         if deploy_vpn_and_wait():
+            logger.debug("Marking vpn as enabled")
             netservices_enabled.append('vpn')
         else:
             return -1
 
     if 'fw' in netservices:
         if deploy_fw_and_wait(cnsmo_server_instance_id):
+            logger.debug("Marking fw as enabled")
             netservices_enabled.append('fw')
         else:
             return -1
 
     if 'lb' in netservices:
         if deploy_lb_and_wait():
+            logger.debug("Marking lb as enabled")
             netservices_enabled.append('lb')
         else:
             return -1
 
     logger.debug("Finished deploying net services")
-    call('ss-set net.services.enabled %s' % netservices_enabled)
-    logger.debug("Set net.services.enabled= %s" % netservices_enabled)
+    call('ss-set net.services.enabled %s' % json.dumps(netservices_enabled))
+    logger.debug("Set net.services.enabled= %s" % json.dumps(netservices_enabled))
     return 0
 
 
@@ -83,9 +86,9 @@ def deploy_vpn_and_wait():
     tvpn = threading.Thread(target=deployvpn)
     tvpn.start()
     logger.debug("Waiting for VPN to be established...")
-    response = call('ss-get --timeout=1800 net.i2cat.cnsmo.service.vpn.ready').rstrip('\n')
-    logger.debug("Finished waiting for VPN. established=%s" % response)
-    if response != 'true':
+    vpn_ready = call('ss-get --timeout=1800 net.i2cat.cnsmo.service.vpn.ready').rstrip('\n')
+    logger.debug("Finished waiting for VPN. established=%s" % vpn_ready)
+    if vpn_ready != 'true':
         logger.error("Timeout waiting for VPN service to be established")
         call('ss-abort \"Timeout waiting for VPN service to be established\"')
         return -1
