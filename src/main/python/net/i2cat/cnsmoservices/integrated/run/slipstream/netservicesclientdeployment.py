@@ -59,15 +59,17 @@ def main():
         if not vpn_server_instance_id:
             # timeout! Abort the script immediately (ss-get will abort the whole deployment in short time)
             return -1
-        if deploy_vpn_and_wait(vpn_server_instance_id):
+        if deploy_vpn_and_wait(vpn_server_instance_id) == 0:
             netservices_enabled.append('vpn')
         else:
+            logger.error("Error deploying VPN. Aborting script")
             return -1
 
     if 'fw' in netservices:
-        if deploy_fw_and_wait(cnsmo_server_instance_id):
+        if deploy_fw_and_wait(cnsmo_server_instance_id) == 0:
             netservices_enabled.append('fw')
         else:
+            logger.error("Error deploying FW. Aborting script")
             return -1
 
     if 'lb' in netservices:
