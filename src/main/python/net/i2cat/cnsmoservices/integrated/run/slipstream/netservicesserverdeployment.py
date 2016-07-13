@@ -54,24 +54,27 @@ def main():
     logger.debug("Deploying net services...")
     netservices_enabled = list()
     if 'vpn' in netservices:
-        if deploy_vpn_and_wait():
+        if deploy_vpn_and_wait() == 0:
             logger.debug("Marking vpn as enabled")
             netservices_enabled.append('vpn')
         else:
+            logger.error("Error deploying VPN. Aborting script")
             return -1
 
     if 'fw' in netservices:
-        if deploy_fw_and_wait(cnsmo_server_instance_id):
+        if deploy_fw_and_wait(cnsmo_server_instance_id) == 0:
             logger.debug("Marking fw as enabled")
             netservices_enabled.append('fw')
         else:
+            logger.error("Error deploying FW. Aborting script")
             return -1
 
     if 'lb' in netservices:
-        if deploy_lb_and_wait():
+        if deploy_lb_and_wait() == 0:
             logger.debug("Marking lb as enabled")
             netservices_enabled.append('lb')
         else:
+            logger.error("Error deploying LB. Aborting script")
             return -1
 
     logger.debug("Finished deploying net services")
