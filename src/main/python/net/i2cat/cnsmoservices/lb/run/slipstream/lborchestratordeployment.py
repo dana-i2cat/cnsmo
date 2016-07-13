@@ -187,4 +187,5 @@ def ss_getinstances(included_node_names):
 
     return instances
 
-main()
+if __name__ == "__main__":
+    main()

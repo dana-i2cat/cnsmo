@@ -116,4 +116,5 @@ def logToFile(message, filename, filemode):
         if f:
             f.close()
 
-main()
+if __name__ == "__main__":
+    main()
