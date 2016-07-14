@@ -114,16 +114,6 @@ def launchFWServer(hostname, port, redis_address, instance_id):
     logger.debug("FW server response: %s" % response)
 
 
-def logToFile(message, filename, filemode):
-    f = None
-    try:
-        f = open(filename, filemode)
-        f.write(message)
-    finally:
-        if f:
-            f.close()
-
-
 def config_logging():
     logging.basicConfig(filename='cnsmo-fw-deployment.log',
                         filemode='a',
