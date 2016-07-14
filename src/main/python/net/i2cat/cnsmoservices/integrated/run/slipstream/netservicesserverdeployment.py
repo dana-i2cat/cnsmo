@@ -41,7 +41,7 @@ def main():
     call('ss-display \"Running net services server deployment script\"')
     netservices = get_net_services_to_enable()
     logger.debug("Will deploy following services %s" % json.dumps(netservices))
-    call('ss-display \"Deploying network services %s\"' % json.dumps(netservices))
+    call('ss-display \"Deploying network services \'%s\'\"' % json.dumps(netservices))
 
     ss_nodename = call('ss-get nodename').rstrip('\n')
     ss_node_instance = call('ss-get id').rstrip('\n')
@@ -80,7 +80,7 @@ def main():
     logger.debug("Finished deploying net services")
     call('ss-display \"Successfully deployed network services: %s\"' % netservices_enabled)
 
-    call('ss-set net.services.enabled %s' % json.dumps(netservices_enabled))
+    call('ss-set net.services.enabled \'%s\'' % json.dumps(netservices_enabled))
     logger.debug("Set net.services.enabled= %s" % json.dumps(netservices_enabled))
     return 0
 
