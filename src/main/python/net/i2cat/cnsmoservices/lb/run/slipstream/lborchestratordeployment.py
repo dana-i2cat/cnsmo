@@ -17,11 +17,11 @@
 # net.i2cat.cnsmo.service.lb.ready: Used to communicate LB service is ready
 ###
 
+import json
+import logging
 import os
 import subprocess
 import sys
-import threading
-import time
 
 path = os.path.dirname(os.path.abspath(__file__))
 src_dir = path + "/../../../../../../../../../"
@@ -34,74 +34,56 @@ call = lambda command: subprocess.check_output(command, shell=True)
 
 
 def main():
-    # deploycnsmo()
+    config_logging()
+    logger = logging.getLogger(__name__)
+    logger.debug("Running LB deployment script...")
     return deploylb()
 
 
-def deploycnsmo():
-    ss_nodename = call('ss-get nodename').rstrip('\n')
-    ss_node_instance = call('ss-get id').rstrip('\n')
-    instance_id = "%s.%s" % (ss_nodename, ss_node_instance)
-    log_file = os.getcwd() + "/cnsmo/lb.log"
-
-    hostname = call('ss-get hostname').rstrip('\n')
-    dss_port = "6379"
-    redis_address = "%s:%s" % (hostname, dss_port)
-
-    date = call('date')
-    logToFile("Launching CNSMO at %s" % date, log_file, "w+")
-
-
-    # Launch REDIS
-    tr = threading.Thread(target=launchRedis, args=(hostname, dss_port))
-    tr.start()
-    # TODO implement proper way to detect when the redis server is ready
-    time.sleep(1)
-
-    # Launch CNSMO
-    call('ss-display \"Launching CNSMO...\"')
-    tss = threading.Thread(target=launchSystemState, args=(hostname, dss_port))
-    tss.start()
-    # TODO implement proper way to detect when the system state is ready
-    time.sleep(1)
-    call("ss-set net.i2cat.cnsmo.dss.address %s" % redis_address)
-    call('ss-set net.i2cat.cnsmo.core.ready true')
-    call('ss-display \"CNSMO is ready!\"')
-
-
 def deploylb():
+    logger = logging.getLogger(__name__)
+    logger.debug("Deploying LB orchestrator on a SlipStream application...")
+
     ss_nodename = call('ss-get nodename').rstrip('\n')
     ss_node_instance = call('ss-get id').rstrip('\n')
     instance_id = "%s.%s" % (ss_nodename, ss_node_instance)
     hostname = call('ss-get hostname').rstrip('\n')
-    log_file = os.getcwd() + "/cnsmo/lb.log"
 
     # wait for CNSMO core
-    date = call('date')
-    logToFile("Waitig for CNSMO core %s" % date, log_file, "w+")
-    call('ss-get net.i2cat.cnsmo.core.ready')
-    redis_address = call("ss-get net.i2cat.cnsmo.dss.address").rstrip('\n')
+    logger.debug("Waiting for CNSMO...")
+    response = call('ss-get net.i2cat.cnsmo.core.ready').rstrip('\n')
+    logger.debug("Finished waiting for CNSMO. net.i2cat.cnsmo.core.ready= %s" % response)
 
-    date = call('date')
-    logToFile("Gathering LB input at %s" % date, log_file, "a")
+    logger.debug("Resolving net.i2cat.cnsmo.dss.address...")
+    redis_address = call("ss-get net.i2cat.cnsmo.dss.address").rstrip('\n')
+    logger.debug("Got net.i2cat.cnsmo.dss.address= %s" % redis_address)
+
+    logger.debug("Gathering LB input...")
     call('ss-display \"LB: Gathering LB input...\"')
 
     # retrieve instances to be load balanced:
     # 1. Retrieve port to lb with ss-get
     lb_port = call('ss-get lb.port').rstrip('\n')
+    logger.debug("Got lb.port = %s" % lb_port)
 
     # 2. Retrieve lb_mode with ss-get (defaults to leastconn)
     lb_mode = call('ss-get lb.mode').rstrip('\n')
     if not lb_mode:
         lb_mode = "leastconn"
+    logger.debug("Got lb.mode = %s" % lb_port)
 
     # 3. Retrieve role to lb with ss-get
     role_to_lb = call('ss-get lb.node').rstrip('\n')
+    logger.debug("Got lb.node = %s" % role_to_lb)
 
     # 4. Retrieve instances with role to lb
+    logger.debug("Retrieving instances to load balance...")
     instances_to_lb = ss_getinstances([role_to_lb])
+    logger.debug("Got instances to load balance = %s" % json.dumps(instances_to_lb))
+
 
     # 5. Retrieve IP addresses for that instances
+    logger.debug("Retrieving their IP addresses...")
     # Assuming the ip address is the public one!!!
     ips_to_lb = list()
     for instance in instances_to_lb:
@@ -112,48 +94,29 @@ def deploylb():
     # 6. Build comma-separated list of ip:port to balance
     lb_backend_servers = [x + ":" + lb_port for x in ips_to_lb]
 
-    logToFile("LB port: " + lb_port, log_file, "a")
-    logToFile("LB mode: " + lb_mode, log_file, "a")
-    logToFile("LB backend servers: " + str(lb_backend_servers), log_file, "a")
+    logger.debug("Got following LB configuration")
+    logger.debug("LB port: " + lb_port)
+    logger.debug("LB mode: " + lb_mode)
+    logger.debug("LB backend servers: " + str(lb_backend_servers))
 
     # 7. Retrieve IP address of the LB with ss-get hostname (already done)
 
     # 8. Check hostname is not a lb_backend_server
     if hostname + ":" + lb_port in lb_backend_servers:
-        call("ss-abort \"%s:Invalid input. Can't use LB address as backend address!\"")
+        logger.error("Invalid input. Can't use LB address as backend address!")
+        call("ss-abort \"%s:Invalid input. Can't use LB address as backend address!\"" % instance_id)
 
     # Launch orchestrator with gathered data
-    date = call('date')
-    logToFile("Deploying LB at %s" % date, log_file, "a")
+    logger.debug("Deploying LB...")
     call('ss-display \"LB: Launching LB orchestrator...\"')
     deploy_lb(hostname, redis_address, lb_port, lb_mode, lb_backend_servers)
 
+    logger.debug("Assuming LB service is ready")
     call('ss-set net.i2cat.cnsmo.service.lb.ready true')
     call('ss-display \"LB: LB has been deployed!\"')
 
-    date = call('date')
-    logToFile("LB deployed at %s" % date, log_file, "a")
+    logger.debug("LB deployed!")
     return 0
-
-
-def launchRedis(hostname, dss_port):
-    call('ss-display \"Launching REDIS...\"')
-    call('redis-server')
-
-
-def launchSystemState(hostname, dss_port):
-    call('ss-display \"Launching CNSMO...\"')
-    call("python cnsmo/cnsmo/src/main/python/net/i2cat/cnsmo/run/systemstate.py -a %s -p %s" % (hostname, dss_port))
-
-
-def logToFile(message, filename, filemode):
-    f = None
-    try:
-        f = open(filename, filemode)
-        f.write(message)
-    finally:
-        if f:
-            f.close()
 
 
 # Gets the instances that compose the deployment
@@ -187,6 +150,15 @@ def ss_getinstances(included_node_names):
             instances.append(node + "." + index.rstrip('\n'))
 
     return instances
+
+
+def config_logging():
+    logging.basicConfig(filename='cnsmo-lb-deployment.log',
+                        filemode='a',
+                        format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
+                        datefmt='%H:%M:%S',
+                        level=logging.DEBUG,
+                        disable_existing_loggers=False)
 
 if __name__ == "__main__":
     main()
