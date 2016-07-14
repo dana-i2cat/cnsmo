@@ -23,7 +23,6 @@ import requests
 import subprocess
 import threading
 import time
-import os
 
 call = lambda command: subprocess.check_output(command, shell=True)
 
@@ -37,11 +36,11 @@ def main():
     server_instance_id = "CNSMO_server.1"
     logger.debug("Using hardcoded server_instance_id=%s " % server_instance_id)
 
-    launch_fw(server_instance_id)
+    return launch_fw(server_instance_id)
 
 
 def deployfw(server_instance_id):
-    launch_fw(server_instance_id)
+    return launch_fw(server_instance_id)
 
 
 def launch_fw(server_instance_id):
@@ -104,6 +103,7 @@ def launch_fw(server_instance_id):
 
     logger.debug("FW service configured!")
     call('ss-display \"FW: Firewall configured!\"')
+    return 0
 
 
 def launchFWServer(hostname, port, redis_address, instance_id):
