@@ -35,7 +35,7 @@ call = lambda command: subprocess.check_output(command, shell=True)
 
 def main():
     # deploycnsmo()
-    deploylb()
+    return deploylb()
 
 
 def deploycnsmo():
@@ -133,6 +133,7 @@ def deploylb():
 
     date = call('date')
     logToFile("LB deployed at %s" % date, log_file, "a")
+    return 0
 
 
 def launchRedis(hostname, dss_port):
