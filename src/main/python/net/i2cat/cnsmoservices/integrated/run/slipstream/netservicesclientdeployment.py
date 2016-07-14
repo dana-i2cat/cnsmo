@@ -77,6 +77,8 @@ def main():
         netservices_enabled.append('lb')
     logger.debug("Finished deploying net services")
 
+    call('ss-display \"Successfully deployed network services: %s\"' % netservices_enabled)
+
     call('ss-set net.services.enabled %s' % netservices_enabled)
     logger.debug("Set net.services.enabled= %s" % netservices_enabled)
     return 0
