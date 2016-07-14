@@ -41,8 +41,8 @@ def main():
     logger.debug("Running net services client deployment script")
     call('ss-display \"Running net services client deployment script\"')
     netservices = get_net_services_to_enable()
-    logger.debug("Will deploy following services %s" % netservices)
-    call('ss-display \"Deploying network services %s\"' % netservices)
+    logger.debug("Will deploy following services %s" % json.dumps(netservices))
+    call('ss-display \"Deploying network services %s\"' % json.dumps(netservices))
     netservices_enabled = list()
 
     logger.debug("Resolving cnsmo.server.nodeinstanceid...")
@@ -79,8 +79,8 @@ def main():
 
     call('ss-display \"Successfully deployed network services: %s\"' % netservices_enabled)
 
-    call('ss-set net.services.enabled %s' % netservices_enabled)
-    logger.debug("Set net.services.enabled= %s" % netservices_enabled)
+    call('ss-set net.services.enabled %s' % json.dumps(netservices_enabled))
+    logger.debug("Set net.services.enabled= %s" % json.dumps(netservices_enabled))
     return 0
 
 
