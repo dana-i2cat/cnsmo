@@ -60,6 +60,7 @@ def main():
             # timeout! Abort the script immediately (ss-get will abort the whole deployment in short time)
             return -1
         if deploy_vpn_and_wait(vpn_server_instance_id) == 0:
+            logger.debug("Marking vpn as enabled")
             netservices_enabled.append('vpn')
         else:
             logger.error("Error deploying VPN. Aborting script")
@@ -67,6 +68,7 @@ def main():
 
     if 'fw' in netservices:
         if deploy_fw_and_wait(cnsmo_server_instance_id) == 0:
+            logger.debug("Marking fw as enabled")
             netservices_enabled.append('fw')
         else:
             logger.error("Error deploying FW. Aborting script")
@@ -74,7 +76,9 @@ def main():
 
     if 'lb' in netservices:
         # nothing to do, lb is only in the server
+        logger.debug("Marking lb as enabled")
         netservices_enabled.append('lb')
+
     logger.debug("Finished deploying net services")
 
     call('ss-display \"Successfully deployed network services: %s\"' % netservices_enabled)
