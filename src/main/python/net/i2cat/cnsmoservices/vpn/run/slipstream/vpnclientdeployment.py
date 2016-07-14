@@ -60,7 +60,7 @@ def deployvpn():
     logger.debug("Waiting for CNSMO...")
     call('ss-display \"Waiting for CNSMO...\"')
     response = call("ss-get --timeout=1800 %s:net.i2cat.cnsmo.core.ready" % server_instance_id).rstrip('\n')
-    logger.debug("Finished waiting for CNSMO. net.i2cat.cnsmo.core.ready= %s" % response)
+    logger.debug("Finished waiting for CNSMO. %s:net.i2cat.cnsmo.core.ready= %s" % (server_instance_id, response))
 
     logger.debug("Resolving net.i2cat.cnsmo.dss.address...")
     redis_address = call("ss-get %s:net.i2cat.cnsmo.dss.address" % server_instance_id).rstrip('\n')

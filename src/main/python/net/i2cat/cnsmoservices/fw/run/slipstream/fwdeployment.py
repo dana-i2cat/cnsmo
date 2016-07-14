@@ -18,21 +18,24 @@
 ###
 
 import json
+import logging
 import requests
 import subprocess
 import threading
 import time
 import os
 
-from slipstream.SlipStreamHttpClient import SlipStreamHttpClient
-from slipstream.ConfigHolder import ConfigHolder
-
 call = lambda command: subprocess.check_output(command, shell=True)
 
 
 def main():
+    config_logging()
+    logger = logging.getLogger(__name__)
+    logger.debug("Running FW deployment script...")
+
     # TODO get this from slipstream context, by inspecting roles each component has
     server_instance_id = "CNSMO_server.1"
+    logger.debug("Using hardcoded server_instance_id=%s " % server_instance_id)
 
     launch_fw(server_instance_id)
 
@@ -42,69 +45,73 @@ def deployfw(server_instance_id):
 
 
 def launch_fw(server_instance_id):
+    logger = logging.getLogger(__name__)
+    logger.debug("Deploying FW on a SlipStream application...")
+    logger.debug("Using server %s" % server_instance_id)
+
     ss_nodename = call('ss-get nodename').rstrip('\n')
     ss_node_instance = call('ss-get id').rstrip('\n')
     instance_id = "%s.%s" % (ss_nodename, ss_node_instance)
-    log_file = os.getcwd() + "/cnsmo/fw.log"
 
-    date = call('date')
-    logToFile("Waiting for CNSMO at %s" % date, log_file, "w+")
-
+    logger.debug("Waiting for CNSMO...")
     call('ss-display \"Waiting for CNSMO...\"')
-    call("ss-get --timeout=1800 %s:net.i2cat.cnsmo.core.ready" % server_instance_id)
+    response = call("ss-get --timeout=1800 %s:net.i2cat.cnsmo.core.ready" % server_instance_id).rstrip('\n')
+    logger.debug("Finished waiting for CNSMO. %s:net.i2cat.cnsmo.core.ready= %s" % (server_instance_id, response))
 
+    logger.debug("Resolving net.i2cat.cnsmo.dss.address...")
     redis_address = call("ss-get %s:net.i2cat.cnsmo.dss.address" % server_instance_id).rstrip('\n')
+    logger.debug("Got %s:net.i2cat.cnsmo.dss.address= %s" % (server_instance_id, redis_address))
 
+    logger.debug("Deploying FW components...")
     call('ss-display \"Deploying FW components...\"')
 
     hostname = call('ss-get hostname').rstrip('\n')
     port = "9095"
 
-    date = call('date')
-    logToFile("Launching Firewall server at %s" % date, log_file, "a")
-
     tc = threading.Thread(target=launchFWServer, args=(hostname, port, redis_address, instance_id))
     tc.start()
     # TODO implement proper way to detect when the server is ready (using systemstate?)
     time.sleep(5)
-    call('ss-set net.i2cat.cnsmo.service.fw.server.listening true')
+    logger.debug("Assuming FW server is deployed")
 
     # build the FW
+    logger.debug("Building the FW internal server internal...")
     r = requests.post("http://%s:%s/fw/build/" % (hostname, port))
     r.raise_for_status()
     time.sleep(1)
+    logger.debug("Assuming FW internal server is listening")
     call('ss-set net.i2cat.cnsmo.service.fw.server.listening true')
 
-    date = call('date')
-    logToFile("FW deployed at %s" % date, log_file, "a")
-
-    call('ss-display \"FW: FW has been created!\"')
-    print "FW deployed!"
-
     # Configure rules from input parameter
+    logger.debug("Configuring FW rules...")
     call('ss-display \"FW: Configuring FW rules...\"')
 
+    logger.debug("Retrieving FW rules...")
     rules_srt = call('ss-get net.i2cat.cnsmo.service.fw.rules').rstrip('\n')
-    print rules_srt
+    logger.debug("Got FW rules: %s" % rules_srt)
 
     rules = json.loads(rules_srt)
     for rule in rules:
-        print rule
+        logger.debug("Configuring rule: %s" % json.dumps(rule))
         r = requests.post("http://%s:%s/fw/" % (hostname, port), data=json.dumps(rule))
         r.raise_for_status()
+        logger.debug("Configured rule: %s" % json.dumps(rule))
 
-    date = call('date')
-    logToFile("FW configured successfully at %s" % date, log_file, "a")
+    logger.debug("FW configured successfully")
 
+    logger.debug("Announcing FW service ready...")
     call('ss-set net.i2cat.cnsmo.service.fw.ready true')
+
+    logger.debug("FW service configured!")
     call('ss-display \"FW: Firewall configured!\"')
-    print "FW configured!"
 
 
 def launchFWServer(hostname, port, redis_address, instance_id):
+    logger = logging.getLogger(__name__)
+    logger.debug("Launching FW server...")
     call('ss-display \"FW: Launching FW server...\"')
-    print "Launching FW"
-    call("python cnsmo/cnsmo/src/main/python/net/i2cat/cnsmoservices/fw/run/server.py -a %s -p %s -r %s -s FWServer-%s" % (hostname, port, redis_address, instance_id))
+    response = call("python cnsmo/cnsmo/src/main/python/net/i2cat/cnsmoservices/fw/run/server.py -a %s -p %s -r %s -s FWServer-%s" % (hostname, port, redis_address, instance_id))
+    logger.debug("FW server response: %s" % response)
 
 
 def logToFile(message, filename, filemode):
@@ -115,6 +122,15 @@ def logToFile(message, filename, filemode):
     finally:
         if f:
             f.close()
+
+
+def config_logging():
+    logging.basicConfig(filename='cnsmo-fw-deployment.log',
+                        filemode='a',
+                        format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
+                        datefmt='%H:%M:%S',
+                        level=logging.DEBUG,
+                        disable_existing_loggers=False)
 
 if __name__ == "__main__":
     main()
