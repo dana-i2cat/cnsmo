@@ -103,7 +103,7 @@ def deploy_vpn_and_wait():
 def deploy_fw_and_wait(cnsmo_server_instance_id):
     logger = logging.getLogger(__name__)
     logger.debug("Deploying FW...")
-    tfw = threading.Thread(target=deployfw, args=cnsmo_server_instance_id)
+    tfw = threading.Thread(target=deployfw, args=[cnsmo_server_instance_id])
     tfw.start()
     logger.debug("Waiting for FW to be established...")
     response = call('ss-get --timeout=1800 net.i2cat.cnsmo.service.fw.ready').rstrip('\n')
