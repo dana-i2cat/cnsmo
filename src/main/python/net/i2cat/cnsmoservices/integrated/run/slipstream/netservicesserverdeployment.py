@@ -88,47 +88,20 @@ def main():
 def deploy_vpn_and_wait():
     logger = logging.getLogger(__name__)
     logger.debug("Deploying VPN...")
-    tvpn = threading.Thread(target=deployvpn)
-    tvpn.start()
-    logger.debug("Waiting for VPN to be established...")
-    vpn_ready = call('ss-get --timeout=1800 net.i2cat.cnsmo.service.vpn.ready').rstrip('\n')
-    logger.debug("Finished waiting for VPN. established=%s" % vpn_ready)
-    if vpn_ready != 'true':
-        logger.error("Timeout waiting for VPN service to be established")
-        call('ss-abort \"Timeout waiting for VPN service to be established\"')
-        return -1
-    return 0
+    return deployvpn()
 
 
 def deploy_fw_and_wait(cnsmo_server_instance_id):
     logger = logging.getLogger(__name__)
     logger.debug("Deploying FW...")
-    tfw = threading.Thread(target=deployfw, args=[cnsmo_server_instance_id])
-    tfw.start()
-    logger.debug("Waiting for FW to be established...")
-    response = call('ss-get --timeout=1800 net.i2cat.cnsmo.service.fw.ready').rstrip('\n')
-    logger.debug("Finished waiting for FW. established=%s" % response)
-    if response != 'true':
-        logger.error("Timeout waiting for FW service to be established")
-        call('ss-abort \"Timeout waiting for FW service to be established\"')
-        return -1
-    return 0
+    return deployfw(cnsmo_server_instance_id)
 
 
 def deploy_lb_and_wait():
     logger = logging.getLogger(__name__)
     logger.debug("Deploying LB...")
-    tlb = threading.Thread(target=deploylb)
-    tlb.start()
-    logger.debug("Waiting for LB to be established...")
-    response = call('ss-get --timeout=1800 net.i2cat.cnsmo.service.lb.ready').rstrip('\n')
-    logger.debug("Finished waiting for LB. established=%s" % response)
-    if response != 'true':
-        logger.error("Timeout waiting for LB service to be established")
-        call('ss-abort \"Timeout waiting for LB service to be established\"')
-        return -1
-    return 0
-
+    return deploylb()
+    
 
 def get_net_services_to_enable():
     """
