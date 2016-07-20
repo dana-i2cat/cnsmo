@@ -1,12 +1,10 @@
-
-
 def get_server_app_request(host, port, service_id):
 
     d = dict(service_id=service_id,
              trigger='python server.py -a %s -p %s' %(host, port),
              resources=["https://raw.githubusercontent.com/dana-i2cat/cnsmo/master/src/main/python/net/i2cat/cnsmoservices/fw/app/server.py",
-                        "https://raw.githubusercontent.com/dana-i2cat/cnsmo-net-services/master/src/main/docker/fw/Dockerfile",
-                        "https://raw.githubusercontent.com/dana-i2cat/cnsmo-net-services/master/src/main/docker/fw/sc-manager.py",],
+                        "https://raw.githubusercontent.com/dana-i2cat/cnsmo-net-services/new-fw/src/main/docker/fw/Dockerfile",
+                        "https://raw.githubusercontent.com/dana-i2cat/cnsmo-net-services/new-fw/src/main/docker/fw/sc-manager.py",],
              dependencies=[],
              endpoints=[{ "uri":"http://%s:%s/fw/" %(host, port), "driver":"REST", "logic":"post", "name":"add_rule"},
                         { "uri":"http://%s:%s/fw/" %(host, port), "driver":"REST", "logic":"delete", "name":"delete_rule"},])
