@@ -1,9 +1,13 @@
 #!/bin/bash
 
-# install docker
-curl -fsSL https://get.docker.com/ | sh
-current_user=$(whoami)
-sudo usermod -aG docker ${current_user}
+if [ $(docker --version 1>/dev/null 2>/dev/null; echo $?) != "0" ] ; then
+    # install docker
+    curl -fsSL https://get.docker.com/ | sh
+    current_user=$(whoami)
+    sudo usermod -aG docker ${current_user}
+else
+    echo "docker aldready installed"
+fi
 
 # download cnsmo
 mkdir cnsmo
