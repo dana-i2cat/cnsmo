@@ -2,7 +2,7 @@ def get_server_app_request(host, port, service_id):
 
     d = dict(service_id=service_id,
              trigger='python server.py -a %s -p %s' %(host, port),
-             resources=["https://raw.githubusercontent.com/dana-i2cat/cnsmo/master/src/main/python/net/i2cat/cnsmoservices/fw/app/server.py",
+             resources=["https://raw.githubusercontent.com/dana-i2cat/cnsmo/new-fw/src/main/python/net/i2cat/cnsmoservices/fw/app/server.py",
                         "https://raw.githubusercontent.com/dana-i2cat/cnsmo-net-services/new-fw/src/main/docker/fw/Dockerfile",
                         "https://raw.githubusercontent.com/dana-i2cat/cnsmo-net-services/new-fw/src/main/docker/fw/sc-manager.py",],
              dependencies=[],

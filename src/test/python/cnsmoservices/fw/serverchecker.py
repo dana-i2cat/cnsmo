@@ -6,9 +6,9 @@ import unittest
 
 class FirewallServerAppTest(unittest.TestCase):
 
-    rule1 = '{"direction":"in", "protocol":"tcp", "dst_port":"8080", "ip_range":"127.0.0.1/32", "action":"drop"}'
-    rule2 = '{"direction":"out", "protocol":"tcp", "dst_port":"8080", "ip_range":"127.0.0.1/32", "action":"drop"}'
-    rule3 = '{"direction":"in", "protocol":"udp", "dst_port":"8080", "ip_range":"127.0.0.1/32", "action":"acpt"}'
+    rule1 = '{"direction":"in", "protocol":"tcp", "dst_port":"8080", "dest_src":"source","ip_range":"127.0.0.1/32", "action":"drop"}'
+    rule2 = '{"direction":"out", "protocol":"tcp", "dst_port":"8080", "dest_src":"dest", "ip_range":"127.0.0.1/32", "action":"drop"}'
+    rule3 = '{"direction":"in", "protocol":"udp", "dst_port":"8080", "dest_src":"dest", "ip_range":"127.0.0.1/32", "action":"acpt"}'
 
     bad_rule1 = '{"protocol":"tcp", "dst_port":"8080", "ip_range":"127.0.0.1/32", "action":"drop"}'
     bad_rule2 = '{"direction":"in", "protocol":"tcp", "dst_port":"9999999", "ip_range":"127.0.0.1/32", "action":"drop"}'
@@ -78,7 +78,7 @@ class FirewallServerAppTest(unittest.TestCase):
         for existing_rule in self.good_rules:
             r = requests.delete("http://127.0.0.1:9095/fw/", data=existing_rule)
             self.assertEquals(204, r.status_code)
-
+        
 
 if __name__ == "__main__":
 
