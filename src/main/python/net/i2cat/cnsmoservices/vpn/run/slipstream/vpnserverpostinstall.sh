@@ -6,7 +6,7 @@ if [ $(docker --version 1>/dev/null 2>/dev/null; echo $?) != "0" ] ; then
     current_user=$(whoami)
     usermod -aG docker ${current_user}
 else
-    echo "docker aldready installed"
+    echo "docker already installed"
 fi
 
 # download cnsmo
