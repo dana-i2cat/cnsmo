@@ -6,6 +6,7 @@
 # All ss-get/ss-set applies to local node variables, unless a node instance_id is prefixed.
 ###
 
+import logging
 import os
 import subprocess
 import sys
@@ -23,67 +24,48 @@ call = lambda command: subprocess.check_output(command, shell=True)
 
 
 def main():
-    deploycnsmo()
-    deployvpn()
-
-
-def deploycnsmo():
-    ss_nodename = call('ss-get nodename').rstrip('\n')
-    ss_node_instance = call('ss-get id').rstrip('\n')
-    instance_id = "%s.%s" % (ss_nodename, ss_node_instance)
-    log_file = os.getcwd() + "/cnsmo/vpn.log"
-
-    hostname = call('ss-get hostname').rstrip('\n')
-    dss_port = "6379"
-    redis_address = "%s:%s" % (hostname, dss_port)
-
-    date = call('date')
-    logToFile("Launching CNSMO at %s" % date, log_file, "w+")
-
-
-    # Launch REDIS
-    tr = threading.Thread(target=launchRedis, args=(hostname, dss_port))
-    tr.start()
-    # TODO implement proper way to detect when the redis server is ready
-    time.sleep(1)
-
-    # Launch CNSMO
-    call('ss-display \"Launching CNSMO...\"')
-    tss = threading.Thread(target=launchSystemState, args=(hostname, dss_port))
-    tss.start()
-    # TODO implement proper way to detect when the system state is ready
-    time.sleep(1)
-    call("ss-set net.i2cat.cnsmo.dss.address %s" % redis_address)
-    call('ss-set net.i2cat.cnsmo.core.ready true')
-    call('ss-display \"CNSMO is ready!\"')
+    config_logging()
+    return deployvpn()
 
 
 def deployvpn():
+    logger = logging.getLogger(__name__)
+    logger.debug("Deploying VPN server on a SlipStream application...")
+
     ss_nodename = call('ss-get nodename').rstrip('\n')
     ss_node_instance = call('ss-get id').rstrip('\n')
     instance_id = "%s.%s" % (ss_nodename, ss_node_instance)
     hostname = call('ss-get hostname').rstrip('\n')
     log_file = os.getcwd() + "/cnsmo/vpn.log"
+
     ifaces_prev = getCurrentInterfaces()
+    logger.debug("Got current interfaces: %s" % ifaces_prev)
 
     call('ss-set vpn.server.nodeinstanceid %s' % instance_id)
+    logger.debug("Set vpn.server.nodeinstanceid= %s" % instance_id)
 
     # wait for CNSMO core
-    call('ss-get net.i2cat.cnsmo.core.ready')
+    logger.debug("Waiting for CNSMO...")
+    response = call('ss-get net.i2cat.cnsmo.core.ready').rstrip('\n')
+    logger.debug("Finished waiting for CNSMO. net.i2cat.cnsmo.core.ready= %s" % response)
+
+    logger.debug("Resolving net.i2cat.cnsmo.dss.address...")
     redis_address = call("ss-get net.i2cat.cnsmo.dss.address").rstrip('\n')
+    logger.debug("Got net.i2cat.cnsmo.dss.address= %s" % redis_address)
 
-    date = call('date')
-    logToFile("Deploying VPN at %s" % date, log_file, "a")
-
+    logger.debug("Deploying VPN components...")
     call('ss-display \"Deploying VPN components...\"')
 
+
     # Launch VPN orchestrator
+    logger.debug("Launching VPN orchestrator...")
     call('ss-display \"VPN: Launching VPN orchestrator...\"')
     vpn_orchestrator = VPNManager(redis_address)
     to = threading.Thread(target=vpn_orchestrator.start)
     to.start()
     # TODO implement proper way to detect when the orchestrator is ready (using systemstate?)
     time.sleep(1)
+    logger.debug("Assuming VPN orchestrator is ready")
     call('ss-set net.i2cat.cnsmo.service.vpn.orchestrator.ready true')
 
     # Wait for orchestrator
@@ -95,6 +77,7 @@ def deployvpn():
     tc.start()
     # TODO implement proper way to detect when the configurator is ready (using systemstate?)
     time.sleep(1)
+    logger.debug("Assuming VPN configurator is listening")
     call('ss-set net.i2cat.cnsmo.service.vpn.configurator.listening true')
 
     # Launch VPN server
@@ -102,56 +85,75 @@ def deployvpn():
     ts.start()
     # TODO implement proper way to detect when the server is ready (using systemstate?)
     time.sleep(1)
+    logger.debug("Assuming VPN server is listening")
     call('ss-set net.i2cat.cnsmo.service.vpn.server.listening true')
+
 
     # Wait for configurator and server to be ready
     call('ss-get net.i2cat.cnsmo.service.vpn.configurator.listening')
     call('ss-get net.i2cat.cnsmo.service.vpn.server.listening')
 
     # Wait for clients
+    logger.debug("Detecting all VPN clients...")
     call('ss-display \"VPN: Looking for all clients...\"')
-    # All instances in the deployment except the slipstream orchestrator and the one running the vpn server are considered vpn clients
+    # All instances in the deployment are considered vpn clients
+    # except the slipstream orchestrator and the one running the vpn server
     all_instances = ss_getinstances()
     # remove slipstream orchestrator instances
     client_instances = [x for x in all_instances if not x.startswith("orchestrator")]
     # remove this instance
     client_instances.remove(instance_id)
+    logger.debug("Finished detecting all VPN clients: %s" % client_instances)
 
+    logger.debug("Waiting for all VPN clients...")
     call('ss-display \"VPN: Waiting for all clients...\"')
     # wait for clients to be ready: instance_id:net.i2cat.cnsmo.service.vpn.client.waiting=true
     for client_id in client_instances:
-        call("ss-get --timeout=1800 %s:net.i2cat.cnsmo.service.vpn.client.listening" % client_id)
+        logger.debug("Waiting for VPN client %s" % client_id)
+        response = call("ss-get --timeout=1800 %s:net.i2cat.cnsmo.service.vpn.client.listening" % client_id).rstrip("\n")
+        if not response:
+            logger.error("Timeout! Waiting for VPN client %s" % client_id)
+            return -1
+        logger.debug("Finished waiting for all VPN clients.")
 
     # Deploy VPN
+    logger.debug("Deploying VPN...")
     call('ss-display \"VPN: Deploying VPN...\"')
     vpn_orchestrator.deploy_blocking()
+    logger.debug("VPN deployed")
 
+
+    logger.debug("Locating VPN enabled interface...")
     time.sleep(5)
-
-    date = call('date')
-    logToFile("VPN deployed at %s" % date, log_file, "a")
-
     # assuming the VPN interface (probably tap0) is the only one created during this script execution
     vpn_iface = detect_new_interface_in_30_sec(ifaces_prev)
     if not vpn_iface:
+        logger.error("Timeout! Failed to locate tap interface, created by the VPN")
         call("ss-abort \"%s:Timeout! Failed to locate tap interface, created by the VPN\"" % instance_id)
         return -1
 
+    logger.debug("Resolving IP addresses...")
     vpn_local_ipv4_address = getInterfaceIPv4Address(vpn_iface)
     vpn_local_ipv6_address = getInterfaceIPv6Address(vpn_iface)
-    logToFile("VPN using interface %s with ipaddr %s and ipv6addr %s" %
-              (vpn_iface, vpn_local_ipv4_address, vpn_local_ipv6_address), log_file, "a")
+    logger.debug("VPN using interface %s with ipaddr %s and ipv6addr %s"
+                 % (vpn_iface, vpn_local_ipv4_address, vpn_local_ipv6_address))
 
+    logger.debug("Announcing IP addresses...")
     call("ss-set vpn.address %s" % vpn_local_ipv4_address)
     call("ss-set vpn.address6 %s" % vpn_local_ipv6_address)
 
-    # Communicate that the VPN has been established
-    call('ss-set net.i2cat.cnsmo.service.vpn.ready true')
 
+    # Communicate that the VPN has been established
+    logger.debug("Announcing vpn service has been deployed")
+    call('ss-set net.i2cat.cnsmo.service.vpn.ready true')
+    logger.debug("Set net.i2cat.cnsmo.service.vpn.ready=true")
+
+    logger.debug("VPN has been established! Using interface %s with ipaddr %s and ipv6addr %s"
+                 % (vpn_iface, vpn_local_ipv4_address, vpn_local_ipv6_address))
     call("ss-display \"VPN: VPN has been established! Using interface %s with ipaddr %s and ipv6addr %s\"" %
          (vpn_iface, vpn_local_ipv4_address, vpn_local_ipv6_address))
 
-    print "VPN deployed!"
+    return 0
 
 
 def detect_new_interface_in_30_sec(ifaces_prev):
@@ -183,11 +185,15 @@ def launchSystemState(hostname, dss_port):
 
 
 def launchVPNConfigurator(hostname, redis_address, instance_id):
+    logger = logging.getLogger(__name__)
+    logger.debug("Launching VPN configurator...")
     call('ss-display \"VPN: Launching VPN configurator...\"')
     call("python cnsmo/cnsmo/src/main/python/net/i2cat/cnsmoservices/vpn/run/configurator.py -a %s -p 9093 -r %s -s VPNConfigurator-%s --vpn-server-ip %s --vpn-server-port 1194 --vpn-address 10.10.10.0 --vpn-mask 255.255.255.0" % (hostname, redis_address, instance_id, hostname))
 
 
 def launchVPNServer(hostname, redis_address, instance_id):
+    logger = logging.getLogger(__name__)
+    logger.debug("Launching VPN server...")
     call('ss-display \"VPN: Launching VPN server...\"')
     call("python cnsmo/cnsmo/src/main/python/net/i2cat/cnsmoservices/vpn/run/server.py -a %s -p 9092 -r %s -s VPNServer-%s" % (hostname, redis_address, instance_id))
 
@@ -202,16 +208,6 @@ def getInterfaceIPv4Address(iface):
 
 def getInterfaceIPv6Address(iface):
     return call("ifconfig " + iface + "| awk '/inet6 / { print $3 }'").rstrip('\n')
-
-
-def logToFile(message, filename, filemode):
-    f = None
-    try:
-        f = open(filename, filemode)
-        f.write(message)
-    finally:
-        if f:
-            f.close()
 
 
 # Gets the instances that compose the deployment
@@ -244,4 +240,14 @@ def ss_getinstances():
 
     return instances
 
-main()
+
+def config_logging():
+    logging.basicConfig(filename='cnsmo-vpn-deployment.log',
+                        filemode='a',
+                        format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
+                        datefmt='%H:%M:%S',
+                        level=logging.DEBUG,
+                        disable_existing_loggers=False)
+
+if __name__ == "__main__":
+    main()
