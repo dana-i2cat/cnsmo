@@ -1,3 +1,4 @@
+import logging
 import threading
 import time
 
@@ -28,6 +29,7 @@ class VPNManager:
         self.__thread_pool = set()
 
         self.__status = "power_off"
+        self.__logger = logging.getLogger(__name__)
 
     def __configure_system_state(self):
         self.__system_state_manager = SystemStateFactory.generate_system_state_client(self.__bind_address, "myVpn", "VPNManager",
@@ -35,8 +37,10 @@ class VPNManager:
                                                                                       self.register_service)
 
     def start(self):
+        self.__logger.debug("Starting system state client...")
         self.__configure_system_state()
         self.__system_state_manager.start()
+        self.__logger.debug("Started system state client")
 
     def deploy(self):
         if self.__status == "ready":
@@ -48,6 +52,7 @@ class VPNManager:
                 pass
 
     def deploy_blocking(self):
+        self.__logger.debug("Waiting for status ready to deploy VPN")
         while True:
             if self.__status == "ready":
                 break
@@ -67,6 +72,8 @@ class VPNManager:
         :return:
         """
 
+        self.__logger.debug("Detected new service of type %s" % service.get_service_type())
+
         if service.get_service_type() == "VPNClient":
             client_service = ServiceMaker().make_service("Client", self.__system_state_manager.load(service.get_service_id()).get_endpoints())
             self.__client_services.add(client_service)
@@ -85,7 +92,10 @@ class VPNManager:
 
     def __update_state(self):
 
+        self.__logger.debug("Status: Server %s, ConfigManager %s, Clients %s"
+                            % (self.__server_service, self.__configuration_manager, self.__client_services))
         if self.__server_service and self.__client_services and self.__configuration_manager:
+            self.__logger.debug("Switching to status ready!")
             self.__status = "ready"
             [ t.start() for t in self.__thread_pool]
 
@@ -98,13 +108,16 @@ class VPNManager:
         two server strings provided by the two deployed apps
         :return:
         """
+        self.__logger.debug("Deploying VPN...")
         print "Deploying VPN..."
 
+        self.__logger.debug("generating security mechanism...")
         print "generating security mechanism..."
 
         # Generate DH and CA cert
         self.__configuration_manager.generate_ca_cert(None)
 
+        self.__logger.debug("generating vpn server configuration...")
         print "generating vpn server configuration..."
         # Generate server key and cert
         self.__configuration_manager.generate_server_cert(None)
@@ -126,6 +139,7 @@ class VPNManager:
             # TODO find a proper name for each client
             client_id = "client-" + str(i)
 
+            self.__logger.debug("generating vpn client configuration...")
             print "generating vpn client configuration..."
             self.__configuration_manager.generate_client_cert(client_id, None)
             client_key = self.__configuration_manager.get_client_key(client_id).content
@@ -135,12 +149,14 @@ class VPNManager:
             self.__configure_and_start_vpn_client(client_service, client_id, ca_crt, client_key, client_crt, client_conf)
             i += 1
 
+        self.__logger.debug("VPN deployed.")
         print "VPN deployed."
 
     def __configure_and_start_vpn_server(self, name, dh, ca_crt, server_key, server_crt, server_conf):
         """
         Helper method that configures server service with given configuration and starts the service
         """
+        self.__logger.debug("configuring vpn server " + name + " ...")
         print "configuring vpn server " + name + " ..."
         self.__server_service.set_dh({"file":("dh2048.pem", dh)})
         self.__server_service.set_ca_cert({"file":("ca.crt", ca_crt)})
@@ -150,6 +166,7 @@ class VPNManager:
 
         self.__server_service.build_server({})
 
+        self.__logger.debug("starting vpn server " + name + " ...")
         print "starting vpn server " + name + " ..."
         self.__server_service.start_server({})
 
@@ -157,6 +174,7 @@ class VPNManager:
         """
         Helper method that configures given client service with given configuration and starts the service
         """
+        self.__logger.debug("configuring vpn client " + name + " ...")
         print "configuring vpn client " + name + " ..."
         client_service.set_ca_cert({"file":("ca.crt", ca_crt)})
         client_service.set_client_key({"file":("client.key", client_key)})
@@ -164,5 +182,7 @@ class VPNManager:
         client_service.set_config({"file":("client.conf", client_conf)})
 
         client_service.build_client({})
+
+        self.__logger.debug("starting vpn client " + name + " ...")
         print "starting vpn client " + name + " ..."
         client_service.start_client({})

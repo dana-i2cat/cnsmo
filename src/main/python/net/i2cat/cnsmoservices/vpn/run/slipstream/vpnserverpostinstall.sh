@@ -4,7 +4,7 @@ if [ $(docker --version 1>/dev/null 2>/dev/null; echo $?) != "0" ] ; then
     # install docker
     curl -fsSL https://get.docker.com/ | sh
     current_user=$(whoami)
-    sudo usermod -aG docker ${current_user}
+    usermod -aG docker ${current_user}
 else
     echo "docker aldready installed"
 fi
@@ -17,7 +17,7 @@ git clone --single-branch https://github.com/dana-i2cat/cnsmo-net-services.git
 cd ..
 
 # install cnsmo requirements
-sudo pip install -r cnsmo/cnsmo/requirements.txt
+pip install -r cnsmo/cnsmo/requirements.txt
 
 
 #build new-easy-rsa docker

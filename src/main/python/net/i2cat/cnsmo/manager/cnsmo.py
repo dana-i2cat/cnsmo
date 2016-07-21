@@ -1,3 +1,5 @@
+import logging
+
 from src.main.python.net.i2cat.cnsmo.lib.model.service import Service
 from src.main.python.net.i2cat.cnsmo.factory.system.state.factory import SystemStateFactory
 
@@ -24,20 +26,25 @@ class CNSMOManager:
         self.__services = services
         self.__is_running = False
         self.__status = None
+        self.__logger = logging.getLogger(__name__)
 
     def start(self):
         if not self.__is_running:
+            self.__logger.debug("Starting CNSMOManager...")
             self.__configure_system_state()
             self.__deployment_driver.start()
             self.__connect()
             self.__is_running = True
+            self.__logger.debug("CNSMOManager started.")
 
     def stop(self):
         if self.__is_running:
+            self.__logger.debug("Stopping CNSMOManager...")
             self.__system_state_manager.stop()
             self.__deployment_driver.stop()
             self.__disconnect()
             self.__is_running = False
+            self.__logger.debug("CNSMOManager stopped.")
 
     def __connect(self):
         pass
@@ -46,10 +53,12 @@ class CNSMOManager:
         pass
 
     def __configure_system_state(self):
+        self.__logger.debug("Starting system state client...")
         self.__system_state_manager = SystemStateFactory.generate_system_state_client(address=self.__address, service_id=self.__name, service_type=self.__type,
                                                                                       service_status=self.__status, subscriptions=[],
                                                                                       callback=self.update_service)
         self.__system_state_manager.start()
+        self.__logger.debug("Started system state client")
         print "State up to date"
 
     def update_service(self, message):
@@ -89,6 +98,7 @@ class CNSMOManager:
         print "saved"
         print service.get_service_id()
         self.__services.update({service.get_service_id():service})
+        self.__logger.debug("Registered service %s" % service.get_service_id())
 
     def deregister_service(self, service):
         """
@@ -97,6 +107,7 @@ class CNSMOManager:
         :return:
         """
         self.__services.pop(service)
+        self.__logger.debug("Deregistered service %s" % service.get_service_id())
 
     def compose_service(self, **kwargs):
         service = Service()
