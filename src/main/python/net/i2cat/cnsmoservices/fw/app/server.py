@@ -45,7 +45,7 @@ def build_server():
         app.config["service_building"] = False
         return "", 204
     except Exception as e:
-        return str(e), 409
+        return str(e), 500
 
 
 @app.route("/fw/", methods=[POST])
