@@ -55,7 +55,7 @@ def add_rule():
 
     rule = json.loads(request.data)
     if not is_valid(rule):
-        return "Invalid rule. Expected format is {}".format(RULE_FORMAT), 409
+        return "Invalid rule. Expected format is {}".format(RULE_FORMAT), 400
 
     try:
         log.debug("running docker add...")
