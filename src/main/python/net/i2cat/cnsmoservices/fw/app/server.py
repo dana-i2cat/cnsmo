@@ -119,6 +119,7 @@ def is_valid(rule):
 
 def prepare_config():
     app.config["service_built"] = False
+    app.config["service_building"] = False
 
 
 if __name__ == "__main__":
