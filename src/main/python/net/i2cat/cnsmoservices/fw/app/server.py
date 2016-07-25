@@ -23,8 +23,10 @@ PROTOCOL = "protocol"
 DST_PORT = "dst_port"
 IP_RANGE = "ip_range"
 ACTION = "action"
+DEST_SRC = "dst_src"
 
-RULE_FORMAT = '{"direction":"in/out", "protocol":"tcp/udp/...", "dst_port":"[0,65535]", "ip_range":"cidr_notation", "action":"drop/acpt"}'
+RULE_FORMAT = '{"direction":"in/out", "protocol":"tcp/udp/...", "dst_port":"[0,65535]", "dst_src":"dst/src",' \
+              '"ip_range":"cidr_notation", "action":"drop/acpt"}'
 
 
 @app.route("/fw/build/", methods=[POST])
@@ -32,14 +34,18 @@ def build_server():
     try:
         if app.config["service_built"]:
             return "Service already built", 409
+        if app.config["service_building"]:
+            return "Service is being built", 409
 
+        app.config["service_building"] = True
         log.debug("building docker...")
         subprocess.check_call(shlex.split("docker build -t fw-docker ."))
         log.debug("docker built")
         app.config["service_built"] = True
+        app.config["service_building"] = False
         return "", 204
     except Exception as e:
-        return str(e), 409
+        return str(e), 500
 
 
 @app.route("/fw/", methods=[POST])
@@ -49,12 +55,12 @@ def add_rule():
 
     rule = json.loads(request.data)
     if not is_valid(rule):
-        return "Invalid rule. Expected format is {}".format(RULE_FORMAT), 409
+        return "Invalid rule. Expected format is {}".format(RULE_FORMAT), 400
 
     try:
         log.debug("running docker add...")
         output = subprocess.check_call(shlex.split(
-            "docker run -t --rm --net=host --privileged fw-docker add {direction} {protocol} {dst_port} {ip_range} {action}".format(**rule)))
+            "docker run -t --rm --net=host --privileged fw-docker add {direction} {protocol} {dst_port} {dst_src} {ip_range} {action}".format(**rule)))
         log.debug("docker run. output: " + str(output))
         return "", 204
     except Exception as e:
@@ -73,7 +79,7 @@ def delete_rule():
     try:
         log.debug("running docker DEL...")
         output = subprocess.check_call(shlex.split(
-            "docker run -t --rm --net=host --privileged fw-docker del {direction} {protocol} {dst_port} {ip_range} {action}".format(
+            "docker run -t --rm --net=host --privileged fw-docker del {direction} {protocol} {dst_port} {dst_src} {ip_range} {action}".format(
                 **rule)))
         log.debug("docker run. output: " + str(output))
         return "", 204
@@ -84,13 +90,16 @@ def delete_rule():
 
 def is_valid(rule):
     # check rule contains all mandatory fields
-    if not {DIRECTION, PROTOCOL, DST_PORT, IP_RANGE, ACTION}.issubset(set(rule.keys())):
+    if not {DIRECTION, PROTOCOL, DST_PORT, DEST_SRC, IP_RANGE, ACTION}.issubset(set(rule.keys())):
         return False
 
     if rule[DIRECTION] not in ('in', 'out'):
         return False
 
     if rule[ACTION] not in ('drop', 'acpt'):
+        return False
+
+    if rule[DEST_SRC] not in ('dst', 'src'):
         return False
 
     # port is an int between 0 and 65535
@@ -110,6 +119,7 @@ def is_valid(rule):
 
 def prepare_config():
     app.config["service_built"] = False
+    app.config["service_building"] = False
 
 
 if __name__ == "__main__":

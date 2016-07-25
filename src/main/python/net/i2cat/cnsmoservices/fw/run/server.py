@@ -1,5 +1,3 @@
-
-
 def get_server_app_request(host, port, service_id):
 
     d = dict(service_id=service_id,
