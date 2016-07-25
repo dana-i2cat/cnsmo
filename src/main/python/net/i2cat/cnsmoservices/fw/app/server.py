@@ -23,9 +23,9 @@ PROTOCOL = "protocol"
 DST_PORT = "dst_port"
 IP_RANGE = "ip_range"
 ACTION = "action"
-DEST_SRC = "dest_src"
+DEST_SRC = "dst_src"
 
-RULE_FORMAT = '{"direction":"in/out", "protocol":"tcp/udp/...", "dst_port":"[0,65535]", "dest_src":"dest/source",' \
+RULE_FORMAT = '{"direction":"in/out", "protocol":"tcp/udp/...", "dst_port":"[0,65535]", "dst_src":"dst/src",' \
               '"ip_range":"cidr_notation", "action":"drop/acpt"}'
 
 
@@ -60,7 +60,7 @@ def add_rule():
     try:
         log.debug("running docker add...")
         output = subprocess.check_call(shlex.split(
-            "docker run -t --rm --net=host --privileged fw-docker add {direction} {protocol} {dst_port} {dest_src} {ip_range} {action}".format(**rule)))
+            "docker run -t --rm --net=host --privileged fw-docker add {direction} {protocol} {dst_port} {dst_src} {ip_range} {action}".format(**rule)))
         log.debug("docker run. output: " + str(output))
         return "", 204
     except Exception as e:
@@ -79,7 +79,7 @@ def delete_rule():
     try:
         log.debug("running docker DEL...")
         output = subprocess.check_call(shlex.split(
-            "docker run -t --rm --net=host --privileged fw-docker del {direction} {protocol} {dst_port} {dest_src} {ip_range} {action}".format(
+            "docker run -t --rm --net=host --privileged fw-docker del {direction} {protocol} {dst_port} {dst_src} {ip_range} {action}".format(
                 **rule)))
         log.debug("docker run. output: " + str(output))
         return "", 204
@@ -99,7 +99,7 @@ def is_valid(rule):
     if rule[ACTION] not in ('drop', 'acpt'):
         return False
 
-    if rule[DEST_SRC] not in ('dest', 'source'):
+    if rule[DEST_SRC] not in ('dst', 'src'):
         return False
 
     # port is an int between 0 and 65535
