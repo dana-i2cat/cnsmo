@@ -34,11 +34,15 @@ def build_server():
     try:
         if app.config["service_built"]:
             return "Service already built", 409
+        if app.config["service_building"]:
+            return "Service is being built", 409
 
+        app.config["service_building"] = True
         log.debug("building docker...")
         subprocess.check_call(shlex.split("docker build -t fw-docker ."))
         log.debug("docker built")
         app.config["service_built"] = True
+        app.config["service_building"] = False
         return "", 204
     except Exception as e:
         return str(e), 409
