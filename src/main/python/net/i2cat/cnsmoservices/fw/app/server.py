@@ -130,7 +130,7 @@ if __name__ == "__main__":
     port = 9095
     for opt, arg in opts:
         if opt == "-a":
-            host = arg
+            bind_address = arg
         elif opt == "-p":
             port = int(arg)
 
