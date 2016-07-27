@@ -14,8 +14,10 @@ from src.main.python.net.i2cat.cnsmo.manager.cnsmo import CNSMOManager
 
 def get_server_app_request(host, port, service_id, lb_port):
 
+    bind_address = "0.0.0.0"
+
     d = dict(service_id=service_id,
-             trigger='python server.py -a %s -p %s -t %s -w "$(pwd)"' %(host, port, lb_port),
+             trigger='python server.py -a %s -p %s -t %s -w "$(pwd)"' % (bind_address, port, lb_port),
              resources=["https://raw.githubusercontent.com/dana-i2cat/cnsmo/master/src/main/python/net/i2cat/cnsmoservices/lb/app/server.py",
                         "https://raw.githubusercontent.com/dana-i2cat/cnsmo-net-services/master/src/main/docker/lb/start.bash",],
              dependencies=[],
