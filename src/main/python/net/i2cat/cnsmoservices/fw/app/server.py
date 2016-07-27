@@ -126,7 +126,7 @@ if __name__ == "__main__":
 
     opts, _ = getopt.getopt(sys.argv[1:], "a:p:")
 
-    host = "127.0.0.1"
+    bind_address = "127.0.0.1"
     port = 9095
     for opt, arg in opts:
         if opt == "-a":
@@ -135,4 +135,4 @@ if __name__ == "__main__":
             port = int(arg)
 
     prepare_config()
-    app.run(host=host, port=port, debug=True)
+    app.run(host=bind_address, port=port, debug=True)
