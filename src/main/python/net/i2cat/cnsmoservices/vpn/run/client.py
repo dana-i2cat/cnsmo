@@ -2,8 +2,10 @@
 
 def get_app_request(host, port, service_id):
 
+    bind_address = "0.0.0.0"
+
     d = dict(service_id=service_id,
-             trigger='python client.py -a %s -p %s -w "$(pwd)"' % (host, port),
+             trigger='python client.py -a %s -p %s -w "$(pwd)"' % (bind_address, port),
 
              resources=["https://raw.githubusercontent.com/dana-i2cat/cnsmo/master/src/main/python/net/i2cat/cnsmoservices/vpn/app/client.py",
                         "https://raw.githubusercontent.com/dana-i2cat/cnsmo-net-services/master/src/main/docker/vpn/client/Dockerfile",
