@@ -8,7 +8,7 @@ def get_app_request(host, port, service_id, vpn_server_address, vpn_server_port,
     bind_address = "0.0.0.0"
 
     d = dict(service_id=service_id,
-             trigger= 'mkdir -p keys && python configurator.py -a %s -p %s -w "$(pwd)"/keys/ -s %s -m %s -v %s -o %s' % (bind_address, port, vpn_server_address, vpn_mask, vpn_address, vpn_server_port),
+             trigger= 'mkdir -p keys && chmod +x "$(pwd)"/build-* && python configurator.py -a %s -p %s -w "$(pwd)"/keys/ -s %s -m %s -v %s -o %s' % (bind_address, port, vpn_server_address, vpn_mask, vpn_address, vpn_server_port),
 
              resources = ["https://raw.githubusercontent.com/dana-i2cat/cnsmo/master/src/main/python/net/i2cat/cnsmoservices/vpn/app/configurator.py",
                           "https://raw.githubusercontent.com/dana-i2cat/cnsmo-net-services/fix/easy-rsa-alpine-based-docker/src/main/docker/vpn/easy-rsa/gen_ca.sh",
