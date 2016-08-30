@@ -188,7 +188,7 @@ def launchVPNConfigurator(hostname, redis_address, instance_id):
     logger = logging.getLogger(__name__)
     logger.debug("Launching VPN configurator...")
     call('ss-display \"VPN: Launching VPN configurator...\"')
-    call("python cnsmo/cnsmo/src/main/python/net/i2cat/cnsmoservices/vpn/run/configurator.py -a %s -p 20093 -r %s -s VPNConfigurator-%s --vpn-server-ip %s --vpn-server-port 1194 --vpn-address 10.10.10.0 --vpn-mask 255.255.255.0" % (hostname, redis_address, instance_id, hostname))
+    call("python cnsmo/cnsmo/src/main/python/net/i2cat/cnsmoservices/vpn/run/configurator.py -a %s -p 20093 -r %s -s VPNConfigurator-%s --vpn-server-ip %s --vpn-server-port 21194 --vpn-address 10.10.10.0 --vpn-mask 255.255.255.0" % (hostname, redis_address, instance_id, hostname))
 
 
 def launchVPNServer(hostname, redis_address, instance_id):
