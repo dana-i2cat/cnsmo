@@ -188,14 +188,14 @@ def launchVPNConfigurator(hostname, redis_address, instance_id):
     logger = logging.getLogger(__name__)
     logger.debug("Launching VPN configurator...")
     call('ss-display \"VPN: Launching VPN configurator...\"')
-    call("python cnsmo/cnsmo/src/main/python/net/i2cat/cnsmoservices/vpn/run/configurator.py -a %s -p 9093 -r %s -s VPNConfigurator-%s --vpn-server-ip %s --vpn-server-port 1194 --vpn-address 10.10.10.0 --vpn-mask 255.255.255.0" % (hostname, redis_address, instance_id, hostname))
+    call("python cnsmo/cnsmo/src/main/python/net/i2cat/cnsmoservices/vpn/run/configurator.py -a %s -p 20093 -r %s -s VPNConfigurator-%s --vpn-server-ip %s --vpn-server-port 1194 --vpn-address 10.10.10.0 --vpn-mask 255.255.255.0" % (hostname, redis_address, instance_id, hostname))
 
 
 def launchVPNServer(hostname, redis_address, instance_id):
     logger = logging.getLogger(__name__)
     logger.debug("Launching VPN server...")
     call('ss-display \"VPN: Launching VPN server...\"')
-    call("python cnsmo/cnsmo/src/main/python/net/i2cat/cnsmoservices/vpn/run/server.py -a %s -p 9092 -r %s -s VPNServer-%s" % (hostname, redis_address, instance_id))
+    call("python cnsmo/cnsmo/src/main/python/net/i2cat/cnsmoservices/vpn/run/server.py -a %s -p 20092 -r %s -s VPNServer-%s" % (hostname, redis_address, instance_id))
 
 
 def getCurrentInterfaces():
