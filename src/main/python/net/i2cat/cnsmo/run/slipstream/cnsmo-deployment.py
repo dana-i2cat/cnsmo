@@ -36,7 +36,7 @@ def deploycnsmo():
     log_file = os.getcwd() + "/cnsmo/cnsmo.log"
 
     hostname = call('ss-get hostname').rstrip('\n')
-    dss_port = "6379"
+    dss_port = "20379"
     redis_address = "%s:%s" % (hostname, dss_port)
 
     date = call('date')
