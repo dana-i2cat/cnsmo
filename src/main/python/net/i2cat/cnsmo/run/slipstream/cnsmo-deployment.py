@@ -42,11 +42,12 @@ def deploycnsmo():
     date = call('date')
     logToFile("Launching CNSMO at %s" % date, log_file, "w+")
 
+    # Redis should already be running, as to post-install script already launches it as a service.
     # Launch REDIS
-    tr = threading.Thread(target=launchRedis, args=(hostname, dss_port))
-    tr.start()
+    # tr = threading.Thread(target=launchRedis, args=(hostname, dss_port))
+    # tr.start()
     # TODO implement proper way to detect when the redis server is ready
-    time.sleep(1)
+    # time.sleep(1)
 
     # Launch CNSMO
     call('ss-display \"Launching CNSMO...\"')
