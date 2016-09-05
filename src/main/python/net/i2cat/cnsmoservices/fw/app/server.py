@@ -24,9 +24,10 @@ DST_PORT = "dst_port"
 IP_RANGE = "ip_range"
 ACTION = "action"
 DEST_SRC = "dst_src"
+POLICY = "policy"
 
 RULE_FORMAT = '{"direction":"in/out", "protocol":"tcp/udp/...", "dst_port":"[0,65535]", "dst_src":"dst/src",' \
-              '"ip_range":"cidr_notation", "action":"drop/acpt"}'
+              '"ip_range":"cidr_notation", "action":"drop/acpt"} or {"policy":"denyall"}'
 
 
 @app.route("/fw/build/", methods=[POST])
@@ -58,9 +59,14 @@ def add_rule():
         return "Invalid rule. Expected format is {}".format(RULE_FORMAT), 400
 
     try:
+        command = "docker run -t --rm --net=host --privileged fw-docker"
+        if is_valid_policy(rule):
+            arguments = " -p {policy}".format(**rule)
+        else:
+            arguments = " add {direction} {protocol} {dst_port} {dst_src} {ip_range} {action}".format(**rule)
+
         log.debug("running docker add...")
-        output = subprocess.check_call(shlex.split(
-            "docker run -t --rm --net=host --privileged fw-docker add {direction} {protocol} {dst_port} {dst_src} {ip_range} {action}".format(**rule)))
+        output = subprocess.check_call(shlex.split(command + arguments))
         log.debug("docker run. output: " + str(output))
         return "", 204
     except Exception as e:
@@ -76,11 +82,15 @@ def delete_rule():
     if not is_valid(rule):
         return "Invalid rule. Expected format {}".format(RULE_FORMAT), 409
 
+    if is_valid_policy(rule):
+        return "Unsupported operation. Cannot delete policy", 400
+
     try:
+        command = "docker run -t --rm --net=host --privileged fw-docker"
+        arguments = " del {direction} {protocol} {dst_port} {dst_src} {ip_range} {action}".format(**rule)
+
         log.debug("running docker DEL...")
-        output = subprocess.check_call(shlex.split(
-            "docker run -t --rm --net=host --privileged fw-docker del {direction} {protocol} {dst_port} {dst_src} {ip_range} {action}".format(
-                **rule)))
+        output = subprocess.check_call(shlex.split(command + arguments))
         log.debug("docker run. output: " + str(output))
         return "", 204
 
@@ -89,6 +99,13 @@ def delete_rule():
 
 
 def is_valid(rule):
+    valid = is_valid_policy(rule)
+    if not valid:
+        valid = is_valid_rule(rule)
+    return valid
+
+
+def is_valid_rule(rule):
     # check rule contains all mandatory fields
     if not {DIRECTION, PROTOCOL, DST_PORT, DEST_SRC, IP_RANGE, ACTION}.issubset(set(rule.keys())):
         return False
@@ -115,6 +132,14 @@ def is_valid(rule):
         return False
 
     return True
+
+
+def is_valid_policy(rule):
+    if POLICY in rule.keys():
+        if rule[POLICY] == "denyall":
+            return True
+
+    return False
 
 
 def prepare_config():
