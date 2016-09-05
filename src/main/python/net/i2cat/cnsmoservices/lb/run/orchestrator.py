@@ -37,7 +37,7 @@ def deploy_lb(host, redis_address, lb_port, lb_mode, lb_backend_servers):
     time.sleep(5)
 
     # launch configurator with lb_mode, lb_backend_servers, lb_port, lb_address
-    config_port = "9096"
+    config_port = "20096"
     config_host = host
     lb_address = host
     print("Launching configurator")
@@ -47,7 +47,7 @@ def deploy_lb(host, redis_address, lb_port, lb_mode, lb_backend_servers):
     tc.start()
 
     # launch server with lb_port
-    server_port = "9097"
+    server_port = "20097"
     server_host = host
     print("Launching server")
     # launch_server(server_host, server_port, redis_address, server_sid, lb_port)

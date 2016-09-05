@@ -65,7 +65,7 @@ def launch_fw(server_instance_id):
     call('ss-display \"Deploying FW components...\"')
 
     hostname = call('ss-get hostname').rstrip('\n')
-    port = "9095"
+    port = "20095"
 
     tc = threading.Thread(target=launchFWServer, args=(hostname, port, redis_address, instance_id))
     tc.start()

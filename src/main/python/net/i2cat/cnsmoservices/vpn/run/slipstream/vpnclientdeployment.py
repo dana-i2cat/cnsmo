@@ -146,7 +146,7 @@ def launchVPNClient(hostname, redis_address, instance_id):
     logger = logging.getLogger(__name__)
     logger.debug("Launching VPN client...")
     call('ss-display \"VPN: Launching VPN client...\"')
-    response = call("python cnsmo/cnsmo/src/main/python/net/i2cat/cnsmoservices/vpn/run/client.py -a %s -p 9091 -r %s -s VPNClient-%s"
+    response = call("python cnsmo/cnsmo/src/main/python/net/i2cat/cnsmoservices/vpn/run/client.py -a %s -p 20091 -r %s -s VPNClient-%s"
                     % (hostname, redis_address, instance_id))
     logger.debug("VPN client response: %s" % response)
 

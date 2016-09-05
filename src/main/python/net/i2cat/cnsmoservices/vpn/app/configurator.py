@@ -198,9 +198,9 @@ VPN_CLIENT_CONFIG_TEMPLATE = """
 client
 dev tap
 proto udp
+lport {{ port }}
 remote {{ server_ip }} {{ port }}
 resolv-retry infinite
-nobind
 persist-key
 persist-tun
 ca ca.crt
