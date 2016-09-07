@@ -80,10 +80,10 @@ def delete_rule():
 
     rule = json.loads(request.data)
     if not is_valid(rule):
-        return "Invalid rule. Expected format {}".format(RULE_FORMAT), 409
+        return "Invalid rule. Expected format {}".format(RULE_FORMAT), 400
 
     if is_valid_policy(rule):
-        return "Unsupported operation. Cannot delete policy", 400
+        return "Unsupported operation. Cannot delete policy", 409
 
     try:
         command = "docker run -t --rm --net=host --privileged fw-docker"
@@ -119,13 +119,19 @@ def is_valid_rule(rule):
     if rule[DEST_SRC] not in ('dst', 'src'):
         return False
 
-    # port is an int between 0 and 65535
-    try:
-        dst_port = int(rule[DST_PORT])
-        if dst_port < 0 or dst_port > 65535:
-            return False
-    except ValueError:
+    # Support port ranges in the form port1:portN
+    dports = rule[DST_PORT].split(":")
+    if len(dports) > 2:
         return False
+
+    for dport in dports:
+        # port is an int between 0 and 65535
+        try:
+            dst_port = int(dport)
+            if dst_port < 0 or dst_port > 65535:
+                return False
+        except ValueError:
+            return False
 
     # ip_range is a valid IP range in CIDR notation (IPv4 or IPv6)
     if not (iptools.ipv4.validate_cidr(rule[IP_RANGE]) or iptools.ipv6.validate_cidr(rule[IP_RANGE])):

@@ -21,8 +21,11 @@ PROTOCOL = "protocol"
 DST_PORT = "dst_port"
 IP_RANGE = "ip_range"
 ACTION = "action"
+DEST_SRC = "dst_src"
+POLICY = "policy"
 
-RULE_FORMAT = '{"direction":"in/out", "protocol":"tcp/udp/...", "dst_port":"[0,65535]", "ip_range":"cidr_notation", "action":"drop/acpt"}'
+RULE_FORMAT = '{"direction":"in/out", "protocol":"tcp/udp/...", "dst_port":"[0,65535]", "dst_src":"dst/src",' \
+              '"ip_range":"cidr_notation", "action":"drop/acpt"} or {"policy":"denyall"}'
 
 
 @app.route("/fw/build/", methods=[DELETE])
@@ -54,9 +57,12 @@ def add_rule():
 
     rule = json.loads(request.data)
     if not is_valid(rule):
-        return "Invalid rule. Expected format is {}".format(RULE_FORMAT), 409
+        return "Invalid rule. Expected format is {}".format(RULE_FORMAT), 400
 
-    print "add {direction} {protocol} {dst_port} {ip_range} {action}".format(**rule)
+    if is_valid_policy(rule):
+        print " -p {policy}".format(**rule)
+    else:
+        print "add {direction} {protocol} {dst_port} {ip_range} {action}".format(**rule)
 
     return "", 204
 
@@ -68,7 +74,10 @@ def delete_rule():
 
     rule = json.loads(request.data)
     if not is_valid(rule):
-        return "Invalid rule. Expected format {}".format(RULE_FORMAT), 409
+        return "Invalid rule. Expected format {}".format(RULE_FORMAT), 400
+
+    if is_valid_policy(rule):
+        return "Unsupported operation. Cannot delete policy", 409
 
     print "del {direction} {protocol} {dst_port} {ip_range} {action}".format(**rule)
 
@@ -76,8 +85,15 @@ def delete_rule():
 
 
 def is_valid(rule):
+    valid = is_valid_policy(rule)
+    if not valid:
+        valid = is_valid_rule(rule)
+    return valid
+
+
+def is_valid_rule(rule):
     # check rule contains all mandatory fields
-    if not {DIRECTION, PROTOCOL, DST_PORT, IP_RANGE, ACTION}.issubset(set(rule.keys())):
+    if not {DIRECTION, PROTOCOL, DST_PORT, DEST_SRC, IP_RANGE, ACTION}.issubset(set(rule.keys())):
         return False
 
     if rule[DIRECTION] not in ('in', 'out'):
@@ -86,19 +102,36 @@ def is_valid(rule):
     if rule[ACTION] not in ('drop', 'acpt'):
         return False
 
-    # port is an int between 0 and 65535
-    try:
-        dst_port = int(rule[DST_PORT])
-        if dst_port < 0 or dst_port > 65535:
-            return False
-    except ValueError:
+    if rule[DEST_SRC] not in ('dst', 'src'):
         return False
+
+    # Support port ranges in the form port1:portN
+    dports = rule[DST_PORT].split(":")
+    if len(dports) > 2:
+        return False
+
+    for dport in dports:
+        # port is an int between 0 and 65535
+        try:
+            dst_port = int(dport)
+            if dst_port < 0 or dst_port > 65535:
+                return False
+        except ValueError:
+            return False
 
     # ip_range is a valid IP range in CIDR notation (IPv4 or IPv6)
     if not (iptools.ipv4.validate_cidr(rule[IP_RANGE]) or iptools.ipv6.validate_cidr(rule[IP_RANGE])):
         return False
 
     return True
+
+
+def is_valid_policy(rule):
+    if POLICY in rule.keys():
+        if rule[POLICY] == "denyall":
+            return True
+
+    return False
 
 
 def prepare_config():
