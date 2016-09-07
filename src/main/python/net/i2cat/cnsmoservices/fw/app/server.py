@@ -80,10 +80,10 @@ def delete_rule():
 
     rule = json.loads(request.data)
     if not is_valid(rule):
-        return "Invalid rule. Expected format {}".format(RULE_FORMAT), 409
+        return "Invalid rule. Expected format {}".format(RULE_FORMAT), 400
 
     if is_valid_policy(rule):
-        return "Unsupported operation. Cannot delete policy", 400
+        return "Unsupported operation. Cannot delete policy", 409
 
     try:
         command = "docker run -t --rm --net=host --privileged fw-docker"

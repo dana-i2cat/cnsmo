@@ -60,14 +60,14 @@ class FirewallServerAppTest(unittest.TestCase):
             r = requests.post("http://127.0.0.1:9095/fw/", data=bad_rule)
             print r
             print r.content
-            self.assertEquals(409, r.status_code)
+            self.assertEquals(400, r.status_code)
 
         for bad_rule in self.bad_rules:
             print bad_rule
             r = requests.delete("http://127.0.0.1:9095/fw/", data=bad_rule)
             print r
             print r.content
-            self.assertEquals(409, r.status_code)
+            self.assertEquals(400, r.status_code)
 
     def test_removing_existing_rules(self):
 
