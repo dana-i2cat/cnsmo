@@ -99,14 +99,13 @@ backend servers
 """
 
 DOCKERFILE_TEMPLATE = """
-FROM ubuntu:14.04
+FROM alpine:3.4
 
-RUN \
-  sed -i 's/^# \(.*-backports\s\)/\\1/g' /etc/apt/sources.list && \
-  apt-get update && \
-  apt-get install -y haproxy python && \
-  sed -i 's/^ENABLED=.*/ENABLED=1/' /etc/default/haproxy && \
-  rm -rf /var/lib/apt/lists/*
+RUN apk add -U \
+    haproxy \
+    python \
+    bash \
+  && rm -rf /var/cache/apk/*
 
 ADD haproxy.cfg /etc/haproxy/haproxy.cfg
 ADD start.bash /haproxy-start
