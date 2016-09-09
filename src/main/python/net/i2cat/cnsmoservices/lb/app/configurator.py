@@ -74,13 +74,14 @@ defaults
         option redispatch
         retries 3
         maxconn 2000
-        contimeout      5000
-        clitimeout      50000
-        srvtimeout      50000
+        timeout connect      5000
+        timeout client      50000
+        timeout server      50000
 
 frontend lb
         bind 0.0.0.0:{{ port }}
         mode tcp
+        option tcplog
         timeout client 3600s
         default_backend servers
 
