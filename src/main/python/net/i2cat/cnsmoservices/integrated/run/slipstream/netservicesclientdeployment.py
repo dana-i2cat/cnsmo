@@ -104,9 +104,19 @@ def get_net_services_to_enable():
     """
     :return: A list of strings representing which services must be enabled. e.g. ['vpn', 'fw', 'lb']
     """
-    netservices_str = call('ss-get net.services.enable').rstrip('\n')
-    netservices = json.loads(netservices_str)
-    return netservices
+    logger = logging.getLogger(__name__)
+    try:
+        netservices_str = call('ss-get net.services.enable').rstrip('\n')
+        netservices = json.loads(netservices_str)
+        return netservices
+    except subprocess.CalledProcessError as e:
+        logger.error("Command {} returned non-zero exit status {} with output {}".format(e.cmd, e.returncode, e.output))
+        call('ss-abort \"Error reading network services to enable\"')
+        raise
+    except Exception as e:
+        logger.error(e.message)
+        call('ss-abort \"Error reading network services to enable\"')
+        raise
 
 
 def config_logging():
