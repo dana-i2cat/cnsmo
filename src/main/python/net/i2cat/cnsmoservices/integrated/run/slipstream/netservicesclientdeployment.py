@@ -45,39 +45,40 @@ def main():
     call('ss-display \"Deploying network services \'%s\'\"' % json.dumps(netservices))
     netservices_enabled = list()
 
-    logger.debug("Resolving cnsmo.server.nodeinstanceid...")
-    cnsmo_server_instance_id = call('ss-get --timeout=1200 cnsmo.server.nodeinstanceid').rstrip('\n')
-    if not cnsmo_server_instance_id:
-        logger.error("Timeout waiting for cnsmo.server.nodeinstanceid")
-        # timeout! Abort the script immediately (ss-get will abort the whole deployment in short time)
-        return -1
-    logger.debug("Got cnsmo.server.nodeinstanceid= %s" % cnsmo_server_instance_id)
-
-    logger.debug("Deploying net services...")
-    if 'vpn' in netservices:
-        vpn_server_instance_id = call('ss-get --timeout=1200 vpn.server.nodeinstanceid').rstrip('\n')
-        if not vpn_server_instance_id:
+    if netservices:
+        logger.debug("Resolving cnsmo.server.nodeinstanceid...")
+        cnsmo_server_instance_id = call('ss-get --timeout=1200 cnsmo.server.nodeinstanceid').rstrip('\n')
+        if not cnsmo_server_instance_id:
+            logger.error("Timeout waiting for cnsmo.server.nodeinstanceid")
             # timeout! Abort the script immediately (ss-get will abort the whole deployment in short time)
             return -1
-        if deploy_vpn_and_wait(vpn_server_instance_id) == 0:
-            logger.debug("Marking vpn as enabled")
-            netservices_enabled.append('vpn')
-        else:
-            logger.error("Error deploying VPN. Aborting script")
-            return -1
+        logger.debug("Got cnsmo.server.nodeinstanceid= %s" % cnsmo_server_instance_id)
 
-    if 'fw' in netservices:
-        if deploy_fw_and_wait(cnsmo_server_instance_id) == 0:
-            logger.debug("Marking fw as enabled")
-            netservices_enabled.append('fw')
-        else:
-            logger.error("Error deploying FW. Aborting script")
-            return -1
+        logger.debug("Deploying net services...")
+        if 'vpn' in netservices:
+            vpn_server_instance_id = call('ss-get --timeout=1200 vpn.server.nodeinstanceid').rstrip('\n')
+            if not vpn_server_instance_id:
+                # timeout! Abort the script immediately (ss-get will abort the whole deployment in short time)
+                return -1
+            if deploy_vpn_and_wait(vpn_server_instance_id) == 0:
+                logger.debug("Marking vpn as enabled")
+                netservices_enabled.append('vpn')
+            else:
+                logger.error("Error deploying VPN. Aborting script")
+                return -1
 
-    if 'lb' in netservices:
-        # nothing to do, lb is only in the server
-        logger.debug("Marking lb as enabled")
-        netservices_enabled.append('lb')
+        if 'fw' in netservices:
+            if deploy_fw_and_wait(cnsmo_server_instance_id) == 0:
+                logger.debug("Marking fw as enabled")
+                netservices_enabled.append('fw')
+            else:
+                logger.error("Error deploying FW. Aborting script")
+                return -1
+
+        if 'lb' in netservices:
+            # nothing to do, lb is only in the server
+            logger.debug("Marking lb as enabled")
+            netservices_enabled.append('lb')
 
     logger.debug("Finished deploying net services")
 
@@ -104,9 +105,22 @@ def get_net_services_to_enable():
     """
     :return: A list of strings representing which services must be enabled. e.g. ['vpn', 'fw', 'lb']
     """
-    netservices_str = call('ss-get net.services.enable').rstrip('\n')
-    netservices = json.loads(netservices_str)
-    return netservices
+    logger = logging.getLogger(__name__)
+    try:
+        netservices_str = call('ss-get net.services.enable').rstrip('\n')
+        if netservices_str:
+            netservices = json.loads(netservices_str)
+            return netservices
+        else:
+            raise ValueError("Couldn't get value for net.services.enable")
+    except subprocess.CalledProcessError as e:
+        logger.error("Command {} returned non-zero exit status {} with output {}".format(e.cmd, e.returncode, e.output))
+        call('ss-abort \"Error reading network services to enable\"')
+        raise
+    except Exception as e:
+        logger.error(e.message)
+        call('ss-abort \"Error reading network services to enable\"')
+        raise
 
 
 def config_logging():
