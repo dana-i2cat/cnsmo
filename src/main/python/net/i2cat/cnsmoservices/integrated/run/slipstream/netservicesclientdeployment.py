@@ -108,8 +108,11 @@ def get_net_services_to_enable():
     logger = logging.getLogger(__name__)
     try:
         netservices_str = call('ss-get net.services.enable').rstrip('\n')
-        netservices = json.loads(netservices_str)
-        return netservices
+        if netservices_str:
+            netservices = json.loads(netservices_str)
+            return netservices
+        else:
+            raise ValueError("Couldn't get value for net.services.enable")
     except subprocess.CalledProcessError as e:
         logger.error("Command {} returned non-zero exit status {} with output {}".format(e.cmd, e.returncode, e.output))
         call('ss-abort \"Error reading network services to enable\"')

@@ -46,8 +46,8 @@ def deployvpn():
 
     # wait for CNSMO core
     logger.debug("Waiting for CNSMO...")
-    response = call('ss-get net.i2cat.cnsmo.core.ready').rstrip('\n')
-    logger.debug("Finished waiting for CNSMO. net.i2cat.cnsmo.core.ready= %s" % response)
+    response_cnsmo = call('ss-get net.i2cat.cnsmo.core.ready').rstrip('\n')
+    logger.debug("Finished waiting for CNSMO. net.i2cat.cnsmo.core.ready= %s" % response_cnsmo)
 
     logger.debug("Resolving net.i2cat.cnsmo.dss.address...")
     redis_address = call("ss-get net.i2cat.cnsmo.dss.address").rstrip('\n')

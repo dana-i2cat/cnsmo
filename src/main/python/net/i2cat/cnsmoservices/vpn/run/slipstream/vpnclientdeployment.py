@@ -59,8 +59,8 @@ def deployvpn():
 
     logger.debug("Waiting for CNSMO...")
     call('ss-display \"Waiting for CNSMO...\"')
-    response = call("ss-get --timeout=1800 %s:net.i2cat.cnsmo.core.ready" % server_instance_id).rstrip('\n')
-    logger.debug("Finished waiting for CNSMO. %s:net.i2cat.cnsmo.core.ready= %s" % (server_instance_id, response))
+    response_cnsmo = call("ss-get --timeout=1800 %s:net.i2cat.cnsmo.core.ready" % server_instance_id).rstrip('\n')
+    logger.debug("Finished waiting for CNSMO. %s:net.i2cat.cnsmo.core.ready= %s" % (server_instance_id, response_cnsmo))
 
     logger.debug("Resolving net.i2cat.cnsmo.dss.address...")
     redis_address = call("ss-get %s:net.i2cat.cnsmo.dss.address" % server_instance_id).rstrip('\n')
@@ -71,9 +71,10 @@ def deployvpn():
 
     logger.debug("Waiting for VPN orchestrator...")
     call('ss-display \"VPN: Waiting for VPN orchestrator...\"')
-    response = call("ss-get --timeout=1800 %s:net.i2cat.cnsmo.service.vpn.orchestrator.ready" % server_instance_id).rstrip('\n')
+
+    response_orch = call("ss-get --timeout=1800 %s:net.i2cat.cnsmo.service.vpn.orchestrator.ready" % server_instance_id).rstrip('\n')
     logger.debug("Finished waiting for VPN orchestrator.")
-    if not response:
+    if not response_orch:
         logger.error("Timeout waiting for %s:net.i2cat.cnsmo.service.vpn.orchestrator.ready" % server_instance_id)
         return -1
 
@@ -89,9 +90,9 @@ def deployvpn():
 
     logger.debug("Waiting for VPN to be deployed...")
     call('ss-display \"VPN: Waiting for VPN to be established...\"')
-    response = call("ss-get --timeout=1800 %s:net.i2cat.cnsmo.service.vpn.ready" % server_instance_id).rstrip('\n')
-    logger.debug("Finished waiting for VPN to be deployed. ready=%s" % response)
-    if not response:
+    response_vpn = call("ss-get --timeout=1800 %s:net.i2cat.cnsmo.service.vpn.ready" % server_instance_id).rstrip('\n')
+    logger.debug("Finished waiting for VPN to be deployed. ready=%s" % response_vpn)
+    if not response_vpn:
         logger.error("Timeout waiting for %s:net.i2cat.cnsmo.service.vpn.ready" % server_instance_id)
         return -1
     logger.debug("VPN deployed")
