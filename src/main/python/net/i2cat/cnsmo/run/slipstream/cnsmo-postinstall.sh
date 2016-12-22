@@ -1,5 +1,12 @@
 #!/bin/bash
 
+# set working directory
+DIRECTORY='/var/tmp/slipstream'
+if [ ! -d "$DIRECTORY" ]; then
+  mkdir -p ${DIRECTORY}
+fi
+cd ${DIRECTORY}
+
 if [ $(docker --version 1>/dev/null 2>/dev/null; echo $?) != "0" ] ; then
     # install docker
     curl -fsSL https://get.docker.com/ | sh
@@ -35,3 +42,9 @@ echo -e \
   "${PORT}\n${CONFIG_FILE}\n${LOG_FILE}\n${DATA_DIR}\n${EXECUTABLE}\n" | \
   utils/install_server.sh
 cd ..
+
+# remove persisted network configuration (for compatibility with pre-built images)
+rm -f /etc/udev/rules.d/*net*.rules
+
+# reboot to apply new kernel, upgraded by docker installation script
+reboot
