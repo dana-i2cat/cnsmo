@@ -42,6 +42,8 @@ class VPNManager:
         self.__system_state_manager.start()
         self.__logger.debug("Started system state client")
 
+    # TODO Should wait for VPNServer and VPNConfigManager to be registered, to deploy VPNServer service.
+    # TODO Should wait for VPNServer service to be running, to start deploying registered (and registering) clients.
     def deploy(self):
         if self.__status == "ready":
             self.__deploy_vpn()
@@ -51,6 +53,8 @@ class VPNManager:
             except:
                 pass
 
+    # TODO Should wait for VPNServer and VPNConfigManager to be registered, to deploy VPNServer service.
+    # TODO Should wait for VPNServer service to be running, to start deploying registered (and registering) clients.
     def deploy_blocking(self):
         self.__logger.debug("Waiting for status ready to deploy VPN")
         while True:
@@ -99,6 +103,9 @@ class VPNManager:
             self.__status = "ready"
             [ t.start() for t in self.__thread_pool]
 
+    # TODO: Split in two.
+    # 1) Generate CA, server conf and deploy server.
+    # 2) generate client conf and deploy client
     def __deploy_vpn(self):
         """
         Main service of the VPN orchestrator. Here is the logic of the VPN manager, this method is called after start()
