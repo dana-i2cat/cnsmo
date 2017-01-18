@@ -1,6 +1,7 @@
 import logging
 import threading
 import time
+import random
 
 from src.main.python.net.i2cat.cnsmo.service.maker import ServiceMaker
 from src.main.python.net.i2cat.cnsmo.factory.system.state.factory import SystemStateFactory
@@ -10,7 +11,7 @@ class VPNManager:
 
     def __init__(self, bind_address, system_state_manager=None, vpn_port=234):
         """
-        VPN orchestrator manger example, it does not deploy VPNs but it could do it if properly configured.
+        VPN orchestrator manager example, it does not deploy VPNs but it could do it if properly configured.
         Right now is stand-alone module, but the idea is to integrate this as an app of a CNSMO instance
         :param bind_address:
         :param system_state_manager:
@@ -27,6 +28,7 @@ class VPNManager:
         self.__configuration_manager = None
 
         self.__thread_pool = set()
+        self.lock = threading.Lock()
 
         self.__status = "power_off"
         self.__logger = logging.getLogger(__name__)
@@ -42,10 +44,10 @@ class VPNManager:
         self.__system_state_manager.start()
         self.__logger.debug("Started system state client")
 
-    # TODO Should wait for VPNServer and VPNConfigManager to be registered, to deploy VPNServer service.
-    # TODO Should wait for VPNServer service to be running, to start deploying registered (and registering) clients.
+    # Crec que aquesta funcio no es crida
     def deploy(self):
-        if self.__status == "ready":
+        self.__logger.debug("deploy function is called")
+        if self.__status == "listening":
             self.__deploy_vpn()
         else:
             try:
@@ -53,23 +55,21 @@ class VPNManager:
             except:
                 pass
 
-    # TODO Should wait for VPNServer and VPNConfigManager to be registered, to deploy VPNServer service.
-    # TODO Should wait for VPNServer service to be running, to start deploying registered (and registering) clients.
     def deploy_blocking(self):
         self.__logger.debug("Waiting for status ready to deploy VPN")
         while True:
-            if self.__status == "ready":
+            if self.__status == "listening":
                 break
             time.sleep(0.2)
 
-        self.__deploy_vpn()
+        self.__generate_and_deploy_server()
 
     def get_status(self):
         return self.__status
 
     def register_service(self, service):
         """
-        Meant to be registered by the systemState, This manger expects 3 services (only 2 for the PoC)
+        Meant to be registered by the systemState, This manager expects 3 services (only 2 for the PoC)
         the client, the server and the credential manager. Only after have registered these services,
         the VPN is ready
         :param service:
@@ -80,7 +80,18 @@ class VPNManager:
 
         if service.get_service_type() == "VPNClient":
             client_service = ServiceMaker().make_service("Client", self.__system_state_manager.load(service.get_service_id()).get_endpoints())
-            self.__client_services.add(client_service)
+            self.lock.acquire()
+            try:
+                if (self.__status != "listening"):
+                    self.__logger.debug("Server not Listening, add client to queue")
+                    self.__client_services.add(client_service)
+                else:
+                    self.__logger.debug("Server is listening, deploy the client now")
+                    ca_crt = self.__configuration_manager.get_ca_cert(None).content
+                    client_id = "VPNclient" + str(random.randint(1,999999))
+                    self.__generate_and_deploy_client(client_service, client_id, ca_crt)
+            finally:
+                self.lock.release()
 
         elif service.get_service_type() == "VPNServer":
             server_service = ServiceMaker().make_service("Server", self.__system_state_manager.load(service.get_service_id()).get_endpoints())
@@ -98,23 +109,24 @@ class VPNManager:
 
         self.__logger.debug("Status: Server %s, ConfigManager %s, Clients %s"
                             % (self.__server_service, self.__configuration_manager, self.__client_services))
-        if self.__server_service and self.__client_services and self.__configuration_manager:
-            self.__logger.debug("Switching to status ready!")
-            self.__status = "ready"
+        if self.__server_service and self.__configuration_manager and self.__status != "listening":
+            self.__logger.debug("Switching to status listening!")
+            self.lock.acquire()
+            try:
+                self.__status = "listening"
+            finally:
+                 self.lock.release()
+            for client_service in self.__client_services:
+                client_id = "VPNclient" + str(random.randint(1,999999))
+                self.__logger.debug("Generating vpn client configuration...")
+                self.__configuration_manager.generate_client_cert(client_id, None)
+                client_key = self.__configuration_manager.get_client_key(client_id).content
+                client_crt = self.__configuration_manager.get_client_cert(client_id).content
+                client_conf = self.__configuration_manager.get_client_config(client_id).content
+                self.__configure_and_start_vpn_client(client_service, client_id, ca_crt, client_key, client_crt, client_conf)
             [ t.start() for t in self.__thread_pool]
 
-    # TODO: Split in two.
-    # 1) Generate CA, server conf and deploy server.
-    # 2) generate client conf and deploy client
-    def __deploy_vpn(self):
-        """
-        Main service of the VPN orchestrator. Here is the logic of the VPN manager, this method is called after start()
-        successfully works.
-
-        The idea is to deploy all the VPN instances all over the context and manage them. For the Poc, we only read the
-        two server strings provided by the two deployed apps
-        :return:
-        """
+    def __generate_and_deploy_server(self):
         self.__logger.debug("Deploying VPN...")
         print "Deploying VPN..."
 
@@ -139,25 +151,67 @@ class VPNManager:
         # TODO find a proper name for the server
         self.__configure_and_start_vpn_server("server", dh, ca_crt, server_key, server_crt, server_conf)
 
-        # for each client:
-        # Generate client config, get it and configure the client service
-        i = 0
-        for client_service in self.__client_services:
-            # TODO find a proper name for each client
-            client_id = "client-" + str(i)
+    def __generate_and_deploy_client(self, client_service, client_id, ca_crt):
+        self.__logger.debug("generating vpn client configuration...")
+        print "generating vpn client configuration..."
+        self.__configuration_manager.generate_client_cert(client_id, None)
+        client_key = self.__configuration_manager.get_client_key(client_id).content
+        client_crt = self.__configuration_manager.get_client_cert(client_id).content
+        client_conf = self.__configuration_manager.get_client_config(client_id).content
 
-            self.__logger.debug("generating vpn client configuration...")
-            print "generating vpn client configuration..."
-            self.__configuration_manager.generate_client_cert(client_id, None)
-            client_key = self.__configuration_manager.get_client_key(client_id).content
-            client_crt = self.__configuration_manager.get_client_cert(client_id).content
-            client_conf = self.__configuration_manager.get_client_config(client_id).content
+        self.__configure_and_start_vpn_client(client_service, client_id, ca_crt, client_key, client_crt, client_conf)
 
-            self.__configure_and_start_vpn_client(client_service, client_id, ca_crt, client_key, client_crt, client_conf)
-            i += 1
 
-        self.__logger.debug("VPN deployed.")
-        print "VPN deployed."
+    # def __deploy_vpn(self):
+    #     """
+    #     Main service of the VPN orchestrator. Here is the logic of the VPN manager, this method is called after start()
+    #     successfully works.
+    #
+    #     The idea is to deploy all the VPN instances all over the context and manage them. For the Poc, we only read the
+    #     two server strings provided by the two deployed apps
+    #     :return:
+    #     """
+    #     self.__logger.debug("Deploying VPN...")
+    #     print "Deploying VPN..."
+    #
+    #     self.__logger.debug("generating security mechanism...")
+    #     print "generating security mechanism..."
+    #
+    #     # Generate DH and CA cert
+    #     self.__configuration_manager.generate_ca_cert(None)
+    #
+    #     self.__logger.debug("generating vpn server configuration...")
+    #     print "generating vpn server configuration..."
+    #     # Generate server key and cert
+    #     self.__configuration_manager.generate_server_cert(None)
+    #
+    #     # Get all config files
+    #     dh = self.__configuration_manager.get_dh(None).content
+    #     ca_crt = self.__configuration_manager.get_ca_cert(None).content
+    #     server_key = self.__configuration_manager.get_server_key(None).content
+    #     server_crt = self.__configuration_manager.get_server_cert(None).content
+    #     server_conf = self.__configuration_manager.get_server_config(None).content
+    #
+    #     self.__configure_and_start_vpn_server("server", dh, ca_crt, server_key, server_crt, server_conf)
+    #
+    #     # for each client:
+    #     # Generate client config, get it and configure the client service
+    #     i = 0
+    #     for client_service in self.__client_services:
+    #         client_id = "client-" + str(i)
+    #
+    #         self.__logger.debug("generating vpn client configuration...")
+    #         print "generating vpn client configuration..."
+    #         self.__configuration_manager.generate_client_cert(client_id, None)
+    #         client_key = self.__configuration_manager.get_client_key(client_id).content
+    #         client_crt = self.__configuration_manager.get_client_cert(client_id).content
+    #         client_conf = self.__configuration_manager.get_client_config(client_id).content
+    #
+    #         self.__configure_and_start_vpn_client(client_service, client_id, ca_crt, client_key, client_crt, client_conf)
+    #         i += 1
+    #
+    #     self.__logger.debug("VPN deployed.")
+    #     print "VPN deployed."
 
     def __configure_and_start_vpn_server(self, name, dh, ca_crt, server_key, server_crt, server_conf):
         """
