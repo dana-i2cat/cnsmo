@@ -1,12 +1,13 @@
 import getopt
 import os
 import logging
-import shlex
-import subprocess
-
+import signal
+import time
 import sys
+import requests
 from flask import Flask
 from flask import request
+from multiprocessing import Process
 
 log = logging.getLogger('cnsmo.vpn.server.app')
 
@@ -93,6 +94,22 @@ def stop_client():
         return str(e), 409
 
 
+@app.route('/shutdown', methods=['POST'])
+def shutdown():
+    # Hopefully this will only shutdown the server serving this app, but not the rest in the system
+    func = request.environ.get('werkzeug.server.shutdown')
+    if func is None:
+        raise RuntimeError('Not running with the Werkzeug Server')
+    func()
+    return 'App shutting down...', 200
+
+
+def request_app_shutdown(host, port):
+    # As shutdown requires a request context, an http request is required
+    url = "http://%s:%s/shutdown/" % (host, port)
+    requests.post(url)
+
+
 def save_file(file_handler, file_name):
     # filename = secure_filename(file_handler.filename)
     log.debug("saving file to " + app.config['UPLOAD_FOLDER'])
@@ -110,12 +127,51 @@ def prepare_config():
     app.config["service_built"] = False
     app.config["service_running"] = False
 
+
+def main(host, port):
+    signal_flag = SignalFlag()
+    server = Process(target=app.run, args=(host, port, {"debug": True}))
+    server.start()
+    while not signal_flag.signal_received():
+        time.sleep(0.5)
+    print("Terminating...")
+    request_app_shutdown(host, port)
+    server.terminate()
+    server.join(2)
+
+
+class SignalFlag:
+    """
+    A single-use flag for SIGINT and SIGTERM signals.
+    """
+    __signal_received = False
+
+    def __init__(self):
+        """
+        Registers callback for SIGINT and SIGTERM
+        """
+        signal.signal(signal.SIGINT, self.flag_signal)
+        signal.signal(signal.SIGTERM, self.flag_signal)
+
+    def flag_signal(self, signum, frame):
+        """
+        Flags
+        :param signum:
+        :param frame:
+        :return:
+        """
+        self.__signal_received = True
+
+    def signal_received(self):
+        return self.__signal_received
+
+
 if __name__ == "__main__":
 
     opts, _ = getopt.getopt(sys.argv[1:], "a:p:w:", ["working-dir="])
 
     host = "127.0.0.1"
-    port = 9094
+    port = 9092
     for opt, arg in opts:
         if opt in ("-w", "--working-dir"):
             working_dir = arg
@@ -124,7 +180,6 @@ if __name__ == "__main__":
         elif opt == "-p":
             port = int(arg)
 
-
     app.config["UPLOAD_FOLDER"] = working_dir
     prepare_config()
-    app.run(host=host, port=port, debug=True)
+    main(host, port)
