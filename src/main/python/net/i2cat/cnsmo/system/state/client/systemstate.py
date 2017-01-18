@@ -1,5 +1,6 @@
 from src.main.python.net.i2cat.cnsmo.lib.model.service import Service
 from src.main.python.net.i2cat.cnsmo.lib.message.newservice import NewService
+from src.main.python.net.i2cat.cnsmo.lib.message.serviceshutdown import ServiceShutdown
 from src.main.python.net.i2cat.cnsmo.service.maker import ServiceMaker
 
 
@@ -45,6 +46,10 @@ class SystemStateClient:
             #self.advertise()
             self.__listener.start()
 
+    def stop(self):
+        # TODO Implement stop properly, as the opposite of start
+        pass
+
     def subscribe_all(self):
         """
         Subscribes all the services
@@ -62,10 +67,17 @@ class SystemStateClient:
 
     def advertise(self):
         """
-        Publishes into the DISCOVERy topic himself
+        Publishes into the DISCOVERY topic himself
         :return:
         """
         self.__publisher.publish(self.DEFAULT_CHANNEL, NewService(*self.__service_data).jsonify())
+
+    def deadvertise(self):
+        """
+        Publishes into the DISCOVERY topic himself is no longer registered
+        :return:
+        """
+        self.__publisher.publish(self.DEFAULT_CHANNEL, ServiceShutdown(*self.__service_data).jsonify())
 
     def callback(self, message):
         """

@@ -2,6 +2,7 @@ import subprocess
 import os
 import shlex
 import wget
+import time
 
 
 class BashDeployer:
@@ -18,6 +19,9 @@ class BashDeployer:
     def start(self):
         pass
 
+    def stop(self):
+        pass
+
     def launch_app(self, **kwargs):
         """
         Creates basic object that will manage the workflow of configuration and execution
@@ -25,7 +29,24 @@ class BashDeployer:
         :return:
         """
         instance = self.configure(kwargs.get("service_id"), kwargs.get("trigger"), kwargs.get("resources"), kwargs.get("dependencies"))
-        self.spawn(instance.get_command(), instance.get_working_dir())
+        process = self.spawn(instance.get_command(), instance.get_working_dir())
+        instance.set_process(process)
+        return instance
+
+    def stop_app(self, instance):
+        """
+        Stops the app
+        :param instance: Basic object that manages the workflow of configuration and execution of the app
+        :return:
+        """
+        print("Stopping app...")
+        if instance.get_process() is not None:
+            print("Signalling for termination...")
+            instance.get_process().terminate()
+            time.sleep(5)
+            instance.get_process().kill()
+            instance.set_process(None)
+        print("Stopped app")
         return instance
 
     def configure(self, app_id, trigger, resources, dependencies):
@@ -37,7 +58,7 @@ class BashDeployer:
         :param dependencies:
         :return:
         """
-        instance =  self.get_instance()
+        instance = self.get_instance()
         instance.set_id(app_id)
         instance.set_command(trigger)
         self.create_env(instance)
@@ -73,7 +94,8 @@ class BashDeployer:
         :return:
         """
         shell_command = "cd %s && " %working_dir +  command #self.wrap_command(command)
-        subprocess.Popen(shell_command, shell=True)
+        process = subprocess.Popen(shell_command, shell=True)
+        return process
 
     def wrap_command(self, command, working_dir):
         """
@@ -137,6 +159,8 @@ class Instance(object):
         self.__command = None
         self.__working_dir = None
 
+        self.__process = None
+
     def get_id(self):
         return self.__id
 
@@ -145,6 +169,9 @@ class Instance(object):
 
     def get_command(self):
         return self.__command
+
+    def get_process(self):
+        return self.__process
 
     def set_command(self, command):
         self.__command = command
@@ -155,3 +182,5 @@ class Instance(object):
     def set_working_dir(self, working_dir):
         self.__working_dir = working_dir
 
+    def set_process(self, process):
+        self.__process = process
