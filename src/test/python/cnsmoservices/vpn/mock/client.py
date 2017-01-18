@@ -94,22 +94,6 @@ def stop_client():
         return str(e), 409
 
 
-@app.route('/shutdown', methods=['POST'])
-def shutdown():
-    # Hopefully this will only shutdown the server serving this app, but not the rest in the system
-    func = request.environ.get('werkzeug.server.shutdown')
-    if func is None:
-        raise RuntimeError('Not running with the Werkzeug Server')
-    func()
-    return 'App shutting down...', 200
-
-
-def request_app_shutdown(host, port):
-    # As shutdown requires a request context, an http request is required
-    url = "http://%s:%s/shutdown/" % (host, port)
-    requests.post(url)
-
-
 def save_file(file_handler, file_name):
     # filename = secure_filename(file_handler.filename)
     log.debug("saving file to " + app.config['UPLOAD_FOLDER'])
@@ -135,7 +119,6 @@ def main(host, port):
     while not signal_flag.signal_received():
         time.sleep(0.5)
     print("Terminating...")
-    request_app_shutdown(host, port)
     server.terminate()
     server.join(2)
 

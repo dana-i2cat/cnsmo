@@ -69,22 +69,6 @@ def get_server_key():
     return "GotServerKey", 200
 
 
-@app.route('/shutdown', methods=['POST'])
-def shutdown():
-    # Hopefully this will only shutdown the server serving this app, but not the rest in the system
-    func = request.environ.get('werkzeug.server.shutdown')
-    if func is None:
-        raise RuntimeError('Not running with the Werkzeug Server')
-    func()
-    return 'App shutting down...', 200
-
-
-def request_app_shutdown(host, port):
-    # As shutdown requires a request context, an http request is required
-    url = "http://%s:%s/shutdown/" % (host, port)
-    requests.post(url)
-
-
 def main(host, port):
     signal_flag = SignalFlag()
     server = Process(target=app.run, args=(host, port, {"debug": True}))
@@ -92,7 +76,6 @@ def main(host, port):
     while not signal_flag.signal_received():
         time.sleep(0.5)
     print("Terminating...")
-    request_app_shutdown(host, port)
     server.terminate()
     server.join(2)
 
