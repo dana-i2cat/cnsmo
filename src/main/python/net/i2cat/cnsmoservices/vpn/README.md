@@ -25,7 +25,7 @@ Requirements:
 ### Run the server
 1. Run the redis server
 2. Keep in mind your IP address (IP_ADDR)
-3. Install the dependencies with: ```sudo pip install -r requirements.txt``` 
+3. Install the dependencies with: ```sudo pip install -r requirements.txt```
 (it is recommended to do this in a  python virtual env)
 4. Run the system state: ```python src/main/python/net/i2cat/cnsmo/run/systemstate.py```
 5. Run the orchestrator: ```python src/main/python/net/i2cat/cnsmoservices/vpn/run/orchestrator.py -r IP_ADDR:6379```.
@@ -37,7 +37,7 @@ It will wait for the rest of services to start the VPN deployment.
 8. Start de client VM, bridged to the host (must be able to reach IP_ADDR). Run ```vagrant up``` from ```src/main/python/net/i2cat/cnsmoservices/vpn/run/provision/client/``` directory.
 9. Login to the vm: ```vagrant ssh```
 10. Download CNSMO sources. If using provided Vagrantfile, local sources directory tree is already mounted to ```/cnsmo```.
-11. Install software requirements (redis is not required). ```sudo apt-get install -y curl git cython python-pip```
+11. Install software requirements (redis is not required). ```sudo apt-get install -y curl git cython python-pip && curl -fsSL https://get.docker.com/ | sh```
 12. Install dependencies, as in step 3 for the server.
 13. Keep in mind the client VM IP address (CLIENT_IP_ADDR)
 14. Run the client: ```sudo python src/main/python/net/i2cat/cnsmoservices/vpn/run/client.py -a CLIENT_IP_ADDR -p 9091 -r IP_ADDR:6379 -s VPNClient-1```
