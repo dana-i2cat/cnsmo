@@ -69,7 +69,7 @@ def get_server_key():
     return "GotServerKey", 200
 
 
-def main(host, port):
+def launch_flask_app(host, port):
     signal_flag = SignalFlag()
     server = Process(target=app.run, args=(host, port, {"debug": True}))
     server.start()
@@ -130,4 +130,4 @@ if __name__ == "__main__":
         elif opt == "-o":
             vpn_port = arg
 
-    main(address, port)
+    launch_flask_app(address, port)

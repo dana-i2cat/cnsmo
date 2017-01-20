@@ -112,7 +112,7 @@ def prepare_config():
     app.config["service_running"] = False
 
 
-def main(host, port):
+def launch_flask_app(host, port):
     signal_flag = SignalFlag()
     server = Process(target=app.run, args=(host, port, {"debug": True}))
     server.start()
@@ -165,4 +165,4 @@ if __name__ == "__main__":
 
     app.config["UPLOAD_FOLDER"] = working_dir
     prepare_config()
-    main(host, port)
+    launch_flask_app(host, port)
