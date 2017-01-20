@@ -24,6 +24,8 @@ class ConfiguratorServiceTest(unittest.TestCase):
         Initializes all service managers (without starting them), and the vpn_manager. Starts the vpn_manager
         :return:
         """
+        self.git_branch_name = "test/dyn-vpn-orch-workflow"
+
         redis_address = "localhost:6379"
 
         system_state = SystemStateFactory.generate_system_state_manager("localhost:6379")
@@ -275,7 +277,7 @@ class ConfiguratorServiceTest(unittest.TestCase):
         d = dict(service_id=service_id,
                  trigger='python server.py -a 127.0.0.1 -p 9094 -w "$(pwd)"',
                  # using server.py mock, which does not require any other resource
-                 resources=["https://raw.githubusercontent.com/dana-i2cat/cnsmo/feature/stop-services/src/test/python/cnsmoservices/vpn/mock/server.py",],
+                 resources=["https://raw.githubusercontent.com/dana-i2cat/cnsmo/%s/src/test/python/cnsmoservices/vpn/mock/server.py" % self.git_branch_name,],
                  dependencies=[],
                  endpoints=[{ "uri":"http://127.0.0.1:9094/vpn/server/dh/", "driver":"REST", "logic":"upload", "name":"set_dh"},
                             { "uri":"http://127.0.0.1:9094/vpn/server/config/", "driver":"REST", "logic":"upload", "name":"set_config_file"},
@@ -291,7 +293,7 @@ class ConfiguratorServiceTest(unittest.TestCase):
         d = dict(service_id=service_id,
                  trigger='python client.py -a 127.0.0.1 -p 9092 -w "$(pwd)"',
                  # using client.py mock, which does not require any other resource
-                 resources=["https://raw.githubusercontent.com/dana-i2cat/cnsmo/feature/stop-services/src/test/python/cnsmoservices/vpn/mock/client.py",],
+                 resources=["https://raw.githubusercontent.com/dana-i2cat/cnsmo/%s/src/test/python/cnsmoservices/vpn/mock/client.py" % self.git_branch_name,],
 
                  dependencies=[],
 
@@ -308,7 +310,7 @@ class ConfiguratorServiceTest(unittest.TestCase):
         d = dict(service_id=service_id,
                  trigger='python client.py -a 127.0.0.1 -p 9091 -w "$(pwd)"',
                  # using client.py mock, which does not require any other resource
-                 resources=["https://raw.githubusercontent.com/dana-i2cat/cnsmo/feature/stop-services/src/test/python/cnsmoservices/vpn/mock/client.py",],
+                 resources=["https://raw.githubusercontent.com/dana-i2cat/cnsmo/%s/src/test/python/cnsmoservices/vpn/mock/client.py" % self.git_branch_name,],
 
                  dependencies=[],
 
@@ -325,7 +327,7 @@ class ConfiguratorServiceTest(unittest.TestCase):
         d = dict(service_id=service_id,
                  trigger='mkdir -p keys && python configuratorserver.py -a 127.0.0.1 -p 9093 -w "$(pwd)"/keys/ -s 84.88.40.11 -m 255.255.255.0 -v 10.10.10 -o 1194',
                  # using configuratorserver.py mock, which does not require any other resource
-                 resources=["https://raw.githubusercontent.com/dana-i2cat/cnsmo/feature/stop-services/src/test/python/cnsmoservices/vpn/mock/configuratorserver.py",],
+                 resources=["https://raw.githubusercontent.com/dana-i2cat/cnsmo/%s/src/test/python/cnsmoservices/vpn/mock/configuratorserver.py" % self.git_branch_name,],
                  dependencies=[],
                  endpoints=[{"uri":"http://127.0.0.1:9093/vpn/configs/dh/", "driver":"REST", "logic":"get", "name":"get_dh"},
                             {"uri":"http://127.0.0.1:9093/vpn/configs/server/", "driver":"REST", "logic":"get", "name":"get_server_config"},
