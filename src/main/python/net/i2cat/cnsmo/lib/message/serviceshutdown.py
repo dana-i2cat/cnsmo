@@ -1,12 +1,12 @@
 from src.main.python.net.i2cat.cnsmo.lib.message.base import Message
 
 
-class NewService(Message):
+class ServiceShutdown(Message):
 
     def __init__(self, service_type=None, service_id=None, service_status=None):
         """
         Most Basic Message exchanged between system state managers and clients.
-        It actually shows that a new service was launched
+        It actually shows that a service was shut down.
 
         :param service_type:
         :param service_id:
