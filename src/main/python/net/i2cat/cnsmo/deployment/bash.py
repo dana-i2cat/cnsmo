@@ -3,6 +3,7 @@ import os
 import shlex
 import wget
 import time
+import signal
 
 
 class BashDeployer:
@@ -42,9 +43,8 @@ class BashDeployer:
         print("Stopping app...")
         if instance.get_process() is not None:
             print("Signalling for termination...")
-            instance.get_process().terminate()
-            time.sleep(5)
-            instance.get_process().kill()
+            os.killpg(os.getpgid(instance.get_process().pid), signal.SIGTERM)
+            time.sleep(2)
             instance.set_process(None)
         print("Stopped app")
         return instance
@@ -94,7 +94,7 @@ class BashDeployer:
         :return:
         """
         shell_command = "cd %s && " %working_dir +  command #self.wrap_command(command)
-        process = subprocess.Popen(shell_command, shell=True)
+        process = subprocess.Popen(shell_command, shell=True, preexec_fn=os.setsid)
         return process
 
     def wrap_command(self, command, working_dir):
