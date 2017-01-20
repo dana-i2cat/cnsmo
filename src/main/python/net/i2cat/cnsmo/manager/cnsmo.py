@@ -24,6 +24,7 @@ class CNSMOManager:
         self.__name = name
         self.__type = type
         self.__services = services
+        self.__service_instances = dict()
         self.__is_running = False
         self.__status = None
         self.__logger = logging.getLogger(__name__)
@@ -59,7 +60,7 @@ class CNSMOManager:
                                                                                       callback=self.update_service)
         self.__system_state_manager.start()
         self.__logger.debug("Started system state client")
-        print "State up to date"
+        print("State up to date")
 
     def update_service(self, message):
         pass
@@ -95,8 +96,8 @@ class CNSMOManager:
         :return:
         """
         self.__system_state_manager.save(service)
-        print "saved"
-        print service.get_service_id()
+        print("saved")
+        print(service.get_service_id())
         self.__services.update({service.get_service_id():service})
         self.__logger.debug("Registered service %s" % service.get_service_id())
 
@@ -114,20 +115,31 @@ class CNSMOManager:
         service.objectify(**kwargs)
         self.register_service(service)
 
-    def launch_service(self, service):
+    def launch_service(self, service_id):
         """
         Given the app request, it launches an app using the deployment driver.
         Right now is only bash, but it could be more deployers, like docker, OpenStack
         etc.
-        :param kwargs:
+        :param service_id:
         :return:
         """
-        self.__deployment_driver.launch_app(**self.__services.get(service).dictionarize())
+        app_instance = self.__deployment_driver.launch_app(**self.__services.get(service_id).dictionarize())
+        self.__service_instances[service_id] = app_instance
         self.__system_state_manager.advertise()
 
-
-
-
-
-
-
+    def stop_service(self, service_id):
+        """
+        It stops the app (if launched), using the deployment driver.
+        Right now is only bash, but it could be more deployers, like docker, OpenStack
+        etc.
+        :param service_id: Identifier of the service whose app should stop
+        :return: service_id of the stopped app, if stopped. None otherwise.
+        """
+        if service_id in self.__services.keys():
+            if service_id in self.__service_instances:
+                app_instance = self.__service_instances.get(service_id)
+                if app_instance:
+                    self.__system_state_manager.deadvertise()
+                    self.__deployment_driver.stop_app(app_instance)
+                    return service_id
+        return None

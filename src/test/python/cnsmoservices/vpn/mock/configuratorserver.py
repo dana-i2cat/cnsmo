@@ -1,7 +1,11 @@
 import getopt
-
+import signal
+import time
 import sys
+import requests
 from flask import Flask
+from flask import request
+from multiprocessing import Process
 
 
 app = Flask(__name__)
@@ -65,8 +69,42 @@ def get_server_key():
     return "GotServerKey", 200
 
 
-def main(host, port):
-    app.run(host, port, debug=False)
+def launch_flask_app(host, port):
+    signal_flag = SignalFlag()
+    server = Process(target=app.run, args=(host, port, {"debug": True}))
+    server.start()
+    while not signal_flag.signal_received():
+        time.sleep(0.5)
+    print("Terminating...")
+    server.terminate()
+    server.join(2)
+
+
+class SignalFlag:
+    """
+    A single-use flag for SIGINT and SIGTERM signals.
+    """
+    __signal_received = False
+
+    def __init__(self):
+        """
+        Registers callback for SIGINT and SIGTERM
+        """
+        signal.signal(signal.SIGINT, self.flag_signal)
+        signal.signal(signal.SIGTERM, self.flag_signal)
+
+    def flag_signal(self, signum, frame):
+        """
+        Flags
+        :param signum:
+        :param frame:
+        :return:
+        """
+        self.__signal_received = True
+
+    def signal_received(self):
+        return self.__signal_received
+
 
 if __name__ == "__main__":
 
@@ -88,9 +126,8 @@ if __name__ == "__main__":
         elif opt == "-m":
             vpn_mask = arg
         elif opt == "-v":
-            print opt, arg
             vpn_address = arg
         elif opt == "-o":
             vpn_port = arg
 
-    main(address, port)
+    launch_flask_app(address, port)
