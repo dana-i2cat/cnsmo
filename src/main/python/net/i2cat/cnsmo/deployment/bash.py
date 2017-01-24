@@ -10,8 +10,12 @@ class BashDeployer:
 
     def __init__(self, bind_address):
         """
-        Basic Bash deployer, given app requests, it creates an "environment" for the user, downloads resopurces from uris
-        and install dependencies, after that it runs the command provided in the trigger field
+        Basic Bash deployer, given app requests, it creates an "environment" for the user, downloads resources from uris
+        and install dependencies, after that it runs the command provided in the trigger field.
+
+        Current implementation uses '/home/CNSMO/ENVS/' as the root directory for app environments.
+        Notice it requires being run with privileges to be able to write to this directory.
+
         :param bind_address:
         :return:
         """
