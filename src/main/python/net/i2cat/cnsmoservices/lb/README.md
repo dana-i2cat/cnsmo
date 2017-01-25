@@ -8,11 +8,16 @@ The LB service consists of 3 different components:
 All these components require an extra component:
 * CNSMO systemstate. Used for service discovery.
 
+The LB service additionally requires some backend endpoints, which load should be balanced.
+These backend endpoints are completely independent of the LB service itself, and will typically be in different
+hosts. 
+
 ## How to run
 
 Executable files can be located at:
 * src/main/python/net/i2cat/cnsmoservices/lb/run directory, for LB specific components
 * src/main/python/net/i2cat/cnsmo/run/systemstate.py, for the CNSMO systemstate
+* demo_app.py, as sample backend server.
 
 Requirements:
 * docker (check docker automatic installation instructions for GNU-Linux systems [here](https://docs.docker.com/engine/getstarted/linux_install_help/), or the general [docker installation instructions page](https://docs.docker.com/engine/installation/)).
