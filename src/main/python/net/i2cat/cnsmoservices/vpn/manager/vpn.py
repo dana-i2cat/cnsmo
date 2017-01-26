@@ -25,6 +25,7 @@ class VPNManager:
 
         self.__server_service = None
         self.__client_services = set()
+        self.__deployed_client_services = set()
         self.__configuration_manager = None
 
         self.__thread_pool = set()
@@ -124,6 +125,7 @@ class VPNManager:
                 client_crt = self.__configuration_manager.get_client_cert(client_id).content
                 client_conf = self.__configuration_manager.get_client_config(client_id).content
                 self.__configure_and_start_vpn_client(client_service, client_id, ca_crt, client_key, client_crt, client_conf)
+                self.__deployed_client_services.add(client_service)
             [ t.start() for t in self.__thread_pool]
 
     def __generate_and_deploy_server(self):
@@ -160,6 +162,7 @@ class VPNManager:
         client_conf = self.__configuration_manager.get_client_config(client_id).content
 
         self.__configure_and_start_vpn_client(client_service, client_id, ca_crt, client_key, client_crt, client_conf)
+        self.__deployed_client_services.add(client_service)
 
 
     def __configure_and_start_vpn_server(self, name, dh, ca_crt, server_key, server_crt, server_conf):
