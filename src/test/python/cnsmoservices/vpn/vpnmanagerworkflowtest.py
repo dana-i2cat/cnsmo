@@ -118,8 +118,8 @@ class ConfiguratorServiceTest(unittest.TestCase):
         # before registering any service
         self.assertIsNone(self.vpn_manager._VPNManager__configuration_manager)
         self.assertIsNone(self.vpn_manager._VPNManager__server_service)
-        self.assertEqual(self.vpn_manager._VPNManager__status, "Initializing",
-                         "Before registering services manager status should be 'Initializing'. %s found."
+        self.assertEqual(self.vpn_manager._VPNManager__status, "initializing",
+                         "Before registering services manager status should be 'initializing'. %s found."
                          % self.vpn_manager._VPNManager__status)
 
         self.configurator_manager = self.deploy_configurator()
@@ -127,8 +127,8 @@ class ConfiguratorServiceTest(unittest.TestCase):
             time.sleep(0.2)
         # after registering configurator
 
-        self.assertEqual(self.vpn_manager._VPNManager__status, "Initializing",
-                         "Before registering both configurator and server vpn_manager status should be 'Initializing'. %s found."
+        self.assertEqual(self.vpn_manager._VPNManager__status, "initializing",
+                         "Before registering both configurator and server vpn_manager status should be 'initializing'. %s found."
                          % self.vpn_manager._VPNManager__status)
 
         self.server_manager = self.deploy_server()
@@ -137,36 +137,36 @@ class ConfiguratorServiceTest(unittest.TestCase):
         # after registering server
 
         if not self.vpn_manager._VPNManager__server_deployed:
-            self.assertEqual(self.vpn_manager._VPNManager__status, "Deploying server",
+            self.assertEqual(self.vpn_manager._VPNManager__status, "deploying server",
                              "Having both configurator and server registered, " +
-                             "vpn_manager status should be 'Deploying server'. %s found."
+                             "vpn_manager status should be 'deploying server'. %s found."
                              % self.vpn_manager._VPNManager__status)
 
         while not self.vpn_manager._VPNManager__server_deployed:
             time.sleep(0.2)
 
-        self.assertEqual(self.vpn_manager._VPNManager__status, "Listening",
+        self.assertEqual(self.vpn_manager._VPNManager__status, "listening",
                          "Having configurator registered and server already deployed, " +
-                         "vpn_manager status should be 'Listening'. %s found."
+                         "vpn_manager status should be 'listening'. %s found."
                          % self.vpn_manager._VPNManager__status)
 
     def test_vpn_manager_automatically_publishes_server_when_it_gets_ready(self):
         self.configurator_manager = self.deploy_configurator()
         self.server_manager = self.deploy_server()
 
-        print("Waiting for VPNManager to get status == Listening")
+        print("Waiting for VPNManager to get status == listening")
         waited = 0
-        while (self.vpn_manager._VPNManager__status is not "Listening") & (waited < 10):
+        while (self.vpn_manager._VPNManager__status is not "listening") & (waited < 10):
             sys.stdout.write('.')
             sys.stdout.flush()
             time.sleep(0.2)
             waited += 0.2
         if waited >= 10:
-            print("Timeout! Waiting for VPNManager to get status == Listening")
+            print("Timeout! Waiting for VPNManager to get status == listening")
 
-        self.assertEqual(self.vpn_manager._VPNManager__status, "Listening",
+        self.assertEqual(self.vpn_manager._VPNManager__status, "listening",
                          "Having configurator registered and server already deployed, " +
-                         "vpn_manager status should be 'Listening'. %s found."
+                         "vpn_manager status should be 'listening'. %s found."
                          % self.vpn_manager._VPNManager__status)
 
         self.assertTrue(self.vpn_manager._VPNManager__server_deployed)
@@ -180,15 +180,15 @@ class ConfiguratorServiceTest(unittest.TestCase):
         self.configurator_manager = self.deploy_configurator()
         self.server_manager = self.deploy_server()
 
-        print("Waiting for VPNManager to get status == Listening")
+        print("Waiting for VPNManager to get status == listening")
         waited = 0
-        while (self.vpn_manager._VPNManager__status is not "Listening") & (waited < 10):
+        while (self.vpn_manager._VPNManager__status is not "listening") & (waited < 10):
             sys.stdout.write('.')
             sys.stdout.flush()
             time.sleep(0.2)
             waited += 0.2
         if waited >= 10:
-            print("Timeout! Waiting for VPNManager to get status == Listening")
+            print("Timeout! Waiting for VPNManager to get status == listening")
 
         self.assertEqual(len(self.vpn_manager._VPNManager__deployed_client_services), num_clients,
                          "All client services registered before manager is listening, " +
@@ -198,16 +198,16 @@ class ConfiguratorServiceTest(unittest.TestCase):
         self.configurator_manager = self.deploy_configurator()
         self.server_manager = self.deploy_server()
 
-        print("Waiting for VPNManager to get status == Listening")
+        print("Waiting for VPNManager to get status == listening")
         waited = 0
-        while (self.vpn_manager._VPNManager__status is not "Listening") & (waited < 10):
+        while (self.vpn_manager._VPNManager__status is not "listening") & (waited < 10):
             sys.stdout.write('.')
             sys.stdout.flush()
             time.sleep(0.2)
             waited += 0.2
         if waited >= 10:
-            print("Timeout! Waiting for VPNManager to get status == Listening")
-            self.fail("Timeout! Waiting for VPNManager to get status == Listening")
+            print("Timeout! Waiting for VPNManager to get status == listening")
+            self.fail("Timeout! Waiting for VPNManager to get status == listening")
 
         self.client1_manager = self.deploy_client1()
         waited = 0
