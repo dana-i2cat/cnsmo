@@ -25,8 +25,10 @@ class VPNManager:
 
         self.__server_service = None
         self.__client_services = set()
-        self.__deployed_client_services = set()
         self.__configuration_manager = None
+
+        self.__server_deployed = False
+        self.__deployed_client_services = set()
 
         self.__thread_pool = set()
         self.lock = threading.Lock()
@@ -152,6 +154,7 @@ class VPNManager:
 
         # TODO find a proper name for the server
         self.__configure_and_start_vpn_server("server", dh, ca_crt, server_key, server_crt, server_conf)
+        self.__server_deployed = True
 
     def __generate_and_deploy_client(self, client_service, client_id, ca_crt):
         self.__logger.debug("generating vpn client configuration...")
