@@ -58,6 +58,7 @@ class ConfiguratorServiceTest(unittest.TestCase):
         self.client2_manager = None
         self.configurator_manager = None
         self.server_manager = None
+        print("SETUP COMPLETE")
 
     def tearDown(self):
         print("TEAR DOWN...")
@@ -92,12 +93,14 @@ class ConfiguratorServiceTest(unittest.TestCase):
         time.sleep(1)
         # after registering client1
         self.assertEqual(len(self.vpn_manager._VPNManager__client_services), 1,
-                         "There should be one registered client service")
+                         "There should be one registered client service. Found %s" %
+                         str(len(self.vpn_manager._VPNManager__client_services)))
         self.client2_manager = self.deploy_client2()
         time.sleep(1)
         # after registering client2
         self.assertEqual(len(self.vpn_manager._VPNManager__client_services), 2,
-                         "There should be 2 registered client services")
+                         "There should be 2 registered client services. Found %s " %
+                         str(len(self.vpn_manager._VPNManager__client_services)))
 
         # before registering configurator
         self.assertIsNone(self.vpn_manager._VPNManager__configuration_manager)
@@ -302,8 +305,8 @@ class ConfiguratorServiceTest(unittest.TestCase):
                             {"uri":"http://127.0.0.1:9092/vpn/client/cert/", "driver":"REST", "logic":"upload", "name":"set_client_cert"},
                             {"uri":"http://127.0.0.1:9092/vpn/client/key/",  "driver":"REST", "logic":"upload", "name":"set_client_key"},
                             {"uri":"http://127.0.0.1:9092/vpn/client/build/", "driver":"REST", "logic":"post", "name":"build_client"},
-                            {"uri":"http://127.0.0.1:9092/vpn/client/start/",  "driver":"REST", "logic":"post", "name":"start"},
-                            {"uri":"http://127.0.0.1:9092/vpn/server/stop/", "driver":"REST", "logic":"post", "name":"stop"},])
+                            {"uri":"http://127.0.0.1:9092/vpn/client/start/",  "driver":"REST", "logic":"post", "name":"start_client"},
+                            {"uri":"http://127.0.0.1:9092/vpn/server/stop/", "driver":"REST", "logic":"post", "name":"stop_client"},])
         return d
 
     def get_client2_app_request(self, service_id):
@@ -319,8 +322,8 @@ class ConfiguratorServiceTest(unittest.TestCase):
                             {"uri":"http://127.0.0.1:9091/vpn/client/cert/", "driver":"REST", "logic":"upload", "name":"set_client_cert"},
                             {"uri":"http://127.0.0.1:9091/vpn/client/key/",  "driver":"REST", "logic":"upload", "name":"set_client_key"},
                             {"uri":"http://127.0.0.1:9091/vpn/client/build/", "driver":"REST", "logic":"post", "name":"build_client"},
-                            {"uri":"http://127.0.0.1:9091/vpn/client/start/",  "driver":"REST", "logic":"post", "name":"start"},
-                            {"uri":"http://127.0.0.1:9091/vpn/server/stop/", "driver":"REST", "logic":"post", "name":"stop"},])
+                            {"uri":"http://127.0.0.1:9091/vpn/client/start/",  "driver":"REST", "logic":"post", "name":"start_client"},
+                            {"uri":"http://127.0.0.1:9091/vpn/server/stop/", "driver":"REST", "logic":"post", "name":"stop_client"},])
         return d
 
     def get_configurator_app_request(self, service_id):
