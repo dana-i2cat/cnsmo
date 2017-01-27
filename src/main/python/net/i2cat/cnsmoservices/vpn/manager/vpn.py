@@ -45,6 +45,7 @@ class VPNManager:
         self.__logger.debug("Starting system state client...")
         self.__configure_system_state()
         self.__system_state_manager.start()
+        self.__status = "initializing"
         self.__logger.debug("Started system state client")
 
     # Crec que aquesta funcio no es crida
