@@ -69,6 +69,11 @@ def get_server_key():
     return "GotServerKey", 200
 
 
+@app.route("/vpn/configs/status/", methods=[GET])
+def get_status():
+    return "Ready", 200
+
+
 def launch_flask_app(host, port):
     signal_flag = SignalFlag()
     server = Process(target=app.run, args=(host, port, {"debug": True}))

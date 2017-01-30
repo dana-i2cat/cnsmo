@@ -289,7 +289,8 @@ class ConfiguratorServiceTest(unittest.TestCase):
                             { "uri":"http://127.0.0.1:9094/vpn/server/key/server/", "driver":"REST", "logic":"upload", "name":"set_server_key"},
                             { "uri":"http://127.0.0.1:9094/vpn/server/build/", "driver":"REST", "logic":"post", "name":"build_server"},
                             { "uri":"http://127.0.0.1:9094/vpn/server/start/", "driver":"REST", "logic":"post", "name":"start_server"},
-                            { "uri":"http://127.0.0.1:9094/vpn/server/stop/", "driver":"REST", "logic":"post", "name":"stop_server"},])
+                            { "uri":"http://127.0.0.1:9094/vpn/server/stop/", "driver":"REST", "logic":"post", "name":"stop_server"},
+                            { "uri":"http://127.0.0.1:9094/vpn/server/status/", "driver": "REST", "logic": "get", "name":"get_status"},])
         return d
 
     def get_client1_app_request(self, service_id):
@@ -306,7 +307,9 @@ class ConfiguratorServiceTest(unittest.TestCase):
                             {"uri":"http://127.0.0.1:9092/vpn/client/key/",  "driver":"REST", "logic":"upload", "name":"set_client_key"},
                             {"uri":"http://127.0.0.1:9092/vpn/client/build/", "driver":"REST", "logic":"post", "name":"build_client"},
                             {"uri":"http://127.0.0.1:9092/vpn/client/start/",  "driver":"REST", "logic":"post", "name":"start_client"},
-                            {"uri":"http://127.0.0.1:9092/vpn/server/stop/", "driver":"REST", "logic":"post", "name":"stop_client"},])
+                            {"uri":"http://127.0.0.1:9092/vpn/client/stop/", "driver":"REST", "logic":"post", "name":"stop_client"},
+                            {"uri":"http://127.0.0.1:9092/vpn/client/status/", "driver": "REST", "logic": "get",
+                             "name": "get_status"}, ])
         return d
 
     def get_client2_app_request(self, service_id):
@@ -323,7 +326,9 @@ class ConfiguratorServiceTest(unittest.TestCase):
                             {"uri":"http://127.0.0.1:9091/vpn/client/key/",  "driver":"REST", "logic":"upload", "name":"set_client_key"},
                             {"uri":"http://127.0.0.1:9091/vpn/client/build/", "driver":"REST", "logic":"post", "name":"build_client"},
                             {"uri":"http://127.0.0.1:9091/vpn/client/start/",  "driver":"REST", "logic":"post", "name":"start_client"},
-                            {"uri":"http://127.0.0.1:9091/vpn/server/stop/", "driver":"REST", "logic":"post", "name":"stop_client"},])
+                            {"uri":"http://127.0.0.1:9091/vpn/client/stop/", "driver":"REST", "logic":"post", "name":"stop_client"},
+                            {"uri":"http://127.0.0.1:9091/vpn/client/status/", "driver": "REST", "logic": "get",
+                             "name": "get_status"}, ])
         return d
 
     def get_configurator_app_request(self, service_id):
@@ -342,7 +347,9 @@ class ConfiguratorServiceTest(unittest.TestCase):
                             {"uri":"http://127.0.0.1:9093/vpn/configs/keys/server/", "driver":"REST", "logic":"get", "name":"get_server_key"},
                             {"uri":"http://127.0.0.1:9093/vpn/configs/certs/ca/", "driver":"REST", "logic":"post", "name":"generate_ca_cert"},
                             {"uri":"http://127.0.0.1:9093/vpn/configs/certs/client/{param}/", "driver":"REST", "logic":"post", "name":"generate_client_cert"},
-                            {"uri":"http://127.0.0.1:9093/vpn/configs/certs/server/", "driver":"REST", "logic":"post", "name":"generate_server_cert"},])
+                            {"uri":"http://127.0.0.1:9093/vpn/configs/certs/server/", "driver":"REST", "logic":"post", "name":"generate_server_cert"},
+                            {"uri":"http://127.0.0.1:9093/vpn/configs/status/", "driver": "REST", "logic": "get",
+                             "name": "get_status"}, ])
         return d
 
 

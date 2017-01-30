@@ -94,6 +94,11 @@ def stop_client():
         return str(e), 409
 
 
+@app.route("/vpn/client/status/", methods=[GET])
+def get_status():
+    return app.config, 200
+
+
 def save_file(file_handler, file_name):
     # filename = secure_filename(file_handler.filename)
     log.debug("saving file to " + app.config['UPLOAD_FOLDER'])
