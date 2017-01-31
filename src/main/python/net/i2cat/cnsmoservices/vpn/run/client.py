@@ -20,7 +20,10 @@ def get_app_request(host, port, service_id):
                         {"uri":"http://%s:%s/vpn/client/key/" %(host, port),  "driver":"REST", "logic":"upload", "name":"set_client_key"},
                         {"uri":"http://%s:%s/vpn/client/build/" %(host, port), "driver":"REST", "logic":"post", "name":"build_client"},
                         {"uri":"http://%s:%s/vpn/client/start/" %(host, port),  "driver":"REST", "logic":"post", "name":"start_client"},
-                        {"uri":"http://%s:%s/vpn/server/stop/" %(host, port), "driver":"REST", "logic":"post", "name":"stop_client"},])
+                        {"uri":"http://%s:%s/vpn/client/stop/" %(host, port), "driver":"REST", "logic":"post", "name":"stop_client"},
+                        {"uri":"http://%s:%s/vpn/client/status/" %(host, port), "driver": "REST", "logic": "get", "name":"get_status"},
+                        ]
+             )
     return d
 
 
