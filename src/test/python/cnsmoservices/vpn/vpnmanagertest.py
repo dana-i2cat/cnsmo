@@ -52,6 +52,10 @@ class ConfiguratorServiceTest(unittest.TestCase):
         time.sleep(3)
 
     def test_vpn_manager_should_register_all_services(self):
+        # TODO update this test to the dynamic vpn workflow described in vpnmanagerworkflowtest.py
+        # vpnmanagerworkflowtest.py shows the desired behaviour
+        # in terms of VPNManager internal state and automatic deployment of the VPN.
+
 
         print "VPNMANAGER:", self.vpn_manager.__dict__
         time.sleep(2)
