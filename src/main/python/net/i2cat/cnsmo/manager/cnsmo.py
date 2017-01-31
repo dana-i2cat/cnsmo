@@ -31,7 +31,7 @@ class CNSMOManager:
 
     def start(self):
         if not self.__is_running:
-            self.__logger.debug("Starting CNSMOManager...")
+            self.__logger.debug("Starting CNSMOManager %s:%s..." % (self.__type, self.__name))
             self.__configure_system_state()
             self.__deployment_driver.start()
             self.__connect()
@@ -40,7 +40,7 @@ class CNSMOManager:
 
     def stop(self):
         if self.__is_running:
-            self.__logger.debug("Stopping CNSMOManager...")
+            self.__logger.debug("Stopping CNSMOManager %s:%s..." % (self.__type, self.__name))
             self.__system_state_manager.stop()
             self.__deployment_driver.stop()
             self.__disconnect()
