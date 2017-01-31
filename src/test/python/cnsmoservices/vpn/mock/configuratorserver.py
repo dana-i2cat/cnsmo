@@ -2,9 +2,7 @@ import getopt
 import signal
 import time
 import sys
-import requests
 from flask import Flask
-from flask import request
 from multiprocessing import Process
 
 

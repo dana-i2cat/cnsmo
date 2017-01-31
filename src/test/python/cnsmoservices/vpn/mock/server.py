@@ -4,8 +4,7 @@ import logging
 import signal
 import time
 import sys
-import requests
-from flask import Flask
+from flask import Flask, jsonify
 from flask import request
 from multiprocessing import Process
 
@@ -106,7 +105,7 @@ def stop_server():
 
 @app.route("/vpn/server/status/", methods=[GET])
 def get_status():
-    return app.config, 200
+    return jsonify(app.config), 200
 
 
 def save_file(file_handler, file_name):
