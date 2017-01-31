@@ -98,6 +98,7 @@ class VPNManager:
                     self.__client_services.add(client_service)
                 else:
                     self.__logger.debug("Server is listening, deploy the client now")
+                    self.__client_services.add(client_service)
                     ca_crt = self.__configuration_manager.get_ca_cert(None).content
                     client_id = "VPNclient" + str(random.randint(1,999999))
                     self.__logger.debug("Waiting for client presence...")
