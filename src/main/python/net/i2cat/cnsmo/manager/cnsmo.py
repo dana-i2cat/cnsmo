@@ -7,7 +7,7 @@ from src.main.python.net.i2cat.cnsmo.factory.system.state.factory import SystemS
 class CNSMOManager:
 
     def __init__(self, address, name=None, type=None, deployment_driver=None,
-                 system_state_manager=None, services=dict()):
+                 system_state_manager=None, services=None):
         """
         Main CNSMO Service instances, this are meant to be super-recursive and the base object of every service
         triggered by OpenNaas
@@ -23,7 +23,10 @@ class CNSMOManager:
         self.__system_state_manager = None
         self.__name = name
         self.__type = type
-        self.__services = services
+        if services is None:
+            self.__services = dict()
+        else:
+            self.__services = services
         self.__service_instances = dict()
         self.__is_running = False
         self.__status = None
