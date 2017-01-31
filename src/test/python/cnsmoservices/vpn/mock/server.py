@@ -105,7 +105,11 @@ def stop_server():
 
 @app.route("/vpn/server/status/", methods=[GET])
 def get_status():
-    return jsonify(app.config), 200
+    status = dict()
+    status["config_files"] = app.config["config_files"]
+    status["service_built"] = app.config["service_built"]
+    status["service_running"] = app.config["service_running"]
+    return jsonify(status), 200
 
 
 def save_file(file_handler, file_name):
