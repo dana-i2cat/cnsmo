@@ -3,6 +3,7 @@ import sys
 import threading
 import time
 import unittest
+import logging
 from random import randint
 
 
@@ -19,6 +20,9 @@ from src.main.python.net.i2cat.cnsmoservices.vpn.manager.vpn import VPNManager
 
 class ConfiguratorServiceTest(unittest.TestCase):
 
+    # logging.basicConfig(stream=sys.stdout, level=logging.DEBUG, disable_existing_loggers=False)
+    logging.basicConfig(stream=sys.stdout, level=logging.DEBUG, format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s')
+
     def setUp(self):
         """
         Initializes all service managers (without starting them), and the vpn_manager. Starts the vpn_manager
@@ -28,12 +32,14 @@ class ConfiguratorServiceTest(unittest.TestCase):
 
         redis_address = "localhost:6379"
 
-        system_state = SystemStateFactory.generate_system_state_manager("localhost:6379")
-        system_state_t = threading.Thread(target=system_state.start)
+        setup_id = randint(1, 999999)
+        print("SETTING UP TEST %s ...." % str(setup_id))
+
+        self.system_state = SystemStateFactory.generate_system_state_manager("localhost:6379")
+        system_state_t = threading.Thread(target=self.system_state.start)
         system_state_t.start()
         time.sleep(1)
 
-        setup_id = randint(1, 999999)
         service_id = "VPNConfigurer-234-" + str(setup_id)
 
         self.deploy_configurator = self.make_service_deployer(redis_address, service_id, "VPNConfigManager",
@@ -75,8 +81,15 @@ class ConfiguratorServiceTest(unittest.TestCase):
             self.undeploy_service(self.server_manager.get_name(), self.server_manager)
             print("Undeployed server")
 
-        # self.vpn_manager.stop()
+        self.vpn_manager.stop()
         self.vpn_manager = None
+
+        # empty redis db
+        redis = self.system_state._SystemStateManager__client._RedisDriver__client
+        for key in redis.scan_iter():
+            redis.delete(key)
+        print("Removed all entries in redis db")
+
         time.sleep(10)
         print("TEAR DOWN COMPLETE")
 
@@ -290,7 +303,7 @@ class ConfiguratorServiceTest(unittest.TestCase):
                             { "uri":"http://127.0.0.1:9094/vpn/server/build/", "driver":"REST", "logic":"post", "name":"build_server"},
                             { "uri":"http://127.0.0.1:9094/vpn/server/start/", "driver":"REST", "logic":"post", "name":"start_server"},
                             { "uri":"http://127.0.0.1:9094/vpn/server/stop/", "driver":"REST", "logic":"post", "name":"stop_server"},
-                            { "uri":"http://127.0.0.1:9094/vpn/server/status/", "driver": "REST", "logic": "get", "name":"get_status"},])
+                            { "uri":"http://127.0.0.1:9094/vpn/server/status/", "driver": "REST", "logic": "get", "name":"get_status"}, ])
         return d
 
     def get_client1_app_request(self, service_id):
@@ -308,8 +321,7 @@ class ConfiguratorServiceTest(unittest.TestCase):
                             {"uri":"http://127.0.0.1:9092/vpn/client/build/", "driver":"REST", "logic":"post", "name":"build_client"},
                             {"uri":"http://127.0.0.1:9092/vpn/client/start/",  "driver":"REST", "logic":"post", "name":"start_client"},
                             {"uri":"http://127.0.0.1:9092/vpn/client/stop/", "driver":"REST", "logic":"post", "name":"stop_client"},
-                            {"uri":"http://127.0.0.1:9092/vpn/client/status/", "driver": "REST", "logic": "get",
-                             "name": "get_status"}, ])
+                            {"uri":"http://127.0.0.1:9092/vpn/client/status/", "driver": "REST", "logic": "get", "name":"get_status"}, ])
         return d
 
     def get_client2_app_request(self, service_id):
@@ -327,8 +339,7 @@ class ConfiguratorServiceTest(unittest.TestCase):
                             {"uri":"http://127.0.0.1:9091/vpn/client/build/", "driver":"REST", "logic":"post", "name":"build_client"},
                             {"uri":"http://127.0.0.1:9091/vpn/client/start/",  "driver":"REST", "logic":"post", "name":"start_client"},
                             {"uri":"http://127.0.0.1:9091/vpn/client/stop/", "driver":"REST", "logic":"post", "name":"stop_client"},
-                            {"uri":"http://127.0.0.1:9091/vpn/client/status/", "driver": "REST", "logic": "get",
-                             "name": "get_status"}, ])
+                            {"uri":"http://127.0.0.1:9091/vpn/client/status/", "driver": "REST", "logic": "get", "name":"get_status"}, ])
         return d
 
     def get_configurator_app_request(self, service_id):
@@ -348,8 +359,7 @@ class ConfiguratorServiceTest(unittest.TestCase):
                             {"uri":"http://127.0.0.1:9093/vpn/configs/certs/ca/", "driver":"REST", "logic":"post", "name":"generate_ca_cert"},
                             {"uri":"http://127.0.0.1:9093/vpn/configs/certs/client/{param}/", "driver":"REST", "logic":"post", "name":"generate_client_cert"},
                             {"uri":"http://127.0.0.1:9093/vpn/configs/certs/server/", "driver":"REST", "logic":"post", "name":"generate_server_cert"},
-                            {"uri":"http://127.0.0.1:9093/vpn/configs/status/", "driver": "REST", "logic": "get",
-                             "name": "get_status"}, ])
+                            {"uri":"http://127.0.0.1:9093/vpn/configs/status/", "driver": "REST", "logic": "get", "name":"get_status"}, ])
         return d
 
 
