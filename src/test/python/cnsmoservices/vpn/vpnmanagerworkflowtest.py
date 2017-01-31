@@ -99,6 +99,8 @@ class ConfiguratorServiceTest(unittest.TestCase):
 
     def test_vpn_manager_notices_when_services_get_registered(self):
 
+        print("TEST: test_vpn_manager_notices_when_services_get_registered")
+
         # before registering any client
         self.assertFalse(self.vpn_manager._VPNManager__client_services,
                          "There should be no clients registered")
@@ -130,6 +132,8 @@ class ConfiguratorServiceTest(unittest.TestCase):
         self.assertIsNotNone(self.vpn_manager._VPNManager__server_service)
 
     def test_vpn_manager_gets_ready_when_configurator_and_server_are_registered(self):
+
+        print("TEST: test_vpn_manager_gets_ready_when_configurator_and_server_are_registered")
 
         # before registering any service
         self.assertIsNone(self.vpn_manager._VPNManager__configuration_manager)
@@ -167,6 +171,9 @@ class ConfiguratorServiceTest(unittest.TestCase):
                          % self.vpn_manager._VPNManager__status)
 
     def test_vpn_manager_automatically_publishes_server_when_it_gets_ready(self):
+
+        print("TEST: test_vpn_manager_automatically_publishes_server_when_it_gets_ready")
+
         self.configurator_manager = self.deploy_configurator()
         self.server_manager = self.deploy_server()
 
@@ -188,6 +195,9 @@ class ConfiguratorServiceTest(unittest.TestCase):
         self.assertTrue(self.vpn_manager._VPNManager__server_deployed)
 
     def test_vpn_manager_publishes_clients_previously_registered_when_it_gets_ready(self):
+
+        print("TEST: test_vpn_manager_publishes_clients_previously_registered_when_it_gets_ready")
+
         self.client1_manager = self.deploy_client1()
         while not self.vpn_manager._VPNManager__client_services:
             time.sleep(0.2)
@@ -206,11 +216,19 @@ class ConfiguratorServiceTest(unittest.TestCase):
         if waited >= 10:
             print("Timeout! Waiting for VPNManager to get status == listening")
 
+        print("Waiting 5s for VPNManager to deploy registered clients")
+        time.sleep(5)
+
         self.assertEqual(len(self.vpn_manager._VPNManager__deployed_client_services), num_clients,
                          "All client services registered before manager is listening, " +
                          "should be deployed when it gets to listening state")
 
     def test_vpn_manager_publishes_clients_upon_registration_when_it_is_ready(self):
+
+        print("TEST: test_vpn_manager_publishes_clients_upon_registration_when_it_is_ready")
+
+        self.assertFalse(self.vpn_manager._VPNManager__client_services, "There must be no client registered")
+
         self.configurator_manager = self.deploy_configurator()
         self.server_manager = self.deploy_server()
 
@@ -226,6 +244,7 @@ class ConfiguratorServiceTest(unittest.TestCase):
             self.fail("Timeout! Waiting for VPNManager to get status == listening")
 
         self.client1_manager = self.deploy_client1()
+
         waited = 0
         while (len(self.vpn_manager._VPNManager__client_services) != 1) & (waited < 10):
             sys.stdout.write('.')
