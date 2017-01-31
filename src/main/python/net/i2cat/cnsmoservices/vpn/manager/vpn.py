@@ -31,6 +31,8 @@ class VPNManager:
         self.__server_deployed = False
         self.__deployed_client_services = set()
 
+        self.__registered_services = set()
+
         self.lock = threading.Lock()
 
         self.__status = "power_off"
@@ -75,6 +77,15 @@ class VPNManager:
         :param service:
         :return:
         """
+        self.lock.acquire()
+        try:
+            if service.get_service_id() in self.__registered_services:
+                self.__logger.warn("Ignoring duplicated advertisement for service %s:%s" % (service.get_service_type(), service.get_service_id()))
+                return
+
+            self.__registered_services.add(service.get_service_id())
+        finally:
+            self.lock.release()
 
         self.__logger.debug("Detected new service %s:%s" % (service.get_service_type(), service.get_service_id()))
 
@@ -102,8 +113,6 @@ class VPNManager:
                 self.wait_for_service_presence(server_service)
                 self.__server_service = server_service
                 self.__update_state()
-            else:
-                self.__logger.warn("Duplicated VPNServers detected. Ignoring last one")
 
         elif service.get_service_type() == "VPNConfigManager":
             if self.__configuration_manager is None:
@@ -112,15 +121,22 @@ class VPNManager:
                 self.wait_for_service_presence(cred_service)
                 self.__configuration_manager = cred_service
                 self.__update_state()
-            else:
-                self.__logger.warn("Duplicated VPNConfigManager detected. Ignoring last one")
+
         else:
             return
 
     def unregister_service(self, service):
         # TODO implement as opposite of register_service(service)
-        self.__logger.debug("Detected service shutdown %s:%s  IGNORED!" % (service.get_service_type(), service.get_service_id()))
-        pass
+        self.lock.acquire()
+        try:
+            if service.get_service_id() not in self.__registered_services:
+                self.__logger.warn("Ignoring shutdown advertisement for non-registered service %s:%s" % (service.get_service_type(), service.get_service_id()))
+                return
+
+            self.__logger.debug("Detected service shutdown %s:%s  IGNORED!" % (service.get_service_type(), service.get_service_id()))
+            self.__registered_services.remove(service.get_service_id())
+        finally:
+            self.lock.release()
 
     def __update_state(self):
 
