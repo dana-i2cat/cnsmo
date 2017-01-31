@@ -109,8 +109,7 @@ def save_file(file_handler, file_name):
 
 
 def prepare_config():
-    app.config["config_files"] = {"dh_ready": False,
-                                  "server_cert_ready": False,
+    app.config["config_files"] = {"server_cert_ready": False,
                                   "server_key_ready": False,
                                   "ca_cert_ready": False,
                                   "config_ready": False,
