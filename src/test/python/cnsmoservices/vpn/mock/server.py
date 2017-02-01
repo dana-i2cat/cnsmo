@@ -4,8 +4,7 @@ import logging
 import signal
 import time
 import sys
-import requests
-from flask import Flask
+from flask import Flask, jsonify
 from flask import request
 from multiprocessing import Process
 
@@ -102,6 +101,15 @@ def stop_server():
         return "Service is not yet running",  409
     except Exception as e:
         return str(e), 409
+
+
+@app.route("/vpn/server/status/", methods=[GET])
+def get_status():
+    status = dict()
+    status["config_files"] = app.config["config_files"]
+    status["service_built"] = app.config["service_built"]
+    status["service_running"] = app.config["service_running"]
+    return jsonify(status), 200
 
 
 def save_file(file_handler, file_name):

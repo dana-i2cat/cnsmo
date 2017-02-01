@@ -108,6 +108,11 @@ def get_server_key():
     return response
 
 
+@app.route("/vpn/configs/status/", methods=[GET])
+def get_status():
+    return "Ready", 200
+
+
 class VPNConfigManager:
 
     def __init__(self, ip, mask, port, server_ip, key_dir):

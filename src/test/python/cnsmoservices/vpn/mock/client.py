@@ -4,8 +4,7 @@ import logging
 import signal
 import time
 import sys
-import requests
-from flask import Flask
+from flask import Flask, jsonify
 from flask import request
 from multiprocessing import Process
 
@@ -94,6 +93,15 @@ def stop_client():
         return str(e), 409
 
 
+@app.route("/vpn/client/status/", methods=[GET])
+def get_status():
+    status = dict()
+    status["config_files"] = app.config["config_files"]
+    status["service_built"] = app.config["service_built"]
+    status["service_running"] = app.config["service_running"]
+    return jsonify(status), 200
+
+
 def save_file(file_handler, file_name):
     # filename = secure_filename(file_handler.filename)
     log.debug("saving file to " + app.config['UPLOAD_FOLDER'])
@@ -101,8 +109,7 @@ def save_file(file_handler, file_name):
 
 
 def prepare_config():
-    app.config["config_files"] = {"dh_ready": False,
-                                  "server_cert_ready": False,
+    app.config["config_files"] = {"server_cert_ready": False,
                                   "server_key_ready": False,
                                   "ca_cert_ready": False,
                                   "config_ready": False,

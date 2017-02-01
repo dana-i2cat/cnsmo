@@ -45,10 +45,15 @@ class SystemStateClient:
             #TODO Since at this moment there is no check of the CNSMO Container APP it may not be needed
             #self.advertise()
             self.__listener.start()
+            self.__is_running = True
 
     def stop(self):
-        # TODO Implement stop properly, as the opposite of start
-        pass
+        if self.__is_running:
+            self.unsubscribe_all()
+            self.__listener.stop()
+            self.__publisher.stop()
+            self.__client.stop()
+            self.__is_running = False
 
     def subscribe_all(self):
         """
@@ -57,6 +62,13 @@ class SystemStateClient:
         """
         [self.subscribe(channel) for channel in self.__subscriptions if self.__subscriptions]
 
+    def unsubscribe_all(self):
+        """
+        Subscribes all the services
+        :return:
+        """
+        [self.unsubscribe(channel) for channel in self.__subscriptions if self.__subscriptions]
+
     def subscribe(self, channel):
         """
         Atomic method that call the listener to subscribe to a service update
@@ -64,6 +76,14 @@ class SystemStateClient:
         :return:
         """
         self.__listener.subscribe(channel, self.callback)
+
+    def unsubscribe(self, channel):
+        """
+        Atomic method that call the listener to unsubscribe to a service update
+        :param channel:
+        :return:
+        """
+        self.__listener.unsubscribe(channel)
 
     def advertise(self):
         """
@@ -86,9 +106,10 @@ class SystemStateClient:
         :param message:
         :return:
         """
-        service = NewService()
-        service.objectify_from_json(message.get("data"))
-        return self.__callback(service)
+        if self.__is_running:
+            service = NewService()
+            service.objectify_from_json(message.get("data"))
+            return self.__callback(service)
 
     def save(self, service):
         """
