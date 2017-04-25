@@ -1,5 +1,12 @@
 #!/bin/bash
 
+# set working directory
+DIRECTORY='/var/tmp/slipstream'
+if [ ! -d "$DIRECTORY" ]; then
+  mkdir -p ${DIRECTORY}
+fi
+cd ${DIRECTORY}
+
 if [ $(docker --version 1>/dev/null 2>/dev/null; echo $?) != "0" ]; then
     # install docker
     prinf "installing docker..."
@@ -46,3 +53,10 @@ echo -e \
   utils/install_server.sh
 cd ..
 prinf "installing redis... done!"
+
+# remove persisted network configuration (for compatibility with pre-built images)
+rm -f /etc/udev/rules.d/*net*.rules
+
+# reboot to apply new kernel, upgraded by docker installation script
+prinf "Rebooting for kernel upgrade"
+reboot
