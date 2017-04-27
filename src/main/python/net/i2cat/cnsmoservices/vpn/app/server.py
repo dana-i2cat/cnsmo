@@ -5,7 +5,7 @@ import shlex
 import subprocess
 
 import sys
-from flask import Flask
+from flask import Flask, jsonify
 from flask import request
 
 log = logging.getLogger('cnsmoservices.vpn.app.server')
@@ -91,7 +91,7 @@ def start_server():
             output = subprocess.check_call(shlex.split(
                 "docker run --net=host  --privileged -v /dev/net/:/dev/net/ --name server-vpn -d vpn-server"))
 
-            log.debug("docker run. output: " + output)
+            log.debug("docker run. output: " + str(output))
             app.config["service_running"] = True
             return "", 204
         return "Service is not yet built",  409
@@ -110,6 +110,15 @@ def stop_server():
         return "Service is not yet running",  409
     except Exception as e:
         return str(e), 409
+
+
+@app.route("/vpn/server/status/", methods=[GET])
+def get_status():
+    status = dict()
+    status["config_files"] = app.config["config_files"]
+    status["service_built"] = app.config["service_built"]
+    status["service_running"] = app.config["service_running"]
+    return jsonify(status), 200
 
 
 def save_file(file_handler, file_name):

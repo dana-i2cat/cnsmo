@@ -4,7 +4,7 @@ import os
 import subprocess
 
 import sys
-from flask import Flask
+from flask import Flask, jsonify
 from flask import request
 import shlex
 
@@ -64,13 +64,22 @@ def start_client():
     return "", 409
 
 
-@app.route("/vpn/server/stop/", methods=[POST])
+@app.route("/vpn/client/stop/", methods=[POST])
 def stop_client():
     if app.config["service_running"]:
         subprocess.check_call(shlex.split("docker kill client-vpn"))
         subprocess.check_call(shlex.split("docker rm client-vpn"))
         return "",204
     return "",409
+
+
+@app.route("/vpn/client/status/", methods=[GET])
+def get_status():
+    status = dict()
+    status["config_files"] = app.config["config_files"]
+    status["service_built"] = app.config["service_built"]
+    status["service_running"] = app.config["service_running"]
+    return jsonify(status), 200
 
 
 def save_file(file, file_name):

@@ -2,9 +2,7 @@ import getopt
 import signal
 import time
 import sys
-import requests
 from flask import Flask
-from flask import request
 from multiprocessing import Process
 
 
@@ -67,6 +65,11 @@ def get_server_cert():
 @app.route("/vpn/configs/keys/server/", methods=[GET])
 def get_server_key():
     return "GotServerKey", 200
+
+
+@app.route("/vpn/configs/status/", methods=[GET])
+def get_status():
+    return "Ready", 200
 
 
 def launch_flask_app(host, port):
