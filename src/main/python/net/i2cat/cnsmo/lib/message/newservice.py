@@ -13,6 +13,7 @@ class NewService(Message):
         :param service_status:
         :return:
         """
+        self.__message_type = "new"
         self.__service_type = service_type
         self.__service_id = service_id
         self.__service_status = service_status
@@ -26,6 +27,9 @@ class NewService(Message):
     def get_service_status(self):
         return self.__service_status
 
+    def get_message_type(self):
+        return self.__message_type
+
     def set_service_type(self, service_type):
         self.__service_type = service_type
 
@@ -35,3 +39,5 @@ class NewService(Message):
     def set_service_status(self, service_status):
         self.__service_status = service_status
 
+    def set_message_type(self, message_type):
+        self.__message_type = message_type

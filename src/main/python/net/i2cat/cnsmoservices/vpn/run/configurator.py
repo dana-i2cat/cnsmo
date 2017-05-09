@@ -10,15 +10,15 @@ def get_app_request(host, port, service_id, vpn_server_address, vpn_server_port,
     d = dict(service_id=service_id,
              trigger= 'mkdir -p keys && chmod +x "$(pwd)"/build-* && python configurator.py -a %s -p %s -w "$(pwd)"/keys/ -s %s -m %s -v %s -o %s' % (bind_address, port, vpn_server_address, vpn_mask, vpn_address, vpn_server_port),
 
-             resources = ["https://raw.githubusercontent.com/dana-i2cat/cnsmo/develop/src/main/python/net/i2cat/cnsmoservices/vpn/app/configurator.py",
-                          "https://raw.githubusercontent.com/dana-i2cat/cnsmo-net-services/develop/src/main/docker/vpn/easy-rsa/gen_ca.sh",
-                          "https://raw.githubusercontent.com/dana-i2cat/cnsmo-net-services/develop/src/main/docker/vpn/easy-rsa/gen_client.sh",
-                          "https://raw.githubusercontent.com/dana-i2cat/cnsmo-net-services/develop/src/main/docker/vpn/easy-rsa/gen_index.sh",
-                          "https://raw.githubusercontent.com/dana-i2cat/cnsmo-net-services/develop/src/main/docker/vpn/easy-rsa/gen_server.sh",
-                          "https://raw.githubusercontent.com/dana-i2cat/cnsmo-net-services/develop/src/main/docker/vpn/easy-rsa/build-ca",
-                          "https://raw.githubusercontent.com/dana-i2cat/cnsmo-net-services/develop/src/main/docker/vpn/easy-rsa/build-key",
-                          "https://raw.githubusercontent.com/dana-i2cat/cnsmo-net-services/develop/src/main/docker/vpn/easy-rsa/build-key-server",
-                          "https://raw.githubusercontent.com/dana-i2cat/cnsmo-net-services/develop/src/main/docker/vpn/easy-rsa/vars",
+             resources = ["https://raw.githubusercontent.com/dana-i2cat/cnsmo/master/src/main/python/net/i2cat/cnsmoservices/vpn/app/configurator.py",
+                          "https://raw.githubusercontent.com/dana-i2cat/cnsmo-net-services/master/src/main/docker/vpn/easy-rsa/gen_ca.sh",
+                          "https://raw.githubusercontent.com/dana-i2cat/cnsmo-net-services/master/src/main/docker/vpn/easy-rsa/gen_client.sh",
+                          "https://raw.githubusercontent.com/dana-i2cat/cnsmo-net-services/master/src/main/docker/vpn/easy-rsa/gen_index.sh",
+                          "https://raw.githubusercontent.com/dana-i2cat/cnsmo-net-services/master/src/main/docker/vpn/easy-rsa/gen_server.sh",
+                          "https://raw.githubusercontent.com/dana-i2cat/cnsmo-net-services/master/src/main/docker/vpn/easy-rsa/build-ca",
+                          "https://raw.githubusercontent.com/dana-i2cat/cnsmo-net-services/master/src/main/docker/vpn/easy-rsa/build-key",
+                          "https://raw.githubusercontent.com/dana-i2cat/cnsmo-net-services/master/src/main/docker/vpn/easy-rsa/build-key-server",
+                          "https://raw.githubusercontent.com/dana-i2cat/cnsmo-net-services/master/src/main/docker/vpn/easy-rsa/vars",
                           ],
              dependencies=[],
              endpoints=[{"uri":"http://%s:%s/vpn/configs/dh/" %(host, port), "driver":"REST", "logic":"get", "name":"get_dh"},
@@ -31,7 +31,10 @@ def get_app_request(host, port, service_id, vpn_server_address, vpn_server_port,
                         {"uri":"http://%s:%s/vpn/configs/keys/server/" %(host, port), "driver":"REST", "logic":"get", "name":"get_server_key"},
                         {"uri":"http://%s:%s/vpn/configs/certs/ca/" %(host, port), "driver":"REST", "logic":"post", "name":"generate_ca_cert"},
                         {"uri":"http://%s:%s/vpn/configs/certs/client/{param}/" %(host, port), "driver":"REST", "logic":"post", "name":"generate_client_cert"},
-                        {"uri":"http://%s:%s/vpn/configs/certs/server/" %(host, port), "driver":"REST", "logic":"post", "name":"generate_server_cert"},])
+                        {"uri":"http://%s:%s/vpn/configs/certs/server/" %(host, port), "driver":"REST", "logic":"post", "name":"generate_server_cert"},
+                        {"uri":"http://%s:%s/vpn/configs/status/" %(host, port), "driver": "REST", "logic": "get", "name":"get_status"},
+                        ]
+             )
     return d
 
 
@@ -57,7 +60,7 @@ if __name__ == "__main__":
     from src.main.python.net.i2cat.cnsmo.deployment.bash import BashDeployer
     from src.main.python.net.i2cat.cnsmo.manager.cnsmo import CNSMOManager
 
-    opts, _ = getopt.getopt(sys.argv[1:], "a:p:r:s:", ["vpn-server-ip=", "vpn-server-port=", "vpn-address=", "vpn-mask="   ])
+    opts, _ = getopt.getopt(sys.argv[1:], "a:p:r:s:", ["vpn-server-ip=", "vpn-server-port=", "vpn-address=", "vpn-mask="])
 
     host = "0.0.0.0"
     port = "9093"

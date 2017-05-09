@@ -7,9 +7,9 @@ def get_app_request(host, port, service_id):
     d = dict(service_id=service_id,
              trigger='python client.py -a %s -p %s -w "$(pwd)"' % (bind_address, port),
 
-             resources=["https://raw.githubusercontent.com/dana-i2cat/cnsmo/develop/src/main/python/net/i2cat/cnsmoservices/vpn/app/client.py",
-                        "https://raw.githubusercontent.com/dana-i2cat/cnsmo-net-services/develop/src/main/docker/vpn/client/Dockerfile",
-                        "https://raw.githubusercontent.com/dana-i2cat/cnsmo-net-services/develop/src/main/docker/vpn/client/tun_manager.sh",
+             resources=["https://raw.githubusercontent.com/dana-i2cat/cnsmo/master/src/main/python/net/i2cat/cnsmoservices/vpn/app/client.py",
+                        "https://raw.githubusercontent.com/dana-i2cat/cnsmo-net-services/master/src/main/docker/vpn/client/Dockerfile",
+                        "https://raw.githubusercontent.com/dana-i2cat/cnsmo-net-services/master/src/main/docker/vpn/client/tun_manager.sh",
                         ],
 
              dependencies=[],
@@ -20,7 +20,10 @@ def get_app_request(host, port, service_id):
                         {"uri":"http://%s:%s/vpn/client/key/" %(host, port),  "driver":"REST", "logic":"upload", "name":"set_client_key"},
                         {"uri":"http://%s:%s/vpn/client/build/" %(host, port), "driver":"REST", "logic":"post", "name":"build_client"},
                         {"uri":"http://%s:%s/vpn/client/start/" %(host, port),  "driver":"REST", "logic":"post", "name":"start_client"},
-                        {"uri":"http://%s:%s/vpn/server/stop/" %(host, port), "driver":"REST", "logic":"post", "name":"stop_client"},])
+                        {"uri":"http://%s:%s/vpn/client/stop/" %(host, port), "driver":"REST", "logic":"post", "name":"stop_client"},
+                        {"uri":"http://%s:%s/vpn/client/status/" %(host, port), "driver": "REST", "logic": "get", "name":"get_status"},
+                        ]
+             )
     return d
 
 
