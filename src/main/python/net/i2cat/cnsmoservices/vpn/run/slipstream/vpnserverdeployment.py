@@ -119,7 +119,7 @@ def deployvpn():
     # Deploy VPN
     logger.debug("Deploying VPN...")
     call('ss-display \"VPN: Deploying VPN...\"')
-    #vpn_orchestrator.deploy_blocking()     #JOSEP CODE
+    #vpn_orchestrator.deploy_blocking()     #JOSEP COMENTED
     logger.debug("VPN deployed")
 
 
@@ -134,12 +134,16 @@ def deployvpn():
         return -1
 
     logger.debug("Resolving IP addresses...")
+    call('ss-display \"VPN: Resolving IP addresses...\"')
     vpn_local_ipv4_address = getInterfaceIPv4Address(vpn_iface)
-    vpn_local_ipv6_address = getInterfaceIPv6Address(vpn_iface)
+    #vpn_local_ipv6_address = getInterfaceIPv6Address(vpn_iface)    #JOSEP COMENTED
     logger.debug("VPN using interface %s with ipaddr %s and ipv6addr %s"
                  % (vpn_iface, vpn_local_ipv4_address, vpn_local_ipv6_address))
+    vpn_local_ipv6_address = "" #JOSEP CODE
 
     logger.debug("Announcing IP addresses...")
+    call('ss-display \"VPN: Announcing IP addresses...\"')
+    call('ss-display \"address %s\"' % vpn_local_ipv4_address)
     call("ss-set vpn.address %s" % vpn_local_ipv4_address)
     call("ss-set vpn.address6 %s" % vpn_local_ipv6_address)
 
