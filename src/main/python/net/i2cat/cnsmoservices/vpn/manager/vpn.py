@@ -183,6 +183,8 @@ class VPNManager:
         print "generating security mechanism..."
 
         # Generate DH and CA cert
+        self.__logger.debug("Generate DH and CA cert")
+        print "Generate DH and CA cert..."
         self.__configuration_manager.generate_ca_cert(None)
 
         self.__logger.debug("generating vpn server configuration...")
