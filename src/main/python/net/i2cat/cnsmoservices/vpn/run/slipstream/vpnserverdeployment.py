@@ -119,11 +119,12 @@ def deployvpn():
     # Deploy VPN
     logger.debug("Deploying VPN...")
     call('ss-display \"VPN: Deploying VPN...\"')
-    vpn_orchestrator.deploy_blocking()
+    #vpn_orchestrator.deploy_blocking()     #JOSEP CODE
     logger.debug("VPN deployed")
 
 
     logger.debug("Locating VPN enabled interface...")
+    call('ss-display \"VPN: Locating VPN enabled interface...\"')
     time.sleep(5)
     # assuming the VPN interface (probably tap0) is the only one created during this script execution
     vpn_iface = detect_new_interface_in_30_sec(ifaces_prev)
