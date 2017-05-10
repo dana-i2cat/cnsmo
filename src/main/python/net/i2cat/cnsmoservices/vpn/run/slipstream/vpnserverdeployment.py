@@ -117,15 +117,16 @@ def deployvpn():
         logger.debug("Finished waiting for all VPN clients.")
 
     # Deploy VPN
-    logger.debug("Deploying VPN...")
+    print "vpnserverdeployment::Assumed deployed VPN..."
     call('ss-display \"VPN: Deploying VPN...\"')
     #vpn_orchestrator.deploy_blocking()     #JOSEP COMENTED
     logger.debug("VPN deployed")
 
 
     logger.debug("Locating VPN enabled interface...")
+    print "Locating VPN enabled interface..."
     call('ss-display \"VPN: Locating VPN enabled interface...\"')
-    time.sleep(5)
+    time.sleep(50)
     # assuming the VPN interface (probably tap0) is the only one created during this script execution
     vpn_iface = detect_new_interface_in_30_sec(ifaces_prev)
     if not vpn_iface:
@@ -138,6 +139,7 @@ def deployvpn():
     vpn_local_ipv4_address = getInterfaceIPv4Address(vpn_iface)
     vpn_local_ipv6_address = "" #JOSEP CODE
     #vpn_local_ipv6_address = getInterfaceIPv6Address(vpn_iface)    #JOSEP COMENTED
+    call('ss-display \"interface %s\"' % vpn_iface)
     logger.debug("VPN using interface %s with ipaddr %s and ipv6addr %s"
                  % (vpn_iface, vpn_local_ipv4_address, vpn_local_ipv6_address))
 
