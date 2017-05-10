@@ -110,7 +110,8 @@ def deployvpn():
 
     logger.debug("Resolving IP addresses...")
     vpn_local_ipv4_address = getInterfaceIPv4Address(vpn_iface)
-    vpn_local_ipv6_address = getInterfaceIPv6Address(vpn_iface)
+    vpn_local_ipv6_address = "" #JOSEP CODE
+    #vpn_local_ipv6_address = getInterfaceIPv6Address(vpn_iface)    #JOSEP COMENTED
     logger.debug("VPN using interface %s with ipaddr %s and ipv6addr %s"
                  % (vpn_iface, vpn_local_ipv4_address, vpn_local_ipv6_address))
 
