@@ -141,9 +141,8 @@ def deployvpn():
     #vpn_local_ipv6_address = getInterfaceIPv6Address(vpn_iface)    #JOSEP COMENTED
     logger.debug("VPN using interface %s with ipaddr %s and ipv6addr %s"
                  % (vpn_iface, vpn_local_ipv4_address, vpn_local_ipv6_address))
-    print "VPN using interface %s with ipaddr %s and ipv6addr %s"
-                 % (vpn_iface, vpn_local_ipv4_address, vpn_local_ipv6_address))
-
+    print "VPN using interface %s with ipaddr %s and ipv6addr %s" 
+                 % (vpn_iface, vpn_local_ipv4_address, vpn_local_ipv6_address)
     logger.debug("Announcing IP addresses...")
     call('ss-display \"VPN: Announcing IP addresses...\"')
     call("ss-set vpn.address %s" % vpn_local_ipv4_address)
@@ -157,8 +156,8 @@ def deployvpn():
 
     logger.debug("VPN has been established! Using interface %s with ipaddr %s and ipv6addr %s"
                  % (vpn_iface, vpn_local_ipv4_address, vpn_local_ipv6_address))
-    call("ss-display \"VPN: VPN has been established! Using interface %s with ipaddr %s and ipv6addr %s\"" %
-         (vpn_iface, vpn_local_ipv4_address, vpn_local_ipv6_address))
+    call("ss-display \"VPN: VPN has been established! Using interface %s with ipaddr %s and ipv6addr %s\"" 
+                 % (vpn_iface, vpn_local_ipv4_address, vpn_local_ipv6_address))
 
     return 0
 
