@@ -96,7 +96,7 @@ def deployvpn():
         logger.error("Timeout waiting for %s:net.i2cat.cnsmo.service.vpn.ready" % server_instance_id)
         return -1
     logger.debug("VPN deployed")
-
+    call('ss-display \"VPN: Finished Waiting for VPN to be deployed...\"')
 
     logger.debug("Locating VPN enabled interface...")
     time.sleep(5)
@@ -110,14 +110,14 @@ def deployvpn():
 
     logger.debug("Resolving IP addresses...")
     vpn_local_ipv4_address = getInterfaceIPv4Address(vpn_iface)
-    vpn_local_ipv6_address = "" #JOSEP CODE
-    #vpn_local_ipv6_address = getInterfaceIPv6Address(vpn_iface)    #JOSEP COMENTED
-    logger.debug("VPN using interface %s with ipaddr %s and ipv6addr %s"
-                 % (vpn_iface, vpn_local_ipv4_address, vpn_local_ipv6_address))
+    vpn_local_ipv6_address = ""
+    vpn_local_ipv6_address = getInterfaceIPv6Address(vpn_iface)
+    logger.debug("VPN using interface %s with ipaddr %s and ipv6addr %s" % (vpn_iface, vpn_local_ipv4_address, vpn_local_ipv6_address))
 
     logger.debug("Announcing IP addresses...")
     call("ss-set vpn.address %s" % vpn_local_ipv4_address)
-    call("ss-set vpn.address6 %s" % vpn_local_ipv6_address)
+    if vpn_local_ipv6_address:
+        call("ss-set vpn.address6 %s" % vpn_local_ipv6_address)
 
     logger.debug("VPN has been established! Using interface %s with ipaddr %s and ipv6addr %s"
                  % (vpn_iface, vpn_local_ipv4_address, vpn_local_ipv6_address))
@@ -162,7 +162,7 @@ def getInterfaceIPv4Address(iface):
 
 
 def getInterfaceIPv6Address(iface):
-    return call("ifconfig " + iface + "| awk '/inet6 / { print $3 }'").rstrip('\n')
+    return call("ifconfig " + iface + "| awk '/inet6 / { print $3 }'").rstrip('\n').split('/'))[0]
 
 
 def logToFile(message, filename, filemode):
