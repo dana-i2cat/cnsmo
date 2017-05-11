@@ -126,7 +126,7 @@ def deployvpn():
     logger.debug("Locating VPN enabled interface...")
     print "Locating VPN enabled interface..."
     call('ss-display \"VPN: Locating VPN enabled interface...\"')
-    time.sleep(50)
+    time.sleep(150)
     # assuming the VPN interface (probably tap0) is the only one created during this script execution
     vpn_iface = detect_new_interface_in_30_sec(ifaces_prev)
     if not vpn_iface:
@@ -137,14 +137,15 @@ def deployvpn():
     logger.debug("Resolving IP addresses...")
     call('ss-display \"VPN: Resolving IP addresses...\"')
     vpn_local_ipv4_address = getInterfaceIPv4Address(vpn_iface)
-    vpn_local_ipv6_address = "" #JOSEP CODE
-    #vpn_local_ipv6_address = getInterfaceIPv6Address(vpn_iface)    #JOSEP COMENTED
+    vpn_local_ipv6_address = ""
+    vpn_local_ipv6_address = getInterfaceIPv6Address(vpn_iface)
     logger.debug("VPN using interface %s with ipaddr %s and ipv6addr %s" % (vpn_iface, vpn_local_ipv4_address, vpn_local_ipv6_address))
     print "VPN using interface %s with ipaddr %s and ipv6addr %s" % (vpn_iface, vpn_local_ipv4_address, vpn_local_ipv6_address)
     logger.debug("Announcing IP addresses...")
     call('ss-display \"VPN: Announcing IP addresses...\"')
     call("ss-set vpn.address %s" % vpn_local_ipv4_address)
-    call("ss-set vpn.address6 %s" % vpn_local_ipv6_address)
+    if vpn_local_ipv6_address:
+        call("ss-set vpn.address6 %s" % vpn_local_ipv6_address)
 
 
     # Communicate that the VPN has been established
@@ -209,7 +210,9 @@ def getInterfaceIPv4Address(iface):
 
 
 def getInterfaceIPv6Address(iface):
-    return call("ifconfig " + iface + "| awk '/inet6 / { print $3 }'").rstrip('\n')
+    print "showing ipv6 interface:"
+    print call("ifconfig " + iface + "| awk '/inet6 /'")
+    return (call("ifconfig " + iface + "| awk '/inet6 / { print $3 }'").rstrip('\n').split('/'))[0]
 
 
 # Gets the instances that compose the deployment
