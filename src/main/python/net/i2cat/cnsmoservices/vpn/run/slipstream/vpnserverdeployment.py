@@ -210,8 +210,6 @@ def getInterfaceIPv4Address(iface):
 
 
 def getInterfaceIPv6Address(iface):
-    print "showing ipv6 interface:"
-    print call("ifconfig " + iface + "| awk '/inet6 /'")
     return (call("ifconfig " + iface + "| awk '/inet6 / { print $3 }'").rstrip('\n').split('/'))[0]
 
 
