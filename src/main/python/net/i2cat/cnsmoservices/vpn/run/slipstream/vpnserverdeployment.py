@@ -117,8 +117,8 @@ def deployvpn():
         logger.debug("Finished waiting for all VPN clients.")
     '''
     logger.debug("Locating VPN enabled interface...")
-    call('ss-display \"VPN: Locating VPN enabled interface...\"')
-    time.sleep(5)
+    call('ss-display \"VPN: Waiting before Locating VPN enabled interface...\"')
+    time.sleep(360)
     # assuming the VPN interface (probably tap0) is the only one created during this script execution
     vpn_iface = detect_new_interface_in_30_sec(ifaces_prev)
     if not vpn_iface:
@@ -134,6 +134,9 @@ def deployvpn():
     logger.debug("VPN using interface %s with ipaddr %s and ipv6addr %s" % (vpn_iface, vpn_local_ipv4_address, vpn_local_ipv6_address))
     logger.debug("Announcing IP addresses...")
     call('ss-display \"VPN: Announcing IP addresses...\"')
+    if not vpn_local_ipv4_address:
+        call("ss-abort \"%s:Timeout! Failed to obtain ipv4\"" % instance_id)
+        return -1
     call("ss-set vpn.address %s" % vpn_local_ipv4_address)
     if vpn_local_ipv6_address:
         call("ss-set vpn.address6 %s" % vpn_local_ipv6_address)
