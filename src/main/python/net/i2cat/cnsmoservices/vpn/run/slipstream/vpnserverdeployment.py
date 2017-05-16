@@ -93,6 +93,7 @@ def deployvpn():
     call('ss-get net.i2cat.cnsmo.service.vpn.configurator.listening')
     call('ss-get net.i2cat.cnsmo.service.vpn.server.listening')
 
+    '''
     # Wait for clients
     logger.debug("Detecting all VPN clients...")
     call('ss-display \"VPN: Looking for all clients...\"')
@@ -104,7 +105,6 @@ def deployvpn():
     # remove this instance
     client_instances.remove(instance_id)
     logger.debug("Finished detecting all VPN clients: %s" % client_instances)
-
     logger.debug("Waiting for all VPN clients...")
     call('ss-display \"VPN: Waiting for all clients...\"')
     # wait for clients to be ready: instance_id:net.i2cat.cnsmo.service.vpn.client.waiting=true
@@ -115,16 +115,8 @@ def deployvpn():
             logger.error("Timeout! Waiting for VPN client %s" % client_id)
             return -1
         logger.debug("Finished waiting for all VPN clients.")
-
-    # Deploy VPN
-    print "vpnserverdeployment::Assumed deployed VPN..."
-    call('ss-display \"VPN: Deploying VPN...\"')
-    #vpn_orchestrator.deploy_blocking()     #JOSEP COMENTED
-    logger.debug("VPN deployed")
-
-
+    '''
     logger.debug("Locating VPN enabled interface...")
-    print "Locating VPN enabled interface..."
     call('ss-display \"VPN: Locating VPN enabled interface...\"')
     time.sleep(5)
     # assuming the VPN interface (probably tap0) is the only one created during this script execution
@@ -140,7 +132,6 @@ def deployvpn():
     vpn_local_ipv6_address = ""
     vpn_local_ipv6_address = getInterfaceIPv6Address(vpn_iface)
     logger.debug("VPN using interface %s with ipaddr %s and ipv6addr %s" % (vpn_iface, vpn_local_ipv4_address, vpn_local_ipv6_address))
-    print "VPN using interface %s with ipaddr %s and ipv6addr %s" % (vpn_iface, vpn_local_ipv4_address, vpn_local_ipv6_address)
     logger.debug("Announcing IP addresses...")
     call('ss-display \"VPN: Announcing IP addresses...\"')
     call("ss-set vpn.address %s" % vpn_local_ipv4_address)
