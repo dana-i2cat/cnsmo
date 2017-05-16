@@ -95,7 +95,7 @@ def deployvpn():
 
     
 
-    # Wait for clients
+    ##### Wait for clients  [required for a correct working when join scenario with load balancer service]
     logger.debug("Detecting all VPN clients...")
     call('ss-display \"VPN: Looking for all clients...\"')
     # All instances in the deployment are considered vpn clients
@@ -117,12 +117,10 @@ def deployvpn():
             return -1
         logger.debug("Finished waiting for all VPN clients.")
 
-    print "after wait"
-    
+
     logger.debug("Locating VPN enabled interface...")
     call('ss-display \"VPN: Waiting before Locating VPN enabled interface...\"')
-    print "before sleep"
-    time.sleep(30)
+    time.sleep(5)
     # assuming the VPN interface (probably tap0) is the only one created during this script execution
     vpn_iface = detect_new_interface_in_30_sec(ifaces_prev)
     if not vpn_iface:
