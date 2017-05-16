@@ -199,7 +199,6 @@ class VPNManager:
         server_crt = self.__configuration_manager.get_server_cert(None).content
         server_conf = self.__configuration_manager.get_server_config(None).content
 
-        # TODO find a proper name for the server
         self.__configure_and_start_vpn_server("server", dh, ca_crt, server_key, server_crt, server_conf)
         self.__server_deployed = True
 
