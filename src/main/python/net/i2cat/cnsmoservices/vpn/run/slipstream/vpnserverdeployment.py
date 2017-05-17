@@ -137,8 +137,10 @@ def deployvpn():
     logger.debug("Announcing IP addresses...")
     call('ss-display \"VPN: Announcing IP addresses...\"')
     if not vpn_local_ipv4_address:
-        call("ss-abort \"%s:Timeout! Failed to obtain ipv4\"" % instance_id)
-        return -1
+        time.sleep(180)
+        if not vpn_local_ipv4_address:
+            call("ss-abort \"%s:Timeout! Failed to obtain ipv4\"" % instance_id)
+            return -1
     call("ss-set vpn.address %s" % vpn_local_ipv4_address)
     if vpn_local_ipv6_address:
         call("ss-set vpn.address6 %s" % vpn_local_ipv6_address)
