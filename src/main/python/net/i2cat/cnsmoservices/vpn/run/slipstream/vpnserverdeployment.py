@@ -137,7 +137,7 @@ def deployvpn():
     logger.debug("Announcing IP addresses...")
     call('ss-display \"VPN: Announcing IP addresses...\"')
     if not vpn_local_ipv4_address:
-        time.sleep(180)
+        time.sleep(600)
         vpn_local_ipv4_address = getInterfaceIPv4Address(vpn_iface)
         vpn_local_ipv6_address = getInterfaceIPv6Address(vpn_iface)
         logger.debug("VPN using interface %s with ipaddr %s and ipv6addr %s" % (vpn_iface, vpn_local_ipv4_address, vpn_local_ipv6_address))
