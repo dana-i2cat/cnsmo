@@ -93,7 +93,9 @@ def deployvpn():
     call('ss-get net.i2cat.cnsmo.service.vpn.configurator.listening')
     call('ss-get net.i2cat.cnsmo.service.vpn.server.listening')
 
-    # Wait for clients
+    
+
+    ##### Wait for clients  [required for a correct working when join scenario with load balancer service]
     logger.debug("Detecting all VPN clients...")
     call('ss-display \"VPN: Looking for all clients...\"')
     # All instances in the deployment are considered vpn clients
@@ -104,7 +106,6 @@ def deployvpn():
     # remove this instance
     client_instances.remove(instance_id)
     logger.debug("Finished detecting all VPN clients: %s" % client_instances)
-
     logger.debug("Waiting for all VPN clients...")
     call('ss-display \"VPN: Waiting for all clients...\"')
     # wait for clients to be ready: instance_id:net.i2cat.cnsmo.service.vpn.client.waiting=true
@@ -116,14 +117,9 @@ def deployvpn():
             return -1
         logger.debug("Finished waiting for all VPN clients.")
 
-    # Deploy VPN
-    logger.debug("Deploying VPN...")
-    call('ss-display \"VPN: Deploying VPN...\"')
-    vpn_orchestrator.deploy_blocking()
-    logger.debug("VPN deployed")
-
 
     logger.debug("Locating VPN enabled interface...")
+    call('ss-display \"VPN: Waiting before Locating VPN enabled interface...\"')
     time.sleep(5)
     # assuming the VPN interface (probably tap0) is the only one created during this script execution
     vpn_iface = detect_new_interface_in_30_sec(ifaces_prev)
@@ -133,14 +129,19 @@ def deployvpn():
         return -1
 
     logger.debug("Resolving IP addresses...")
+    call('ss-display \"VPN: Resolving IP addresses...\"')
     vpn_local_ipv4_address = getInterfaceIPv4Address(vpn_iface)
+    vpn_local_ipv6_address = ""
     vpn_local_ipv6_address = getInterfaceIPv6Address(vpn_iface)
-    logger.debug("VPN using interface %s with ipaddr %s and ipv6addr %s"
-                 % (vpn_iface, vpn_local_ipv4_address, vpn_local_ipv6_address))
-
+    logger.debug("VPN using interface %s with ipaddr %s and ipv6addr %s" % (vpn_iface, vpn_local_ipv4_address, vpn_local_ipv6_address))
     logger.debug("Announcing IP addresses...")
+    call('ss-display \"VPN: Announcing IP addresses...\"')
+    if not vpn_local_ipv4_address:
+        call("ss-abort \"%s:Timeout! Failed to obtain ipv4\"" % instance_id)
+        return -1
     call("ss-set vpn.address %s" % vpn_local_ipv4_address)
-    call("ss-set vpn.address6 %s" % vpn_local_ipv6_address)
+    if vpn_local_ipv6_address:
+        call("ss-set vpn.address6 %s" % vpn_local_ipv6_address)
 
 
     # Communicate that the VPN has been established
@@ -148,10 +149,8 @@ def deployvpn():
     call('ss-set net.i2cat.cnsmo.service.vpn.ready true')
     logger.debug("Set net.i2cat.cnsmo.service.vpn.ready=true")
 
-    logger.debug("VPN has been established! Using interface %s with ipaddr %s and ipv6addr %s"
-                 % (vpn_iface, vpn_local_ipv4_address, vpn_local_ipv6_address))
-    call("ss-display \"VPN: VPN has been established! Using interface %s with ipaddr %s and ipv6addr %s\"" %
-         (vpn_iface, vpn_local_ipv4_address, vpn_local_ipv6_address))
+    logger.debug("VPN has been established! Using interface %s with ipaddr %s and ipv6addr %s" % (vpn_iface, vpn_local_ipv4_address, vpn_local_ipv6_address))
+    call("ss-display \"VPN: VPN has been established! Using interface %s with ipaddr %s and ipv6addr %s\"" % (vpn_iface, vpn_local_ipv4_address, vpn_local_ipv6_address))
 
     return 0
 
@@ -207,7 +206,7 @@ def getInterfaceIPv4Address(iface):
 
 
 def getInterfaceIPv6Address(iface):
-    return call("ifconfig " + iface + "| awk '/inet6 / { print $3 }'").rstrip('\n')
+    return (call("ifconfig " + iface + "| awk '/inet6 / { print $3 }'").rstrip('\n').split('/'))[0]
 
 
 # Gets the instances that compose the deployment

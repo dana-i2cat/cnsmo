@@ -31,7 +31,10 @@ def get_app_request(host, port, service_id, vpn_server_address, vpn_server_port,
                         {"uri":"http://%s:%s/vpn/configs/keys/server/" %(host, port), "driver":"REST", "logic":"get", "name":"get_server_key"},
                         {"uri":"http://%s:%s/vpn/configs/certs/ca/" %(host, port), "driver":"REST", "logic":"post", "name":"generate_ca_cert"},
                         {"uri":"http://%s:%s/vpn/configs/certs/client/{param}/" %(host, port), "driver":"REST", "logic":"post", "name":"generate_client_cert"},
-                        {"uri":"http://%s:%s/vpn/configs/certs/server/" %(host, port), "driver":"REST", "logic":"post", "name":"generate_server_cert"},])
+                        {"uri":"http://%s:%s/vpn/configs/certs/server/" %(host, port), "driver":"REST", "logic":"post", "name":"generate_server_cert"},
+                        {"uri":"http://%s:%s/vpn/configs/status/" %(host, port), "driver": "REST", "logic": "get", "name":"get_status"},
+                        ]
+             )
     return d
 
 
@@ -57,7 +60,7 @@ if __name__ == "__main__":
     from src.main.python.net.i2cat.cnsmo.deployment.bash import BashDeployer
     from src.main.python.net.i2cat.cnsmo.manager.cnsmo import CNSMOManager
 
-    opts, _ = getopt.getopt(sys.argv[1:], "a:p:r:s:", ["vpn-server-ip=", "vpn-server-port=", "vpn-address=", "vpn-mask="   ])
+    opts, _ = getopt.getopt(sys.argv[1:], "a:p:r:s:", ["vpn-server-ip=", "vpn-server-port=", "vpn-address=", "vpn-mask="])
 
     host = "0.0.0.0"
     port = "9093"

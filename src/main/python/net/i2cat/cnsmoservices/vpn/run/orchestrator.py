@@ -1,13 +1,19 @@
-
+import logging
 
 def main(redis_address):
 
+    logging.basicConfig(filename='cnsmo-vpn-deployment.log',
+                        filemode='w',
+                        format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
+                        datefmt='%H:%M:%S',
+                        level=logging.DEBUG,
+                        disable_existing_loggers=False)
     vpn_manager = VPNManager(redis_address)
     vpn_manager.start()
 
     while True:
-        if vpn_manager.get_status() == "ready":
-            vpn_manager.deploy()
+        if vpn_manager.get_status() == "listening":
+            vpn_manager.deploy_blocking()                                       #used to be .deploy()
             break
         time.sleep(1)
         print vpn_manager.get_status()

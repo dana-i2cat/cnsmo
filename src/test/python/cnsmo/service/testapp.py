@@ -81,6 +81,16 @@ class TestApp(object):
         self.port = port
 
     def get_app_request(self, service_id):
+        """
+        The app request is an important part of CNSMO, that serves as a description for the application.
+        CNSMOManager delegates to the deployment driver the parsing of it, followed by the creation of the environment,
+        downloading of 'resources', installation of 'dependencies', and executing the 'trigger'.
+        The app request is also advertised via the CNSMO system state. It is retrieved by registered listeners
+        and parsed by the service maker in order to build a class that is a representation of the remote service.
+        'Endpoints' are used for such purpose.
+        :param service_id: 
+        :return:
+        """
         host = self.host
         port = self.port
         d = dict(service_id=service_id,
