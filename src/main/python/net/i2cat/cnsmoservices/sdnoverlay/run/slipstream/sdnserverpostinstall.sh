@@ -2,7 +2,7 @@
 # Run this script using sudo
 if [ "$EUID" -ne 0 ]
   then echo "Please run as root"
-  exit
+  exit 126
 fi
 
 # set working directory
