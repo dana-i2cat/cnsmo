@@ -135,15 +135,8 @@ def deployvpn():
     logger.debug("Announcing IP addresses...")
     call('ss-display \"VPN: Announcing IP addresses...\"')
     if not vpn_local_ipv4_address:
-        call('ss-display \"VPN: waiting for IP addresses...\"')
-        time.sleep(30)
-        vpn_local_ipv4_address = getInterfaceIPv4Address(vpn_iface)
-        logger.debug("VPN using interface %s with ipaddr %s" % (vpn_iface, vpn_local_ipv4_address))
-        vpn_local_ipv6_address = getInterfaceIPv6Address(vpn_iface)
-        logger.debug("VPN using interface %s with ipaddr %s and ipv6addr %s" % (vpn_iface, vpn_local_ipv4_address, vpn_local_ipv6_address))
-        if not vpn_local_ipv4_address:
-            call("ss-abort \"%s:Timeout! Failed to obtain ipv4\"" % instance_id)
-            return -1
+        call("ss-abort \"%s:Timeout! Failed to obtain ipv4\"" % instance_id)
+        return -1
     call("ss-set vpn.address %s" % vpn_local_ipv4_address)
     if vpn_local_ipv6_address:
         call("ss-set vpn.address6 %s" % vpn_local_ipv6_address)
