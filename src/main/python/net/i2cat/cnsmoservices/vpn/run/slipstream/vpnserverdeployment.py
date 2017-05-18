@@ -118,7 +118,7 @@ def deployvpn():
 
     logger.debug("Locating VPN enabled interface...")
     call('ss-display \"VPN: Waiting before Locating VPN enabled interface...\"')
-    time.sleep(5)
+    time.sleep(15)
     # assuming the VPN interface (probably tap0) is the only one created during this script execution
     vpn_iface = detect_new_interface_in_30_sec(ifaces_prev)
     if not vpn_iface:
@@ -156,15 +156,15 @@ def deployvpn():
 def detect_new_interface_in_30_sec(ifaces_prev):
     vpn_iface = do_detect_new_interface(ifaces_prev)
     attempts = 0
-    while not vpn_iface and attempts < 50:
+    while not vpn_iface and attempts < 2:
         time.sleep(5)
-        call("ss-display \"VPN: detecting new interface... new attempt\"")
         vpn_iface = do_detect_new_interface(ifaces_prev)
         attempts += 1
     return vpn_iface
 
 
 def do_detect_new_interface(ifaces_prev):
+    call("ss-display \"VPN: detecting new interface... new attempt\"")
     vpn_iface = None
     for current_iface in getCurrentInterfaces():
         logger.debug("found iface ... %s" % current_iface)
