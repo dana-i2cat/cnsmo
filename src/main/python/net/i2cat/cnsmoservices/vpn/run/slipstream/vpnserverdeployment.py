@@ -201,8 +201,11 @@ def getCurrentInterfaces():
 
 def getInterfaceIPv4Address(iface):
     call("ss-display \"VPN: begin getting Interface IP... \"")
-    line = call("ip addr show " + iface + " | grep 'inet'")
+    line = call("ifconfig " + iface + " | grep 'inet addr:'").rstrip('\n')
+    line2 = call("ip addr show " + iface + " | grep 'inet'").rstrip('\n')
     logger.debug("the entire line is: %s" % line)
+    logger.debug("the entire line is: %s" % line2)
+    return ""
     call("ss-display \"VPN: getting Interface IP... \"")
     ip = call("ip addr show " + iface + " | grep 'inet\b' | awk '{print $2}' | cut -d/ -f1")
     call("ss-display \"VPN: getting Interface IP... atempt 0  \"")
