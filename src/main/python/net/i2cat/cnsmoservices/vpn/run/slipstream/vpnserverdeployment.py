@@ -93,8 +93,6 @@ def deployvpn():
     call('ss-get net.i2cat.cnsmo.service.vpn.configurator.listening')
     call('ss-get net.i2cat.cnsmo.service.vpn.server.listening')
 
-    time.sleep(60)
-
     ##### Wait for clients  [required for a correct working when join scenario with load balancer service]
     logger.debug("Detecting all VPN clients...")
     call('ss-display \"VPN: Looking for all clients...\"')
@@ -137,8 +135,10 @@ def deployvpn():
     logger.debug("Announcing IP addresses...")
     call('ss-display \"VPN: Announcing IP addresses...\"')
     if not vpn_local_ipv4_address:
-        time.sleep(600)
+        call('ss-display \"VPN: waiting for IP addresses...\"')
+        time.sleep(60)
         vpn_local_ipv4_address = getInterfaceIPv4Address(vpn_iface)
+        print "VPN using interface %s with ipaddr %s" % (vpn_iface, vpn_local_ipv4_address)
         vpn_local_ipv6_address = getInterfaceIPv6Address(vpn_iface)
         logger.debug("VPN using interface %s with ipaddr %s and ipv6addr %s" % (vpn_iface, vpn_local_ipv4_address, vpn_local_ipv6_address))
         if not vpn_local_ipv4_address:
@@ -207,11 +207,11 @@ def getCurrentInterfaces():
 
 
 def getInterfaceIPv4Address(iface):
-    return call("ifconfig " + iface + " | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}'").rstrip('\n')
+    return call("ip addr show " + iface + " | grep 'inet\b' | awk '{print $2}' | cut -d/ -f1")
 
 
 def getInterfaceIPv6Address(iface):
-    return (call("ifconfig " + iface + "| awk '/inet6 / { print $3 }'").rstrip('\n').split('/'))[0]
+    return call("ip addr show " + iface + " | grep 'inet6\b' | awk '{print $2}' | cut -d/ -f1")
 
 
 # Gets the instances that compose the deployment
