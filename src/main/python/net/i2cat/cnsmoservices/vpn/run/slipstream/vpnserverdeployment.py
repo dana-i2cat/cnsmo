@@ -93,9 +93,7 @@ def deployvpn():
     call('ss-get net.i2cat.cnsmo.service.vpn.configurator.listening')
     call('ss-get net.i2cat.cnsmo.service.vpn.server.listening')
 
-    
-
-    # Wait for clients
+    ##### Wait for clients  [required for a correct working when join scenario with load balancer service]
     logger.debug("Detecting all VPN clients...")
     call('ss-display \"VPN: Looking for all clients...\"')
     # All instances in the deployment are considered vpn clients
@@ -117,12 +115,10 @@ def deployvpn():
             return -1
         logger.debug("Finished waiting for all VPN clients.")
 
-    print "after wait"
-    
+
     logger.debug("Locating VPN enabled interface...")
     call('ss-display \"VPN: Waiting before Locating VPN enabled interface...\"')
-    print "before sleep"
-    time.sleep(30)
+    time.sleep(5)
     # assuming the VPN interface (probably tap0) is the only one created during this script execution
     vpn_iface = detect_new_interface_in_30_sec(ifaces_prev)
     if not vpn_iface:
@@ -204,11 +200,24 @@ def getCurrentInterfaces():
 
 
 def getInterfaceIPv4Address(iface):
-    return call("ifconfig " + iface + " | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}'").rstrip('\n')
+    call("ss-display \"VPN: begin getting Interface IP... \"" )
+    line = call("ip addr show " + iface + " | grep 'inet\b'")
+    call("ss-display \"VPN: getting Interface IP... %s \"" % line )
+    logger.debug("the entire line is: %s" % line)
+    ip = call("ip addr show " + iface + " | grep 'inet\b' | awk '{print $2}' | cut -d/ -f1")
+    call("ss-display \"VPN: getting Interface IP... atempt 0 : %s \"" % ip )
+    attempts = 0
+    while not ip and attempts < 6:
+        time.sleep(5)
+        ip = call("ip addr show " + iface + " | grep 'inet\b' | awk '{print $2}' | cut -d/ -f1")
+        call("ss-display \"VPN: getting Interface IP... atempt : %s and result: %s \"" % (attempts,ip) )
+        attempts += 1
+    call("ss-display \"VPN: returning IP... %s \"" % ip )
+    return ip
 
 
 def getInterfaceIPv6Address(iface):
-    return (call("ifconfig " + iface + "| awk '/inet6 / { print $3 }'").rstrip('\n').split('/'))[0]
+    return call("ip addr show " + iface + " | grep 'inet6\b' | awk '{print $2}' | cut -d/ -f1")
 
 
 # Gets the instances that compose the deployment
