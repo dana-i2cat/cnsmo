@@ -200,15 +200,19 @@ def getCurrentInterfaces():
 
 
 def getInterfaceIPv4Address(iface):
+    call("ss-display \"VPN: begin getting Interface IP... \"" )
     line = call("ip addr show " + iface + " | grep 'inet\b'")
-    print "going to print entire line"
+    call("ss-display \"VPN: getting Interface IP... %s \"" % line )
     logger.debug("the entire line is: %s" % line)
     ip = call("ip addr show " + iface + " | grep 'inet\b' | awk '{print $2}' | cut -d/ -f1")
+    call("ss-display \"VPN: getting Interface IP... atempt 0 : %s \"" % ip )
     attempts = 0
     while not ip and attempts < 6:
         time.sleep(5)
         ip = call("ip addr show " + iface + " | grep 'inet\b' | awk '{print $2}' | cut -d/ -f1")
+        call("ss-display \"VPN: getting Interface IP... atempt : %s and result: %s \"" % (attempts,ip) )
         attempts += 1
+    call("ss-display \"VPN: returning IP... %s \"" % ip )
     return ip
 
 
