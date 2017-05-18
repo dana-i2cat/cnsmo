@@ -164,6 +164,7 @@ def detect_new_interface_in_30_sec(ifaces_prev):
 
 
 def do_detect_new_interface(ifaces_prev):
+    logger = logging.getLogger(__name__)
     call("ss-display \"VPN: detecting new interface... new attempt\"")
     vpn_iface = None
     for current_iface in getCurrentInterfaces():
@@ -198,10 +199,13 @@ def launchVPNServer(hostname, redis_address, instance_id):
 
 
 def getCurrentInterfaces():
+    logger = logging.getLogger(__name__)
+    logger.debug("asking current interfaces")
     return call("""ls /sys/class/net | sed -e s/^\(.*\)$/\1/ | paste -sd ','""").rstrip('\n').split(',')
 
 
 def getInterfaceIPv4Address(iface):
+    logger = logging.getLogger(__name__)
     call("ss-display \"VPN: begin getting Interface IP... \"")
     ip = call("ip addr show " + iface + " | grep 'inet\b' | awk '{print $2}' | cut -d/ -f1")
     call("ss-display \"VPN: getting Interface IP... atempt 0  \"")
