@@ -156,8 +156,9 @@ def deployvpn():
 def detect_new_interface_in_30_sec(ifaces_prev):
     vpn_iface = do_detect_new_interface(ifaces_prev)
     attempts = 0
-    while not vpn_iface and attempts < 6:
+    while not vpn_iface and attempts < 50:
         time.sleep(5)
+        call("ss-display \"VPN: detecting new interface... new attempt\"")
         vpn_iface = do_detect_new_interface(ifaces_prev)
         attempts += 1
     return vpn_iface
@@ -166,7 +167,8 @@ def detect_new_interface_in_30_sec(ifaces_prev):
 def do_detect_new_interface(ifaces_prev):
     vpn_iface = None
     for current_iface in getCurrentInterfaces():
-        if "tap" in current_iface and current_iface not in ifaces_prev:
+        logger.debug("found iface ... %s" % current_iface)
+        if ("tap" in current_iface) and (current_iface not in ifaces_prev):
             vpn_iface = current_iface
     return vpn_iface
 
