@@ -12,7 +12,5 @@ if [ ! -d "$DIRECTORY" ]; then
 fi
 cd ${DIRECTORY}
 
-touch /var/log/sdnserverinstall.log
-
-echo "Installing OpenvSwitch..." >> /var/log/sdnserverinstall.log
+printf "Installing OpenvSwitch..." 
 apt-get install -y openvswitch-switch
