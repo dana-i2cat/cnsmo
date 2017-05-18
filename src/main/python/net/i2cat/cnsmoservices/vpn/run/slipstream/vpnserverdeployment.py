@@ -136,9 +136,9 @@ def deployvpn():
     call('ss-display \"VPN: Announcing IP addresses...\"')
     if not vpn_local_ipv4_address:
         call('ss-display \"VPN: waiting for IP addresses...\"')
-        time.sleep(60)
+        time.sleep(30)
         vpn_local_ipv4_address = getInterfaceIPv4Address(vpn_iface)
-        print "VPN using interface %s with ipaddr %s" % (vpn_iface, vpn_local_ipv4_address)
+        logger.debug("VPN using interface %s with ipaddr %s" % (vpn_iface, vpn_local_ipv4_address))
         vpn_local_ipv6_address = getInterfaceIPv6Address(vpn_iface)
         logger.debug("VPN using interface %s with ipaddr %s and ipv6addr %s" % (vpn_iface, vpn_local_ipv4_address, vpn_local_ipv6_address))
         if not vpn_local_ipv4_address:
@@ -207,7 +207,16 @@ def getCurrentInterfaces():
 
 
 def getInterfaceIPv4Address(iface):
-    return call("ip addr show " + iface + " | grep 'inet\b' | awk '{print $2}' | cut -d/ -f1")
+    line = call("ip addr show " + iface + " | grep 'inet\b'")
+    print "going to print entire line"
+    logger.debug("the entire line is: %s" % line)
+    ip = call("ip addr show " + iface + " | grep 'inet\b' | awk '{print $2}' | cut -d/ -f1")
+    attempts = 0
+    while not ip and attempts < 6:
+        time.sleep(5)
+        ip = call("ip addr show " + iface + " | grep 'inet\b' | awk '{print $2}' | cut -d/ -f1")
+        attempts += 1
+    return ip
 
 
 def getInterfaceIPv6Address(iface):
