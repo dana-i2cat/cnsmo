@@ -166,7 +166,7 @@ def detect_new_interface_in_30_sec(ifaces_prev):
 def do_detect_new_interface(ifaces_prev):
     vpn_iface = None
     for current_iface in getCurrentInterfaces():
-        if current_iface not in ifaces_prev:
+        if "tap" in current_iface and current_iface not in ifaces_prev:
             vpn_iface = current_iface
     return vpn_iface
 
@@ -201,12 +201,6 @@ def getCurrentInterfaces():
 
 def getInterfaceIPv4Address(iface):
     call("ss-display \"VPN: begin getting Interface IP... \"")
-    line = call("ifconfig " + iface + " | grep 'inet addr:'").rstrip('\n')
-    line2 = call("ip addr show " + iface + " | grep 'inet'").rstrip('\n')
-    logger.debug("the entire line is: %s" % line)
-    logger.debug("the entire line is: %s" % line2)
-    return ""
-    call("ss-display \"VPN: getting Interface IP... \"")
     ip = call("ip addr show " + iface + " | grep 'inet\b' | awk '{print $2}' | cut -d/ -f1")
     call("ss-display \"VPN: getting Interface IP... atempt 0  \"")
     attempts = 0
