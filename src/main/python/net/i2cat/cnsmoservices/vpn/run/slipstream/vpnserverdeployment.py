@@ -213,8 +213,10 @@ def getInterfaceIPv4Address(iface):
     attempts = 0
     while not ip and attempts < 50:
         time.sleep(5)
+        line = call("ifconfig " + iface + " | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}'").rstrip('\n')
         ip = call("ip addr show " + iface + " | grep 'inet\b' | awk '{print $2}' | cut -d/ -f1")
         logger.debug("found ip ... %s" % ip)
+        logger.debug("found line ... %s" % line)
         call("ss-display \"VPN: getting Interface IP...new atempt \"")
         attempts += 1
     call("ss-display \"VPN: returning IP... %s \"" % ip )
