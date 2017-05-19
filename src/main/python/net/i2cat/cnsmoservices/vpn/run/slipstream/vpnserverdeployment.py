@@ -208,11 +208,13 @@ def getInterfaceIPv4Address(iface):
     logger = logging.getLogger(__name__)
     call("ss-display \"VPN: begin getting Interface IP... \"")
     ip = call("ip addr show " + iface + " | grep 'inet\b' | awk '{print $2}' | cut -d/ -f1")
+    logger.debug("found ip ... %s" % ip)
     call("ss-display \"VPN: getting Interface IP... atempt 0  \"")
     attempts = 0
-    while not ip and attempts < 6:
+    while not ip and attempts < 50:
         time.sleep(5)
         ip = call("ip addr show " + iface + " | grep 'inet\b' | awk '{print $2}' | cut -d/ -f1")
+        logger.debug("found ip ... %s" % ip)
         call("ss-display \"VPN: getting Interface IP...new atempt \"")
         attempts += 1
     call("ss-display \"VPN: returning IP... %s \"" % ip )
