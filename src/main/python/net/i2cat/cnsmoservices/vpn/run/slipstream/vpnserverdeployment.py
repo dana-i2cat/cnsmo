@@ -213,8 +213,9 @@ def getInterfaceIPv4Address(iface):
     attempts = 0
     while not ip and attempts < 50:
         time.sleep(5)
-        line = call("ifconfig " + iface + " | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}'").rstrip('\n')
-        ip = call("ip addr show " + iface + " | grep 'inet\b' | awk '{print $2}' | cut -d/ -f1")
+        ip = call("ifconfig " + iface + " | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}'").rstrip('\n')
+        #line = call("ip addr show " + iface + " | grep 'inet\b' | awk '{print $2}' | cut -d/ -f1").rstrip('\n')
+        line = call("ip addr show " + iface).rstrip('\n')
         logger.debug("found ip ... %s" % ip)
         logger.debug("found line ... %s" % line)
         call("ss-display \"VPN: getting Interface IP...new atempt \"")
@@ -224,8 +225,11 @@ def getInterfaceIPv4Address(iface):
 
 
 def getInterfaceIPv6Address(iface):
-    return call("ip addr show " + iface + " | grep 'inet6\b' | awk '{print $2}' | cut -d/ -f1")
-
+    logger = logging.getLogger(__name__)
+    #ip = call("ip addr show " + iface + " | grep 'inet6\b' | awk '{print $2}' | cut -d/ -f1")
+    ip = (call("ifconfig " + iface + "| awk '/inet6 / { print $3 }'").rstrip('\n').split('/'))[0]
+    logger.debug("found ip ... %s" % ip)
+    return ip
 
 # Gets the instances that compose the deployment
 # NOTE: Currently there is no way to directly retrieve all nodes intances in a deployment.
