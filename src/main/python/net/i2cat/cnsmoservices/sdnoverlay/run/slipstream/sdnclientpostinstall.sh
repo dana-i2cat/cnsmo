@@ -5,12 +5,5 @@ if [ "$EUID" -ne 0 ]
   exit 126
 fi
 
-# set working directory
-DIRECTORY='/opt/odl'
-if [ ! -d "$DIRECTORY" ]; then
-  mkdir -p ${DIRECTORY}
-fi
-cd ${DIRECTORY}
-
 printf "Installing OpenvSwitch..." 
 apt-get install -y openvswitch-switch
