@@ -118,7 +118,7 @@ def deployvpn():
 
     logger.debug("Locating VPN enabled interface...")
     call('ss-display \"VPN: Waiting before Locating VPN enabled interface...\"')
-    time.sleep(5)
+    time.sleep(15)
     # assuming the VPN interface (probably tap0) is the only one created during this script execution
     vpn_iface = detect_new_interface_in_30_sec(ifaces_prev)
     if not vpn_iface:
@@ -156,7 +156,7 @@ def deployvpn():
 def detect_new_interface_in_30_sec(ifaces_prev):
     vpn_iface = do_detect_new_interface(ifaces_prev)
     attempts = 0
-    while not vpn_iface and attempts < 6:
+    while not vpn_iface and attempts < 50:
         time.sleep(5)
         vpn_iface = do_detect_new_interface(ifaces_prev)
         attempts += 1
@@ -164,9 +164,12 @@ def detect_new_interface_in_30_sec(ifaces_prev):
 
 
 def do_detect_new_interface(ifaces_prev):
+    logger = logging.getLogger(__name__)
+    call("ss-display \"VPN: detecting new interface... new attempt\"")
     vpn_iface = None
     for current_iface in getCurrentInterfaces():
-        if current_iface not in ifaces_prev:
+        logger.debug("found iface ... %s" % current_iface)
+        if ("tap" in current_iface) and (current_iface not in ifaces_prev):
             vpn_iface = current_iface
     return vpn_iface
 
@@ -196,29 +199,37 @@ def launchVPNServer(hostname, redis_address, instance_id):
 
 
 def getCurrentInterfaces():
+    logger = logging.getLogger(__name__)
+    logger.debug("asking current interfaces")
     return call("""ls /sys/class/net | sed -e s/^\(.*\)$/\1/ | paste -sd ','""").rstrip('\n').split(',')
 
 
 def getInterfaceIPv4Address(iface):
-    call("ss-display \"VPN: begin getting Interface IP... \"" )
-    line = call("ip addr show " + iface + " | grep 'inet\b'")
-    call("ss-display \"VPN: getting Interface IP... %s \"" % line )
-    logger.debug("the entire line is: %s" % line)
+    logger = logging.getLogger(__name__)
+    call("ss-display \"VPN: begin getting Interface IP... \"")
     ip = call("ip addr show " + iface + " | grep 'inet\b' | awk '{print $2}' | cut -d/ -f1")
-    call("ss-display \"VPN: getting Interface IP... atempt 0 : %s \"" % ip )
+    logger.debug("found ip ... %s" % ip)
+    call("ss-display \"VPN: getting Interface IP... atempt 0  \"")
     attempts = 0
-    while not ip and attempts < 6:
+    while not ip and attempts < 50:
         time.sleep(5)
-        ip = call("ip addr show " + iface + " | grep 'inet\b' | awk '{print $2}' | cut -d/ -f1")
-        call("ss-display \"VPN: getting Interface IP... atempt : %s and result: %s \"" % (attempts,ip) )
+        ip = call("ifconfig " + iface + " | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}'").rstrip('\n')
+        #line = call("ip addr show " + iface + " | grep 'inet\b' | awk '{print $2}' | cut -d/ -f1").rstrip('\n')
+        line = call("ip addr show " + iface).rstrip('\n')
+        logger.debug("found ip ... %s" % ip)
+        logger.debug("found line ... %s" % line)
+        call("ss-display \"VPN: getting Interface IP...new atempt \"")
         attempts += 1
     call("ss-display \"VPN: returning IP... %s \"" % ip )
     return ip
 
 
 def getInterfaceIPv6Address(iface):
-    return call("ip addr show " + iface + " | grep 'inet6\b' | awk '{print $2}' | cut -d/ -f1")
-
+    logger = logging.getLogger(__name__)
+    #ip = call("ip addr show " + iface + " | grep 'inet6\b' | awk '{print $2}' | cut -d/ -f1")
+    ip = (call("ifconfig " + iface + "| awk '/inet6 / { print $3 }'").rstrip('\n').split('/'))[0]
+    logger.debug("found ip ... %s" % ip)
+    return ip
 
 # Gets the instances that compose the deployment
 # NOTE: Currently there is no way to directly retrieve all nodes intances in a deployment.
