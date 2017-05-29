@@ -1,9 +1,34 @@
-#!/bin/bash
-# Run this script using sudo
-if [ "$EUID" -ne 0 ]
-  then echo "Please run as root"
-  exit 126
-fi
+#!/usr/bin/env bash
+
+# set working directory
+DIRECTORY='/var/tmp/slipstream'
+cd ${DIRECTORY}
+
+cwd=${PWD}
+python ${cwd}/cnsmo/cnsmo/src/main/python/net/i2cat/cnsmoservices/sdnoverlay/run/slipstream/sdnserverdeployment.py &
+disown $!
+ss-get --timeout=1800 net.i2cat.cnsmo.service.sdn.ready
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 function check_error {
   if [ $? -ne "0" ] ;
