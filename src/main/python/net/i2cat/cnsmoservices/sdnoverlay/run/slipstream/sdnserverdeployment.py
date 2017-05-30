@@ -72,13 +72,15 @@ def configure_bridge(NIC, IP, GW, MAC, MASK):
     check_error(err)
     logger.debug("Done!")
 
-logger.debug("Giving the ovs bridge the host IP address...")
-err = subprocess.call("sudo ifconfig br-ext %s/%s > /dev/null 2>&1" % (IP,MASK), shell=True)
-check_error(err)
-logger.debug("Done!")
+    logger.debug("Giving the ovs bridge the host IP address...")
+    err = subprocess.call("sudo ifconfig br-ext %s/%s > /dev/null 2>&1" % (IP,MASK), shell=True)
+    check_error(err)
+    logger.debug("Done!")
+
 
 logger.debug("Changing the interface MAC address...")
-subprocess.call("LAST_MAC_CHAR=${%s:(-1)}" % (MAC), shell=True)
+NEW_MAC = subprocess.call("LAST_MAC_CHAR=${%s:(-1)}" % (MAC), shell=True)
+
 
 LAST_MAC_CHAR=${MAC:(-1)}
 AUX="${MAC:0:${#MAC}-1}"
@@ -87,6 +89,17 @@ NL="a"
 else
 NL="1"
 fi
+NEW_MAC="$AUX$NL"
+ifconfig $NIC down
+check_error
+ifconfig $NIC hw ether $NEW_MAC
+check_error
+ifconfig $NIC up
+check_error
+echo "Done!"
+
+
+   
 
 def configure_ovs():
     logger = logging.getLogger(__name__)
@@ -107,7 +120,17 @@ def configure_ovs():
     # Configure OVS bridge
     configure_bridge(NIC, IP, GW, MAC, MASK)
 
+    # Connect OVS and update rules
+    logger.debug("Connecting OVS brige to controller...")
+    err = subprocess.call("sudo ovs-vsctl set-controller br-ext %s:%s> /dev/null 2>&1" % (PROTO_SDN,SDN_CTRL_IP), shell=True)
+    check_error(err)
+    logger.debug("Done!")
 
+    logger.debug("Updating problematic OpenFlow rules if any...")
+    time.sleep(5)
+    subprocess.call('sudo ovs-ofctl mod-flows br-ext "actions:output=1" > /dev/null 2>&1', shell=True)
+    subprocess.call('ovs-ofctl mod-flows br-ext "in_port=1, actions:output=LOCAL" > /dev/null 2>&1', shell=True)
+    logger.debug("Done!")
 
 
 if __name__ == "__main__":
