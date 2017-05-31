@@ -31,6 +31,7 @@ from src.main.python.net.i2cat.cnsmoservices.vpn.run.slipstream.vpnserverdeploym
 from src.main.python.net.i2cat.cnsmoservices.fw.run.slipstream.fwdeployment import deployfw
 from src.main.python.net.i2cat.cnsmoservices.lb.run.slipstream.lborchestratordeployment import deploylb
 
+
 call = lambda command: subprocess.check_output(command, shell=True)
 
 
@@ -59,6 +60,14 @@ def main():
             netservices_enabled.append('vpn')
         else:
             logger.error("Error deploying VPN. Aborting script")
+            return -1
+    
+     if 'sdn' in netservices:
+        if deploy_sdn_and_wait() == 0:
+            logger.debug("Marking sdn as enabled")
+            netservices_enabled.append('sdn')
+        else:
+            logger.error("Error deploying SDN. Aborting script")
             return -1
 
     if 'fw' in netservices:
@@ -90,6 +99,10 @@ def deploy_vpn_and_wait():
     logger.debug("Deploying VPN...")
     return deployvpn()
 
+def deploy_sdn_and_wait():
+    logger = logging.getLogger(__name__)
+    logger.debug("Deploying SDN...")
+    return ##################
 
 def deploy_fw_and_wait(cnsmo_server_instance_id):
     logger = logging.getLogger(__name__)
