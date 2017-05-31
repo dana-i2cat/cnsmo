@@ -30,6 +30,7 @@ if src_dir not in sys.path:
 from src.main.python.net.i2cat.cnsmoservices.vpn.run.slipstream.vpnserverdeployment import deployvpn
 from src.main.python.net.i2cat.cnsmoservices.fw.run.slipstream.fwdeployment import deployfw
 from src.main.python.net.i2cat.cnsmoservices.lb.run.slipstream.lborchestratordeployment import deploylb
+from src.main.python.net.i2cat.cnsmoservices.sdnoverlay.run.slipstream.sdnserverdeployment import deploysdn
 
 
 call = lambda command: subprocess.check_output(command, shell=True)
@@ -52,6 +53,7 @@ def main():
     call('ss-set cnsmo.server.nodeinstanceid %s' % cnsmo_server_instance_id)
     logger.debug("Set cnsmo.server.nodeinstanceid= %s" % cnsmo_server_instance_id)
 
+    if ('vpn' not in netservices and 'sdn' in netservices): netservices.append('vpn')
     logger.debug("Deploying net services...")
     netservices_enabled = list()
     if 'vpn' in netservices:
@@ -102,7 +104,7 @@ def deploy_vpn_and_wait():
 def deploy_sdn_and_wait():
     logger = logging.getLogger(__name__)
     logger.debug("Deploying SDN...")
-    return ##################
+    return deploysdn()
 
 def deploy_fw_and_wait(cnsmo_server_instance_id):
     logger = logging.getLogger(__name__)
