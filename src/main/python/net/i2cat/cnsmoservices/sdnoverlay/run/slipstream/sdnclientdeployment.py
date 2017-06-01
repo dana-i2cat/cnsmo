@@ -33,7 +33,7 @@ def check_preconditions():
     response_sdn=call("ss-get --timeout=1800 net.i2cat.cnsmo.service.sdn.server.ready")
 
     logger.debug("Resolving vpn.server.nodeinstanceid...")
-    server_instance_id = call('ss-get --timeout=1200 vpn.server.nodeinstanceid')
+    server_instance_id = call('ss-get --timeout=1200 vpn.server.nodeinstanceid').rstrip('\n')
     if not server_instance_id:
         logger.error("Timeout waiting for vpn.server.nodeinstanceid")
         # timeout! Abort the script immediately (ss-get will abort the whole deployment in short time)
@@ -42,7 +42,7 @@ def check_preconditions():
 
     logger.debug("Waiting for SDN to be deployed...")
     call('ss-display \"SDN: Waiting for SDN to be established...\"')
-    response_sdn = call("ss-get --timeout=1800 %s:net.i2cat.cnsmo.service.sdn.server.ready" % server_instance_id)
+    response_sdn = call("ss-get --timeout=1800 %s:net.i2cat.cnsmo.service.sdn.server.ready" % server_instance_id).rstrip('\n')
     logger.debug("Finished waiting for SDN to be deployed. ready=%s" % response_sdn)
     if not response_sdn:
         logger.error("Timeout waiting for %s:net.i2cat.cnsmo.service.sdn.server.ready" % server_instance_id)
