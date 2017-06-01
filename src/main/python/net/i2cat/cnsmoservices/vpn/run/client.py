@@ -7,9 +7,9 @@ def get_app_request(host, port, service_id):
     d = dict(service_id=service_id,
              trigger='python client.py -a %s -p %s -w "$(pwd)"' % (bind_address, port),
 
-             resources=["https://raw.githubusercontent.com/dana-i2cat/cnsmo/master/src/main/python/net/i2cat/cnsmoservices/vpn/app/client.py",
-                        "https://raw.githubusercontent.com/dana-i2cat/cnsmo-net-services/master/src/main/docker/vpn/client/Dockerfile",
-                        "https://raw.githubusercontent.com/dana-i2cat/cnsmo-net-services/master/src/main/docker/vpn/client/tun_manager.sh",
+             resources=["https://raw.githubusercontent.com/dana-i2cat/cnsmo/develop/src/main/python/net/i2cat/cnsmoservices/vpn/app/client.py",
+                        "https://raw.githubusercontent.com/dana-i2cat/cnsmo-net-services/develop/src/main/docker/vpn/client/Dockerfile",
+                        "https://raw.githubusercontent.com/dana-i2cat/cnsmo-net-services/develop/src/main/docker/vpn/client/tun_manager.sh",
                         ],
 
              dependencies=[],
