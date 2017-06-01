@@ -37,17 +37,11 @@ def deploysdn():
     call('ss-set vpn.server.nodeinstanceid %s' % instance_id)
     logger.debug("Set vpn.server.nodeinstanceid= %s" % instance_id)
 
-    # Launch SDN server
-    logger.debug("Assuming SDN server is listening")
-    call('ss-set net.i2cat.cnsmo.service.vpn.server.listening true')
-
-    # Wait for configurator and server to be ready
-    call('ss-get net.i2cat.cnsmo.service.vpn.server.listening')
 
     # Communicate that the SDN has been established
     logger.debug("Announcing sdn service has been deployed")
-    call('ss-set net.i2cat.cnsmo.service.vpn.ready true')
-    logger.debug("Set net.i2cat.cnsmo.service.sdn.ready=true")
+    call('ss-set net.i2cat.cnsmo.service.sdn.server.ready true')
+    logger.debug("Set net.i2cat.cnsmo.service.sdn.server.ready=true")
     return 0
 
 def config_logging():
