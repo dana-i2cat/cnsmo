@@ -71,7 +71,7 @@ def main():
                 return -1
 
         if 'sdn' in netservices:
-            sdn_server_instance_id = call('ss-get --timeout=1200 sdn.server.nodeinstanceid').rstrip('\n')
+            sdn_server_instance_id = call('ss-get --timeout=1200 vpn.server.nodeinstanceid').rstrip('\n')
             if not sdn_server_instance_id:
                 # timeout! Abort the script immediately (ss-get will abort the whole deployment in short time)
                 return -1
