@@ -13,5 +13,5 @@ serverid=$(ss-get --timeout=1200 vpn.server.nodeinstanceid)
 if [[ -z "$serverid" ]]; then
 exit 1
 else
-ss-get --timeout=1800 ${serverid}:net.i2cat.cnsmo.service.sdn.ready
+ss-get --timeout=1800 ${serverid}:net.i2cat.cnsmo.service.sdn.server.ready
 fi

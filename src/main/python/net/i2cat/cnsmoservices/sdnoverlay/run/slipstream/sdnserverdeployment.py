@@ -28,16 +28,6 @@ def deploysdn():
     logger = logging.getLogger(__name__)
     logger.debug("Deploying SDN server on a SlipStream application...")
 
-    ss_nodename = call('ss-get nodename').rstrip('\n')
-    ss_node_instance = call('ss-get id').rstrip('\n')
-    instance_id = "%s.%s" % (ss_nodename, ss_node_instance)
-    hostname = call('ss-get hostname').rstrip('\n')
-    log_file = os.getcwd() + "/cnsmo/sdn.log"
-
-    call('ss-set vpn.server.nodeinstanceid %s' % instance_id)
-    logger.debug("Set vpn.server.nodeinstanceid= %s" % instance_id)
-
-
     # Communicate that the SDN has been established
     logger.debug("Announcing sdn service has been deployed")
     call('ss-set net.i2cat.cnsmo.service.sdn.server.ready true')
