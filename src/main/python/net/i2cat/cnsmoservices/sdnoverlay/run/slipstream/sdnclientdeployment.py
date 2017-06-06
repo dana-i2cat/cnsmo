@@ -167,7 +167,6 @@ def configure_ovs():
     call('ss-display \"SDN ovs bridge configured successfully\"')
     
     logger.debug("Assuming SDN client is ready")
-    call('ss-set net.i2cat.cnsmo.service.sdn.client.listening true')
     return totalErr
 
 def config_logging():
