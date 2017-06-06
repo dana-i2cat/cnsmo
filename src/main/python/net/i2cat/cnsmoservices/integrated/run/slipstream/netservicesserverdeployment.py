@@ -64,7 +64,7 @@ def main():
             logger.error("Error deploying VPN. Aborting script")
             return -1
     
-     if 'sdn' in netservices:
+    if 'sdn' in netservices:
         if deploy_sdn_and_wait() == 0:
             logger.debug("Marking sdn as enabled")
             netservices_enabled.append('sdn')
