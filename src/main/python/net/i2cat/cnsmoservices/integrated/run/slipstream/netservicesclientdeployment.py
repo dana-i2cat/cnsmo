@@ -56,7 +56,7 @@ def main():
             return -1
         logger.debug("Got cnsmo.server.nodeinstanceid= %s" % cnsmo_server_instance_id)
 
-        #if (('vpn' not in netservices) and ('sdn' in netservices)): netservices.append('vpn')
+        if (('vpn' not in netservices) and ('sdn' in netservices)): netservices.append('vpn')
         logger.debug("Deploying net services...")
 
         if 'vpn' in netservices:
