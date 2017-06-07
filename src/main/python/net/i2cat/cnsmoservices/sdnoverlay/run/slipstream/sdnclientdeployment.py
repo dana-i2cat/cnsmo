@@ -129,7 +129,7 @@ def configure_bridge(NIC, IP, GW, MAC, MASK):
     return totalErr
 
 
-def configure_ovs():
+def configureOvs():
     logger = logging.getLogger(__name__)
     # Configuration values
     NIC = "eth0"    
@@ -183,7 +183,7 @@ def main():
     logger.debug("Running SDN client deployment script...")
     err = check_preconditions()
     if err == 0:
-        return configure_ovs()
+        return configureOvs()
     else:
         logger.debug("::: ERROR ::: Preconditions not fully satisfied")
         return -1
