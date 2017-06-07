@@ -31,7 +31,7 @@ if src_dir not in sys.path:
 
 from src.main.python.net.i2cat.cnsmoservices.vpn.run.slipstream.vpnclientdeployment import deployvpn
 from src.main.python.net.i2cat.cnsmoservices.fw.run.slipstream.fwdeployment import deployfw
-from src.main.python.net.i2cat.cnsmoservices.sdnoverlay.run.slipstream.sdnclientdeployment import configure_ovs
+from src.main.python.net.i2cat.cnsmoservices.sdnoverlay.run.slipstream.sdnclientdeployment import configureOvs
 
 call = lambda command: subprocess.check_output(command, shell=True)
 
@@ -112,7 +112,7 @@ def deploy_vpn_and_wait(vpn_server_instance_id):
 def deploy_sdn_and_wait(sdn_server_instance_id):
     logger = logging.getLogger(__name__)
     logger.debug("Deploying SDN...")
-    return configure_ovs()
+    return configureOvs()
 
 def deploy_fw_and_wait(cnsmo_server_instance_id):
     logger = logging.getLogger(__name__)
