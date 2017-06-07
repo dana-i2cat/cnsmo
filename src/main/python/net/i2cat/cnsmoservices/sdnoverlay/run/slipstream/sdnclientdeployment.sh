@@ -5,7 +5,7 @@ DIRECTORY='/var/tmp/slipstream'
 cd ${DIRECTORY}
 
 cwd=${PWD}
-python ${cwd}/cnsmo/src/main/python/net/i2cat/cnsmoservices/sdnoverlay/run/slipstream/sdnclientdeployment.py &
+python ${cwd}/cnsmo/cnsmo/src/main/python/net/i2cat/cnsmoservices/sdnoverlay/run/slipstream/sdnclientdeployment.py &
 disown $!
 serverid=$(ss-get --timeout=1200 vpn.server.nodeinstanceid)
 # In case of timeout, serverid will not be set. But next ss-get will fail with Unknown key error.

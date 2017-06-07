@@ -23,8 +23,8 @@ fi
 prinf "downloading cnsmo..."
 mkdir cnsmo
 cd cnsmo
-git clone -b feature/sdn --single-branch https://github.com/dana-i2cat/cnsmo.git
-git clone -b feature/sdn --single-branch https://github.com/dana-i2cat/cnsmo-net-services.git
+git clone --single-branch https://github.com/dana-i2cat/cnsmo.git
+git clone --single-branch https://github.com/dana-i2cat/cnsmo-net-services.git
 cd ..
 prinf "downloading cnsmo... done!"
 
