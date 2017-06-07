@@ -54,7 +54,7 @@ def main():
     call('ss-set cnsmo.server.nodeinstanceid %s' % cnsmo_server_instance_id)
     logger.debug("Set cnsmo.server.nodeinstanceid= %s" % cnsmo_server_instance_id)
 
-    if ('vpn' not in netservices and 'sdn' in netservices): netservices.append('vpn')
+    if (('vpn' not in netservices) and ('sdn' in netservices)): netservices.append('vpn')
     logger.debug("Deploying net services...")
     netservices_enabled = list()
     if 'vpn' in netservices:
