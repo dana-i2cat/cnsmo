@@ -28,10 +28,11 @@ path = os.path.dirname(os.path.abspath(__file__))
 src_dir = path + "/../../../../../../../../../"
 if src_dir not in sys.path:
     sys.path.append(src_dir)
-
+    
+sys.path.append('/var/tmp/slipstream/cnsmo/cnsmo/')
 from src.main.python.net.i2cat.cnsmoservices.vpn.run.slipstream.vpnclientdeployment import deployvpn
 from src.main.python.net.i2cat.cnsmoservices.fw.run.slipstream.fwdeployment import deployfw
-from var.tmp.slipstream.cnsmo.cnsmo.src.main.python.net.i2cat.cnsmoservices.sdnoverlay.run.slipstream.sdnclientdeployment import configureOvs
+from src.main.python.net.i2cat.cnsmoservices.sdnoverlay.run.slipstream.sdnclientdeployment import configureOvs
 
 call = lambda command: subprocess.check_output(command, shell=True)
 
