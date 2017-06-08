@@ -59,4 +59,4 @@ rm -f /etc/udev/rules.d/*net*.rules
 
 # reboot to apply new kernel, upgraded by docker installation script
 prinf "Rebooting for kernel upgrade"
-reboot
+#reboot
