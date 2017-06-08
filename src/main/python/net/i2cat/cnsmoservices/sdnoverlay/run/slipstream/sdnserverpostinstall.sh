@@ -13,6 +13,7 @@ fi
 cd ${DIRECTORY}
 
 services=$(ss-get net.services.enable)
+echo services >> /var/log/sdnserverinstall.log
 if 'sdn' in services:
   touch /var/log/sdnserverinstall.log
 
