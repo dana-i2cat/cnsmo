@@ -135,8 +135,8 @@ def configureOvs():
     NIC = "eth0"    
     SDN_PORT_CONCAT=":6633"
     VPN_SERVER_IP=call("ss-get --timeout=3600 vpn.server.address")
-    #SDN_CTRL_IP_PORT=$VPN_SERVER_IP+SDN_PORT_CONCAT
-    SDN_CTRL_IP="10.8.44.55:6633"
+    SDN_CTRL_IP_PORT=VPN_SERVER_IP+SDN_PORT_CONCAT
+    #SDN_CTRL_IP="10.8.44.55:6633"
     call('ss-display \"Deploying SDN...\"')
 
     PROTO_SDN="tcp"

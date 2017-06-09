@@ -14,7 +14,7 @@ cd ${DIRECTORY}
 
 services=$(ss-get net.services.enable)
 echo $services >> /var/log/sdnserverinstall.log
-if ['sdn' in services]; then
+if [[ $services == *"sdn"* ]]; then
   touch /var/log/sdnserverinstall.log
 
   echo "Installing Java 7 JDK and other components..." >> /var/log/sdnserverinstall.log
