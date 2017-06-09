@@ -7,9 +7,9 @@ def get_server_app_request():
 
     d = dict(service_id="VPNServerService",
              trigger='python server.py -a 127.0.0.1 -p 9094 -w "$(pwd)"',
-             resources=["https://raw.githubusercontent.com/dana-i2cat/cnsmo/develop/src/main/python/net/i2cat/cnsmoservices/vpn/app/server.py",
-                        "https://raw.githubusercontent.com/dana-i2cat/cnsmo-net-services/develop/src/main/docker/vpn/server/Dockerfile",
-                        "https://raw.githubusercontent.com/dana-i2cat/cnsmo-net-services/develop/src/main/docker/vpn/server/tun_manager.sh",],
+             resources=["https://raw.githubusercontent.com/dana-i2cat/cnsmo/SDNdevelop/src/main/python/net/i2cat/cnsmoservices/vpn/app/server.py",
+                        "https://raw.githubusercontent.com/dana-i2cat/cnsmo-net-services/SDNdevelop/src/main/docker/vpn/server/Dockerfile",
+                        "https://raw.githubusercontent.com/dana-i2cat/cnsmo-net-services/SDNdevelop/src/main/docker/vpn/server/tun_manager.sh",],
              dependencies=[],
              endpoints=[{ "uri":"http://127.0.0.1:9094/vpn/server/dh/", "driver":"REST", "logic":"upload", "name":"set_dh"},
                         { "uri":"http://127.0.0.1:9094/vpn/server/config/", "driver":"REST", "logic":"upload", "name":"set_config_file"},
