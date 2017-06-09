@@ -10,10 +10,10 @@
 # Input parameters:
 # cnsmo.server.nodeinstanceid: Indicates the node.id of the component acting as CNSMO server
 # vpn.server.nodeinstanceid: Indicates the node.id of the component acting as VPN server
-# net.services.enable: A json encoded list of strings indicating the network services to be enabled. e.g. ['vpn', 'fw', 'lb']
+# net.services.enable: A json encoded list of strings indicating the network services to be enabled. e.g. ['vpn', 'fw', 'lb', 'sdn']
 #
 # Output parameters:
-# net.services.enabled: A json encoded list of strings indicating the network services that has been enabled. e.g. ['vpn', 'fw', 'lb']
+# net.services.enabled: A json encoded list of strings indicating the network services that has been enabled. e.g. ['vpn', 'fw', 'lb', 'sdn']
 ###
 
 import json
@@ -28,9 +28,10 @@ path = os.path.dirname(os.path.abspath(__file__))
 src_dir = path + "/../../../../../../../../../"
 if src_dir not in sys.path:
     sys.path.append(src_dir)
-
+    
 from src.main.python.net.i2cat.cnsmoservices.vpn.run.slipstream.vpnclientdeployment import deployvpn
 from src.main.python.net.i2cat.cnsmoservices.fw.run.slipstream.fwdeployment import deployfw
+from src.main.python.net.i2cat.cnsmoservices.sdnoverlay.run.slipstream.sdnclientdeployment import configureOvs
 
 call = lambda command: subprocess.check_output(command, shell=True)
 
@@ -47,14 +48,16 @@ def main():
 
     if netservices:
         logger.debug("Resolving cnsmo.server.nodeinstanceid...")
-        cnsmo_server_instance_id = call('ss-get --timeout=1200 cnsmo.server.nodeinstanceid').rstrip('\n')
+        cnsmo_server_instance_id = call('ss-get --timeout=1800 cnsmo.server.nodeinstanceid').rstrip('\n')
         if not cnsmo_server_instance_id:
             logger.error("Timeout waiting for cnsmo.server.nodeinstanceid")
             # timeout! Abort the script immediately (ss-get will abort the whole deployment in short time)
             return -1
         logger.debug("Got cnsmo.server.nodeinstanceid= %s" % cnsmo_server_instance_id)
 
+        if (('vpn' not in netservices) and ('sdn' in netservices)): netservices.append('vpn')
         logger.debug("Deploying net services...")
+
         if 'vpn' in netservices:
             vpn_server_instance_id = call('ss-get --timeout=1200 vpn.server.nodeinstanceid').rstrip('\n')
             if not vpn_server_instance_id:
@@ -65,6 +68,18 @@ def main():
                 netservices_enabled.append('vpn')
             else:
                 logger.error("Error deploying VPN. Aborting script")
+                return -1
+
+        if 'sdn' in netservices:
+            sdn_server_instance_id = call('ss-get --timeout=1200 vpn.server.nodeinstanceid').rstrip('\n')
+            if not sdn_server_instance_id:
+                # timeout! Abort the script immediately (ss-get will abort the whole deployment in short time)
+                return -1
+            if deploy_sdn_and_wait(sdn_server_instance_id) == 0:
+                logger.debug("Marking sdn as enabled")
+                netservices_enabled.append('sdn')
+            else:
+                logger.error("Error deploying SDN. Aborting script")
                 return -1
 
         if 'fw' in netservices:
@@ -94,6 +109,10 @@ def deploy_vpn_and_wait(vpn_server_instance_id):
     logger.debug("Deploying VPN...")
     return deployvpn()
 
+def deploy_sdn_and_wait(sdn_server_instance_id):
+    logger = logging.getLogger(__name__)
+    logger.debug("Deploying SDN...")
+    return configureOvs()
 
 def deploy_fw_and_wait(cnsmo_server_instance_id):
     logger = logging.getLogger(__name__)
@@ -103,7 +122,7 @@ def deploy_fw_and_wait(cnsmo_server_instance_id):
 
 def get_net_services_to_enable():
     """
-    :return: A list of strings representing which services must be enabled. e.g. ['vpn', 'fw', 'lb']
+    :return: A list of strings representing which services must be enabled. e.g. ['vpn', 'fw', 'lb', 'sdn']
     """
     logger = logging.getLogger(__name__)
     try:
