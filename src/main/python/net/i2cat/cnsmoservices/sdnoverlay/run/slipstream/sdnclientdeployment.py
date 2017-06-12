@@ -84,10 +84,10 @@ def configure_bridge(NIC, IP, GW, MAC, MASK):
     totalErr = totalErr + check_error(err)
     logger.debug("Done!")
 
-    logger.debug("Adding the VPN interface to the ovs bridge...")
-    err = call("sudo ovs-vsctl add-port br-ext tap0 > /dev/null 2>&1")
-    totalErr = totalErr + check_error(err)
-    logger.debug("Done!")
+    #logger.debug("Adding the VPN interface to the ovs bridge...")
+    #err = call("sudo ovs-vsctl add-port br-ext tap0 > /dev/null 2>&1")
+    #totalErr = totalErr + check_error(err)
+    #logger.debug("Done!")
 
     logger.debug("Removing IP address from the physical interface...")
     err = call("sudo ifconfig %s 0.0.0.0 > /dev/null 2>&1" % (NIC))
