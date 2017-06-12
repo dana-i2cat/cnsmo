@@ -72,6 +72,7 @@ def check_preconditions():
 def configure_bridge(NIC, IP, GW, MAC, MASK):
     totalErr = 0
     logger = logging.getLogger(__name__)
+    call('ss-display \"Creating an OpenvSwitch bridge to the physical interface...\"')
     logger.debug("Creating an OpenvSwitch bridge to the physical interface...")
     err = call("sudo ovs-vsctl add-br br-ext -- set bridge br-ext other-config:hwaddr=%s > /dev/null 2>&1" % (MAC))
     totalErr = totalErr + check_error(err)
@@ -80,6 +81,7 @@ def configure_bridge(NIC, IP, GW, MAC, MASK):
     logger.debug("Done!")
 
     logger.debug("Adding the physical interface to the ovs bridge...")
+    call('ss-display \"Adding the physical interface to the ovs bridge...\"')
     err = call("sudo ovs-vsctl add-port br-ext %s > /dev/null 2>&1" % (NIC))
     totalErr = totalErr + check_error(err)
     logger.debug("Done!")
@@ -90,11 +92,13 @@ def configure_bridge(NIC, IP, GW, MAC, MASK):
     #logger.debug("Done!")
 
     logger.debug("Removing IP address from the physical interface...")
+    call('ss-display \"Removing IP address from the physical interface...\"')
     err = call("sudo ifconfig %s 0.0.0.0 > /dev/null 2>&1" % (NIC))
     totalErr = totalErr + check_error(err)
     logger.debug("Done!")
 
     logger.debug("Giving the ovs bridge the host IP address...")
+    call('ss-display \"Giving the ovs bridge the host IP address...\"')
     err = call("sudo ifconfig br-ext %s/%s > /dev/null 2>&1" % (IP,MASK))
     totalErr = totalErr + check_error(err)
     logger.debug("Done!")
@@ -134,6 +138,7 @@ def configureOvs():
     # Configuration values
     NIC = "eth0"    
     SDN_PORT_CONCAT=":6633"
+    VPN_SERVER_IP="10.10.10.1"
     VPN_SERVER_IP=call("ss-get --timeout=3600 vpn.server.address")
     SDN_CTRL_IP_PORT=str(VPN_SERVER_IP)+str(SDN_PORT_CONCAT)
     #SDN_CTRL_IP="10.8.44.55:6633"
