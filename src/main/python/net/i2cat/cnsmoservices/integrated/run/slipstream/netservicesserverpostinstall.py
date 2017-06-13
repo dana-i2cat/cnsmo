@@ -27,10 +27,40 @@ src_dir = path + "/../../../../../../../../../"
 if src_dir not in sys.path:
     sys.path.append(src_dir)
 
-from src.main.python.net.i2cat.cnsmoservices.sdnoverlay.run.slipstream.sdnserverpostinstall import postinstsdn
+from src.main.python.net.i2cat.cnsmoservices.sdnoverlay.run.slipstream.sdnserverpostinstall import postinstallsdn
 
 
 call = lambda command: subprocess.check_output(command, shell=True)
+
+
+def install_redis():
+    logger = logging.getLogger(__name__)
+    os.chdir("/var/tmp/slipstream")
+
+    logger.debug("Postinstall SDN server on a SlipStream application...")
+    logger.debug("Installing CNSMO requirements")
+    p = subprocess.Popen(["pip","install","-r","./cnsmo/requirements.txt"])
+
+    logger.debug("Remove persisted network configuration (for compatibility with pre-built images)")
+    call("rm -f /etc/udev/rules.d/*net*.rules")
+
+    logger.debug("Configuring integration with slipstream")
+    os.chdir("/var/tmp/slipstream")
+
+    logger.debug("Install redis")
+    call("wget http://download.redis.io/releases/redis-3.0.7.tar.gz")
+    call("tar xzf redis-3.0.7.tar.gz")
+    call("rm redis-3.0.7.tar.gz")
+    call("make -C ./redis-3.0.7")
+    call("sudo make install --quiet -C ./redis-3.0.7")
+
+    PORT="20379"
+    CONFIG_FILE="/etc/redis/20379.conf"
+    LOG_FILE="/var/log/redis_20379.log"
+    DATA_DIR="/var/lib/redis/20379"
+    EXECUTABLE="/usr/local/bin/redis-server"
+
+    call("echo -e '%s\n%s\n%s\n%s\n%s\n' | sudo ./redis-3.0.7/utils/install_server.sh" %(PORT,CONFIG_FILE,LOG_FILE,DATA_DIR,EXECUTABLE) )
 
 
 def main():
@@ -38,57 +68,41 @@ def main():
     logger = logging.getLogger(__name__)
     logger.debug("Running net services server postinstall script")
     call('ss-display \"Running net services server postinstall script\"')
+
+    git_branch=call("ss-get --timeout=1200 net.i2cat.cnsmo.git.branch")
+    logger.debug("Downloading CNSMO")
+
+    # Download the repositories from gitHub
+    call("git clone -b %s --single-branch https://github.com/dana-i2cat/cnsmo.git ./cnsmo" % git_branch)
+    call("git clone -b master --single-branch https://github.com/dana-i2cat/cnsmo-net-services.git ./cnsmo-net-services")
+    
+    install_redis()
+
     netservices = get_net_services_to_enable()
-    logger.debug("Will postinst following services %s" % json.dumps(netservices))
+    logger.debug("Will install software for the following services %s" % json.dumps(netservices))
     call('ss-display \"Deploying network services \'%s\'\"' % json.dumps(netservices))
-
-    ss_nodename = call('ss-get nodename').rstrip('\n')
-    ss_node_instance = call('ss-get id').rstrip('\n')
-    instance_id = "%s.%s" % (ss_nodename, ss_node_instance)
-    cnsmo_server_instance_id = instance_id
-
-    call('ss-set cnsmo.server.nodeinstanceid %s' % cnsmo_server_instance_id)
-    logger.debug("Set cnsmo.server.nodeinstanceid= %s" % cnsmo_server_instance_id)
-
+    
     if (('vpn' not in netservices) and ('sdn' in netservices)): netservices.append('vpn')
     logger.debug("Postinstall net services...")
     netservices_enabled = list()
-    if 'vpn' in netservices:
-        if postinst_vpn_and_wait() == 0:
-            logger.debug("Marking vpn as enabled")
-            netservices_enabled.append('vpn')
+    if 'sdn' in netservices:
+        if postinst_sdn_and_wait() == 0:
+            logger.debug("SDN installed")
         else:
-            logger.error("Error postinsting VPN. Aborting script")
+            logger.error("Error postinstalling SDN. Aborting script")
             return -1
-    logger.debug("Finished postinsting net services")
-    call('ss-display \"Successfully postinsted network services: %s\"' % netservices_enabled)
 
-    call('ss-set net.services.enabled \'%s\'' % json.dumps(netservices_enabled))
-    logger.debug("Set net.services.enabled= %s" % json.dumps(netservices_enabled))
+    logger.debug("Finished posinstalling net services")
+    call('ss-display \"Successfully posinstalled network services: %s\"' % netservices_enabled)
+
+    call('ss-set net.services.installed \'%s\'' % json.dumps(netservices_enabled))
+    logger.debug("Set net.services.installed = %s" % json.dumps(netservices_enabled))
     return 0
-
-
-def postinst_vpn_and_wait():
-    logger = logging.getLogger(__name__)
-    logger.debug("Postinstall VPN...")
-    return postinstvpn()
 
 def postinst_sdn_and_wait():
     logger = logging.getLogger(__name__)
     logger.debug("Postinstall SDN...")
-    return postinstsdn()
-
-def postinst_fw_and_wait(cnsmo_server_instance_id):
-    logger = logging.getLogger(__name__)
-    logger.debug("Postinstall FW...")
-    return postinstfw(cnsmo_server_instance_id)
-
-
-def postinst_lb_and_wait():
-    logger = logging.getLogger(__name__)
-    logger.debug("Deploying LB...")
-    return postinstlb()
-    
+    return postinstallsdn()
 
 def get_net_services_to_enable():
     """
