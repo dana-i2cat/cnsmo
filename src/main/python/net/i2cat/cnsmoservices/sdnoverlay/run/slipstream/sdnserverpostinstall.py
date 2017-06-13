@@ -25,6 +25,28 @@ def main():
     config_logging()
     return postinstallsdn()
     
+def get_net_services_to_enable():
+    """
+    :return: A list of strings representing which services must be enabled. e.g. ['vpn', 'fw', 'lb']
+    """
+    logger = logging.getLogger(__name__)
+    try:
+        netservices_str = call('ss-get net.services.enable').rstrip('\n')
+        if netservices_str:
+            netservices = json.loads(netservices_str)
+            return netservices
+        else:
+            raise ValueError("Couldn't get value for net.services.enable")
+    except subprocess.CalledProcessError as e:
+        logger.error("Command {} returned non-zero exit status {} with output {}".format(e.cmd, e.returncode, e.output))
+        call('ss-abort \"Error reading network services to enable\"')
+        raise
+    except Exception as e:
+        logger.error(e.message)
+        call('ss-abort \"Error reading network services to enable\"')
+        raise
+
+
 def postinstallsdn():
     logger = logging.getLogger(__name__)
     logger.debug("Postinstall SDN server on a SlipStream application...")
@@ -37,83 +59,67 @@ def postinstallsdn():
     call("git clone -b master --single-branch https://github.com/dana-i2cat/cnsmo-net-services.git ./cnsmo-net-services")
     
     logger.debug("Installing CNSMO requirements")
+    call("pip install -r cnsmo/cnsmo/requirements.txt")
 
+    cwd = call("${PWD}")
+    call("touch /var/tmp/cnsmo.env")
+    call("echo ${cwd} >> /var/tmp/cnsmo.env")
+    call("echo ${current_user} >> /var/tmp/cnsmo.env")
+
+    logger.debug("Remove persisted network configuration (for compatibility with pre-built images)")
+    call("rm -f /etc/udev/rules.d/*net*.rules")
     return 0
     
-    # install cnsmo requirements
-    pip install -r cnsmo/cnsmo/requirements.txt
-    
-    cwd=${PWD}
-    echo "CWD is ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::"
-    echo ${cwd}
-    
-    touch /var/tmp/cnsmo.env
-    echo ${cwd} >> /var/tmp/cnsmo.env
-    echo ${current_user} >> /var/tmp/cnsmo.env
-    
-    # remove persisted network configuration (for compatibility with pre-built images)
-    rm -f /etc/udev/rules.d/*net*.rules
-    
-    touch ${file_done}
-    
-    #configuring integration with slipstream
-    wd='/var/tmp/slipstream'
-    cd ${wd}
+    logger.debug("Configuring integration with slipstream")
+    wd="/var/tmp/slipstream"
+    call("cd %s" % wd)
 
-    #install redis
-    wget http://download.redis.io/releases/redis-3.0.7.tar.gz
-    tar xzf redis-3.0.7.tar.gz
-    rm redis-3.0.7.tar.gz
-    cd redis-3.0.7
-    make
-    make install --quiet
+    logger.debug("Install redis")
+    
+    call("wget http://download.redis.io/releases/redis-3.0.7.tar.gz")
+    call("tar xzf redis-3.0.7.tar.gz")
+    call("rm redis-3.0.7.tar.gz")
+    call("make -C ./redis-3.0.7")
+    call("sudo make install --quiet -C ./redis-3.0.7")
 
-    PORT=20379
-    CONFIG_FILE=/etc/redis/20379.conf
-    LOG_FILE=/var/log/redis_20379.log
-    DATA_DIR=/var/lib/redis/20379
-    EXECUTABLE=/usr/local/bin/redis-server
+    PORT="20379"
+    CONFIG_FILE="/etc/redis/20379.conf"
+    LOG_FILE="/var/log/redis_20379.log"
+    DATA_DIR="/var/lib/redis/20379"
+    EXECUTABLE="/usr/local/bin/redis-server"
 
-    echo -e "${PORT}\n${CONFIG_FILE}\n${LOG_FILE}\n${DATA_DIR}\n${EXECUTABLE}\n" | utils/install_server.sh
-    cd ..
+    call("echo -e '%s\n%s\n%s\n%s\n%s\n' | sudo ./redis-3.0.7/utils/install_server.sh" %(PORT,CONFIG_FILE,LOG_FILE,DATA_DIR,EXECUTABLE) )
+        
+    logger.debug("Set working directory")
+if not os.path.isdir("/opt/odl"):
+    os.makedirs("/opt/odl")
     
-    # reboot to apply new kernel  upgraded by docker installation script
-    #reboot
+    os.chdir("/opt/odl")
     
-    # set working directory
-    DIRECTORY='/opt/odl'
-    if [ ! -d "$DIRECTORY" ]; then
-      mkdir -p ${DIRECTORY}
-    fi
-    cd ${DIRECTORY}
-    
-    services=$(ss-get net.services.enable)
-    echo $services >> /var/log/sdnserverinstall.log
-    if [[ $services == *"sdn"* ]]; then
-      touch /var/log/sdnserverinstall.log
-    
-      echo "Installing Java 7 JDK and other components..." >> /var/log/sdnserverinstall.log
-      apt-get -y update
-      apt-get install -y openjdk-7-jdk 
-    
-      # download opendaylight
-      echo "Downloading opendaylight executable..." >> /var/log/sdnserverinstall.log
-      wget https://nexus.opendaylight.org/content/repositories/opendaylight.release/org/opendaylight/integration/distribution-karaf/0.3.2-Lithium-SR2/distribution-karaf-0.3.2-Lithium-SR2.zip
-      unzip distribution-karaf-0.3.2-Lithium-SR2.zip
-      cd distribution-karaf-0.3.2-Lithium-SR2
-    
-      echo 'export JAVA_HOME="/usr/lib/jvm/java-7-openjdk-amd64"' >> ./bin/setenv
-      source ./bin/setenv
-      # start karaf server
-      echo "Starting karaf server..." >> /var/log/sdnserverinstall.log
-      ./bin/karaf server &
-      #./bin/start
-    
-      # install features
-      echo "Installing karaf features..." >> /var/log/sdnserverinstall.log
-      sleep 30
-    
-      ./bin/client -u karaf feature:install odl-openflowjava-all odl-netconf-all odl-dlux-all odl-l2switch-packethandler odl-l2switch-loopremover odl-l2switch-arphandler odl-l2switch-switch-ui odl-restconf-all odl-l2switch-addresstracker odl-l2switch-switch-rest odl-l2switch-switch odl-mdsal-all odl-openflowjava-all odl-mdsal-apidocs odl-openflowplugin-all odl-ovsdb-all
-      echo "Karaf features installed successfully and ready to run!" >> /var/log/sdnserverinstall.log
-    fi
-fi
+    netservices = get_net_services_to_enable()
+    call("echo %s >> /var/log/sdnserverinstall.log" % netservices)
+
+    if 'sdn' in netservices:
+        logger.debug("Installing Java 7 JDK and other components...")        
+        call("apt-get -y update")
+        call("apt-get install -y openjdk-7-jdk")
+   
+        logger.debug("Downloading opendaylight executable")
+        call("wget https://nexus.opendaylight.org/content/repositories/opendaylight.release/org/opendaylight/integration/distribution-karaf/0.3.2-Lithium-SR2/distribution-karaf-0.3.2-Lithium-SR2.zip")
+        call("unzip distribution-karaf-0.3.2-Lithium-SR2.zip")
+        os.chdir("./distribution-karaf-0.3.2-Lithium-SR2")
+
+        with open("./bin/setenv", "a") as myfile:
+            myfile.write("export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64")
+
+        os.environ['JAVA_HOME'] = '/usr/lib/jvm/java-7-openjdk-amd64'
+        logger.debug("Starting karaf server...")
+        p = subprocess.Popen(["sudo","./bin/karaf","server"])
+
+        logger.debug("Installing karaf features")
+        time.sleep(30)
+
+        p = subprocess.Popen(["./bin/client","-u","karaf","feature:install","odl-openflowjava-all","odl-netconf-all","odl-dlux-all","odl-l2switch-packethandler","odl-l2switch-loopremover","odl-l2switch-arphandler","odl-l2switch-switch-ui","odl-restconf-all","odl-l2switch-addresstracker","odl-l2switch-switch-rest","odl-l2switch-switch","odl-mdsal-all","odl-openflowjava-all","odl-mdsal-apidocs","odl-openflowplugin-all","odl-ovsdb-all"])    
+        logger.debug("Karaf features installed successfully and ready to run!")
+
+        
