@@ -25,6 +25,14 @@ def main():
     config_logging()
     return postinstallsdn()
     
+def config_logging():
+    logging.basicConfig(filename='cnsmo-sdn-postinstall.log',
+                        filemode='a',
+                        format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
+                        datefmt='%H:%M:%S',
+                        level=logging.DEBUG,
+                        disable_existing_loggers=False)
+
 def get_net_services_to_enable():
     """
     :return: A list of strings representing which services must be enabled. e.g. ['vpn', 'fw', 'lb']
@@ -54,25 +62,19 @@ def postinstallsdn():
     git_branch=call("ss-get --timeout=1200 git.branch")
 
     logger.debug("Downloading CNSMO")
+    
     # Download the repositories from gitHub
     call("git clone -b %s --single-branch https://github.com/dana-i2cat/cnsmo.git ./cnsmo" % git_branch)
     call("git clone -b master --single-branch https://github.com/dana-i2cat/cnsmo-net-services.git ./cnsmo-net-services")
     
     logger.debug("Installing CNSMO requirements")
-    call("pip install -r cnsmo/cnsmo/requirements.txt")
-
-    cwd = call("${PWD}")
-    call("touch /var/tmp/cnsmo.env")
-    call("echo ${cwd} >> /var/tmp/cnsmo.env")
-    call("echo ${current_user} >> /var/tmp/cnsmo.env")
+    p = subprocess.Popen(["pip","install","-r","./cnsmo/requirements.txt"])
 
     logger.debug("Remove persisted network configuration (for compatibility with pre-built images)")
     call("rm -f /etc/udev/rules.d/*net*.rules")
-    return 0
-    
+
     logger.debug("Configuring integration with slipstream")
-    wd="/var/tmp/slipstream"
-    call("cd %s" % wd)
+    os.chdir("/var/tmp/slipstream")
 
     logger.debug("Install redis")
     
@@ -91,8 +93,9 @@ def postinstallsdn():
     call("echo -e '%s\n%s\n%s\n%s\n%s\n' | sudo ./redis-3.0.7/utils/install_server.sh" %(PORT,CONFIG_FILE,LOG_FILE,DATA_DIR,EXECUTABLE) )
         
     logger.debug("Set working directory")
-if not os.path.isdir("/opt/odl"):
-    os.makedirs("/opt/odl")
+
+    if not os.path.isdir("/opt/odl"):
+        os.makedirs("/opt/odl")
     
     os.chdir("/opt/odl")
     
@@ -122,4 +125,5 @@ if not os.path.isdir("/opt/odl"):
         p = subprocess.Popen(["./bin/client","-u","karaf","feature:install","odl-openflowjava-all","odl-netconf-all","odl-dlux-all","odl-l2switch-packethandler","odl-l2switch-loopremover","odl-l2switch-arphandler","odl-l2switch-switch-ui","odl-restconf-all","odl-l2switch-addresstracker","odl-l2switch-switch-rest","odl-l2switch-switch","odl-mdsal-all","odl-openflowjava-all","odl-mdsal-apidocs","odl-openflowplugin-all","odl-ovsdb-all"])    
         logger.debug("Karaf features installed successfully and ready to run!")
 
-        
+if __name__ == "__main__":
+    main()
