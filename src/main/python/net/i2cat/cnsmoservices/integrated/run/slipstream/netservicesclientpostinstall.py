@@ -34,28 +34,20 @@ call = lambda command: subprocess.check_output(command, shell=True)
 def main():
     config_logging()
     logger = logging.getLogger(__name__)
-    call("touch /var/tmp/slipstream/hola1.txt")
     logger.debug("Running net services client postinstall script")
     call('ss-display \"Running net services client postinstall script\"')
 
     os.chdir("/var/tmp/slipstream")
 
-    call("touch /var/tmp/slipstream/hola2.txt")
-
-    os.chdir("/var/tmp/slipstream")
-
     logger.debug("Postinstall SDN client on a SlipStream application...")
     logger.debug("Installing CNSMO requirements")
-    p = subprocess.Popen(["pip","install","-r","./cnsmo/requirements.txt"])
+    p = subprocess.Popen(["pip","install","-r","cnsmo/cnsmo/requirements.txt"])
 
+    call("touch requirements.txt")
     logger.debug("Remove persisted network configuration (for compatibility with pre-built images)")
     call("rm -f /etc/udev/rules.d/*net*.rules")
 
     logger.debug("Finished posinstalling net services")
-    call('ss-display \"Successfully posinstalled network services: %s\"' % netservices_enabled)
-
-    call('ss-set net.services.installed \'%s\'' % json.dumps(netservices_enabled))
-    logger.debug("Set net.services.installed = %s" % json.dumps(netservices_enabled))
     return 0
 
 def config_logging():
