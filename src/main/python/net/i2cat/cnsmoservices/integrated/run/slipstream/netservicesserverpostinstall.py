@@ -87,7 +87,7 @@ def main():
     logger.debug("Finished postinstalling net services")
     call('ss-display \"Successfully postinstalled network services: %s\"' % netservices)
 
-    call("ss-set net.services.installed=true")
+    call("ss-set net.services.installed true")
     logger.debug("Set net.services.installed = true")
     return 0
 

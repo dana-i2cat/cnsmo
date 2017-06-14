@@ -48,7 +48,7 @@ def main():
     call("rm -f /etc/udev/rules.d/*net*.rules")
 
     logger.debug("Finished posinstalling net services")
-    call("ss-set net.services.installed=true")
+    call("ss-set net.services.installed true")
     logger.debug("Set net.services.installed = true")
     return 0
 
