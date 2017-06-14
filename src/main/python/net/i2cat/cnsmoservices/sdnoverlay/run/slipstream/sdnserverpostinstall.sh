@@ -13,10 +13,9 @@ cd ${DIRECTORY}
 
 file_done='/.post-install-done'
 if [ ! -f $file_done ]; then
-
-    touch test1.out
     
     if [ $(docker --version 1>/dev/null 2>/dev/null; echo $?) != "0" ] ; then
+        echo "docker MUST BE installed"
         # install docker
         curl -fsSL https://get.docker.com/ | sh
         current_user=$(whoami)
