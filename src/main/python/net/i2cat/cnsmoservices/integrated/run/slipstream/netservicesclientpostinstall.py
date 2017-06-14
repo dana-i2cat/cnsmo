@@ -43,7 +43,6 @@ def main():
     logger.debug("Installing CNSMO requirements")
     p = subprocess.Popen(["pip","install","-r","cnsmo/cnsmo/requirements.txt"])
 
-    call("touch requirements.txt")
     logger.debug("Remove persisted network configuration (for compatibility with pre-built images)")
     call("rm -f /etc/udev/rules.d/*net*.rules")
 

@@ -26,19 +26,14 @@ if [ ! -f $file_done ]; then
     
     touch ${file_done}
 
-    touch funcionaaaaaaaaaaaaaa.txt
     # Download the repositories from gitHub
     mkdir cnsmo
     cd cnsmo
     git clone -b SDNdevelop --single-branch https://github.com/dana-i2cat/cnsmo.git
     git clone -b master --single-branch https://github.com/dana-i2cat/cnsmo-net-services.git
-    cd..
-    
-    # install cnsmo requirements
-    pip install -r cnsmo/cnsmo/requirements.txt
+
     cd ${DIRECTORY}
 
-    touch requirements.txt
     cwd=${PWD}
     python ${cwd}/cnsmo/cnsmo/src/main/python/net/i2cat/cnsmoservices/integrated/run/slipstream/netservicesclientpostinstall.py &
     disown $!
