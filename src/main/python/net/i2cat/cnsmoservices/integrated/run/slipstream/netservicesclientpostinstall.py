@@ -27,8 +27,6 @@ src_dir = path + "/../../../../../../../../../"
 if src_dir not in sys.path:
     sys.path.append(src_dir)
 
-from src.main.python.net.i2cat.cnsmoservices.sdnoverlay.run.slipstream.sdnclientpostinstall import postinstallsdn
-
 
 call = lambda command: subprocess.check_output(command, shell=True)
 
@@ -40,7 +38,7 @@ def main():
     call('ss-display \"Running net services client postinstall script\"')
 
     git_branch=call("ss-get --timeout=1200 net.i2cat.cnsmo.git.branch")
-    logger.debug("Downloading CNSMO")
+    logger.debug("Downloading CNSMO from gitHub")
 
     # Download the repositories from gitHub
     call("git clone -b %s --single-branch https://github.com/dana-i2cat/cnsmo.git ./cnsmo" % git_branch)

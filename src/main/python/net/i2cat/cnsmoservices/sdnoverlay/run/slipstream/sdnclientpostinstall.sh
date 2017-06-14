@@ -13,10 +13,9 @@ cd ${DIRECTORY}
 
 file_done='/.post-install-done'
 if [ ! -f $file_done ]; then
-
-    touch test1.out
     
     if [ $(docker --version 1>/dev/null 2>/dev/null; echo $?) != "0" ] ; then
+        echo "docker MUST BE installed"
         # install docker
         curl -fsSL https://get.docker.com/ | sh
         current_user=$(whoami)
@@ -28,8 +27,8 @@ if [ ! -f $file_done ]; then
     touch ${file_done}
 
     cwd=${PWD}
-    python ${cwd}/cnsmo/cnsmo/src/main/python/net/i2cat/cnsmoservices/integrated/run/slipstream/netservicesserverpostinstall.py &
+    python ${cwd}/cnsmo/cnsmo/src/main/python/net/i2cat/cnsmoservices/integrated/run/slipstream/netservicesclientpostinstall.py &
     disown $!
-    ss-get --timeout=1200 net.services.installed # crear variable
+    ss-get --timeout=1200 net.services.installed
     
 fi
