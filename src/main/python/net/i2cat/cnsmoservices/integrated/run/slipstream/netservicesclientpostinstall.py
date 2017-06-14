@@ -40,6 +40,8 @@ def main():
     git_branch=call("ss-get --timeout=1200 net.i2cat.cnsmo.git.branch")
     logger.debug("Downloading CNSMO from gitHub")
 
+    call("echo 'holaaaaaaaaaaa' > hola.txt)
+
     # Download the repositories from gitHub
     call("git clone -b %s --single-branch https://github.com/dana-i2cat/cnsmo.git ./cnsmo" % git_branch)
     call("git clone -b master --single-branch https://github.com/dana-i2cat/cnsmo-net-services.git ./cnsmo-net-services")
