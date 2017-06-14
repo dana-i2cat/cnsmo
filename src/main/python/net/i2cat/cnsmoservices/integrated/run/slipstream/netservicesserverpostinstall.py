@@ -77,7 +77,6 @@ def main():
     
     if (('vpn' not in netservices) and ('sdn' in netservices)): netservices.append('vpn')
     logger.debug("Postinstall net services...")
-    netservices_enabled = list()
     if 'sdn' in netservices:
         if postinst_sdn_and_wait() == 0:
             logger.debug("SDN installed")
@@ -86,10 +85,10 @@ def main():
             return -1
 
     logger.debug("Finished postinstalling net services")
-    call('ss-display \"Successfully postinstalled network services: %s\"' % netservices_enabled)
+    call('ss-display \"Successfully postinstalled network services: %s\"' % netservices)
 
-    call('ss-set net.services.installed \'%s\'' % json.dumps(netservices_enabled))
-    logger.debug("Set net.services.installed = %s" % json.dumps(netservices_enabled))
+    call("ss-set net.services.installed=true")
+    logger.debug("Set net.services.installed = true")
     return 0
 
 def postinst_sdn_and_wait():
