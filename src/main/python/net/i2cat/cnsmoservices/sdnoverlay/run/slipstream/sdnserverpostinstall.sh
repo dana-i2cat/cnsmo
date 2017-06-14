@@ -26,6 +26,11 @@ if [ ! -f $file_done ]; then
     
     touch ${file_done}
 
+    branch=ss-get --timeout=1200 net.i2cat.cnsmo.git.branch
+    # Download the repositories from gitHub
+    git clone -b $branch --single-branch https://github.com/dana-i2cat/cnsmo.git ./cnsmo
+    git clone -b master --single-branch https://github.com/dana-i2cat/cnsmo-net-services.git ./cnsmo-net-services
+
     cwd=${PWD}
     python ${cwd}/cnsmo/cnsmo/src/main/python/net/i2cat/cnsmoservices/integrated/run/slipstream/netservicesserverpostinstall.py &
     disown $!

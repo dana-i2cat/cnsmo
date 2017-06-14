@@ -69,13 +69,6 @@ def main():
     logger.debug("Running net services server postinstall script")
     call('ss-display \"Running net services server postinstall script\"')
 
-    git_branch=call("ss-get --timeout=1200 net.i2cat.cnsmo.git.branch")
-    logger.debug("Downloading CNSMO")
-
-    # Download the repositories from gitHub
-    call("git clone -b %s --single-branch https://github.com/dana-i2cat/cnsmo.git ./cnsmo" % git_branch)
-    call("git clone -b master --single-branch https://github.com/dana-i2cat/cnsmo-net-services.git ./cnsmo-net-services")
-    
     install_redis()
 
     netservices = get_net_services_to_enable()

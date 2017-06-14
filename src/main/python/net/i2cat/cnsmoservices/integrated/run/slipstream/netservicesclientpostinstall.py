@@ -34,20 +34,14 @@ call = lambda command: subprocess.check_output(command, shell=True)
 def main():
     config_logging()
     logger = logging.getLogger(__name__)
+    call("touch /var/tmp/slipstream/hola1.txt")
     logger.debug("Running net services client postinstall script")
     call('ss-display \"Running net services client postinstall script\"')
 
     os.chdir("/var/tmp/slipstream")
 
-    git_branch=call("ss-get --timeout=1200 net.i2cat.cnsmo.git.branch")
-    logger.debug("Downloading CNSMO from gitHub")
+    call("touch /var/tmp/slipstream/hola2.txt")
 
-    call("echo 'holaaaaaaaaaaa' > hola.txt")
-
-    # Download the repositories from gitHub
-    call("git clone -b %s --single-branch https://github.com/dana-i2cat/cnsmo.git ./cnsmo" % git_branch)
-    call("git clone -b master --single-branch https://github.com/dana-i2cat/cnsmo-net-services.git ./cnsmo-net-services")
-    
     os.chdir("/var/tmp/slipstream")
 
     logger.debug("Postinstall SDN client on a SlipStream application...")
