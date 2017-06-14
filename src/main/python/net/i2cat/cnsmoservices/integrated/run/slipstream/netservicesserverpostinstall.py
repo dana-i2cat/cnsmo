@@ -85,8 +85,8 @@ def main():
             logger.error("Error postinstalling SDN. Aborting script")
             return -1
 
-    logger.debug("Finished posinstalling net services")
-    call('ss-display \"Successfully posinstalled network services: %s\"' % netservices_enabled)
+    logger.debug("Finished postinstalling net services")
+    call('ss-display \"Successfully postinstalled network services: %s\"' % netservices_enabled)
 
     call('ss-set net.services.installed \'%s\'' % json.dumps(netservices_enabled))
     logger.debug("Set net.services.installed = %s" % json.dumps(netservices_enabled))

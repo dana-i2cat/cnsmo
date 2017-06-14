@@ -48,6 +48,8 @@ def main():
     call("rm -f /etc/udev/rules.d/*net*.rules")
 
     logger.debug("Finished posinstalling net services")
+    call('ss-set net.services.installed \'%s\'' % json.dumps(netservices_enabled))
+    logger.debug("Set net.services.installed = %s" % json.dumps(netservices_enabled))
     return 0
 
 def config_logging():
