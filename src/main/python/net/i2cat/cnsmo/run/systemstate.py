@@ -1,4 +1,10 @@
-def main(redis_address="localhost:6379"):
+def launch_system_state(redis_address="localhost:6379"):
+    """
+    Launches the system state manager, backed by a redis server instance.
+    Requires a redis server running at given address.
+    :param redis_address: Address of hte redis server
+    :return:
+    """
     system_state = SystemStateFactory.generate_system_state_manager(redis_address)
     system_state.start()
 
@@ -6,7 +12,6 @@ if __name__ == "__main__":
 
     import os
     import sys
-    import time
     import getopt
 
     opts, _ = getopt.getopt(sys.argv[1:], "a:p:", [] )
@@ -22,10 +27,10 @@ if __name__ == "__main__":
     path = os.path.dirname(os.path.abspath(__file__))
     src_dir = path + "/../../../../../../../"
     print src_dir
-    if not src_dir in sys.path:
+    if src_dir not in sys.path:
         sys.path.append(src_dir)
 
     from src.main.python.net.i2cat.cnsmo.factory.system.state.factory import SystemStateFactory
 
     redis_address = host + ":" + port
-    main(redis_address)
+    launch_system_state(redis_address)

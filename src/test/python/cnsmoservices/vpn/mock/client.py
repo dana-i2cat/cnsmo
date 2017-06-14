@@ -1,12 +1,12 @@
 import getopt
 import os
 import logging
-import shlex
-import subprocess
-
+import signal
+import time
 import sys
-from flask import Flask
+from flask import Flask, jsonify
 from flask import request
+from multiprocessing import Process
 
 log = logging.getLogger('cnsmo.vpn.server.app')
 
@@ -93,6 +93,15 @@ def stop_client():
         return str(e), 409
 
 
+@app.route("/vpn/client/status/", methods=[GET])
+def get_status():
+    status = dict()
+    status["config_files"] = app.config["config_files"]
+    status["service_built"] = app.config["service_built"]
+    status["service_running"] = app.config["service_running"]
+    return jsonify(status), 200
+
+
 def save_file(file_handler, file_name):
     # filename = secure_filename(file_handler.filename)
     log.debug("saving file to " + app.config['UPLOAD_FOLDER'])
@@ -100,8 +109,7 @@ def save_file(file_handler, file_name):
 
 
 def prepare_config():
-    app.config["config_files"] = {"dh_ready": False,
-                                  "server_cert_ready": False,
+    app.config["config_files"] = {"server_cert_ready": False,
                                   "server_key_ready": False,
                                   "ca_cert_ready": False,
                                   "config_ready": False,
@@ -110,12 +118,50 @@ def prepare_config():
     app.config["service_built"] = False
     app.config["service_running"] = False
 
+
+def launch_flask_app(host, port):
+    signal_flag = SignalFlag()
+    server = Process(target=app.run, args=(host, port, {"debug": True}))
+    server.start()
+    while not signal_flag.signal_received():
+        time.sleep(0.5)
+    print("Terminating...")
+    server.terminate()
+    server.join(2)
+
+
+class SignalFlag:
+    """
+    A single-use flag for SIGINT and SIGTERM signals.
+    """
+    __signal_received = False
+
+    def __init__(self):
+        """
+        Registers callback for SIGINT and SIGTERM
+        """
+        signal.signal(signal.SIGINT, self.flag_signal)
+        signal.signal(signal.SIGTERM, self.flag_signal)
+
+    def flag_signal(self, signum, frame):
+        """
+        Flags
+        :param signum:
+        :param frame:
+        :return:
+        """
+        self.__signal_received = True
+
+    def signal_received(self):
+        return self.__signal_received
+
+
 if __name__ == "__main__":
 
     opts, _ = getopt.getopt(sys.argv[1:], "a:p:w:", ["working-dir="])
 
     host = "127.0.0.1"
-    port = 9094
+    port = 9092
     for opt, arg in opts:
         if opt in ("-w", "--working-dir"):
             working_dir = arg
@@ -124,7 +170,6 @@ if __name__ == "__main__":
         elif opt == "-p":
             port = int(arg)
 
-
     app.config["UPLOAD_FOLDER"] = working_dir
     prepare_config()
-    app.run(host=host, port=port, debug=True)
+    launch_flask_app(host, port)

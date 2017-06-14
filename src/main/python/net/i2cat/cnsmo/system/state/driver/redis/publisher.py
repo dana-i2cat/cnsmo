@@ -16,3 +16,6 @@ class RedisPublisher:
 
     def start(self):
         pass
+
+    def stop(self):
+        pass

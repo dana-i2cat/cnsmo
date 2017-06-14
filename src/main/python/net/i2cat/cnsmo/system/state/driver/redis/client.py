@@ -18,6 +18,11 @@ class RedisDriver:
             self.__client = redis.Redis(self.__client_address.split(":")[0], int(self.__client_address.split(":")[1]))
             self.__is_running = True
 
+    def stop(self):
+        if self.__is_running:
+            self.__client = None
+            self.__is_running = False
+
     def save(self, key, value):
         self.__client.set(key, value)
 

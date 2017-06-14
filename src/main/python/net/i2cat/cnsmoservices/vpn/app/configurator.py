@@ -31,8 +31,10 @@ def generate_client_cert(client_id):
 
 @app.route("/vpn/configs/certs/ca/", methods=[POST])
 def generate_ca_cert():
+    print "configurator.py::Generate CA cert..."
     manager = app.config["manager"]
     manager.generate_ca_and_dh()
+    print "configurator.py::finished Generating CA cert..."
     return "", 204
 
 
@@ -108,6 +110,11 @@ def get_server_key():
     return response
 
 
+@app.route("/vpn/configs/status/", methods=[GET])
+def get_status():
+    return "Ready", 200
+
+
 class VPNConfigManager:
 
     def __init__(self, ip, mask, port, server_ip, key_dir):
@@ -118,6 +125,7 @@ class VPNConfigManager:
         self.key_dir = key_dir
 
     def generate_ca_and_dh(self):
+        print "sh %s../gen_ca.sh" % self.key_dir
         command = "sh %s../gen_ca.sh" % self.key_dir
         subprocess.check_call(shlex.split(command), shell=False)
 

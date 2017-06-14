@@ -93,7 +93,7 @@ def deployvpn():
     call('ss-get net.i2cat.cnsmo.service.vpn.configurator.listening')
     call('ss-get net.i2cat.cnsmo.service.vpn.server.listening')
 
-    # Wait for clients
+    ##### Wait for clients  [required for a correct working when join scenario with load balancer service]
     logger.debug("Detecting all VPN clients...")
     call('ss-display \"VPN: Looking for all clients...\"')
     # All instances in the deployment are considered vpn clients
@@ -104,7 +104,6 @@ def deployvpn():
     # remove this instance
     client_instances.remove(instance_id)
     logger.debug("Finished detecting all VPN clients: %s" % client_instances)
-
     logger.debug("Waiting for all VPN clients...")
     call('ss-display \"VPN: Waiting for all clients...\"')
     # wait for clients to be ready: instance_id:net.i2cat.cnsmo.service.vpn.client.waiting=true
@@ -116,15 +115,10 @@ def deployvpn():
             return -1
         logger.debug("Finished waiting for all VPN clients.")
 
-    # Deploy VPN
-    logger.debug("Deploying VPN...")
-    call('ss-display \"VPN: Deploying VPN...\"')
-    vpn_orchestrator.deploy_blocking()
-    logger.debug("VPN deployed")
-
 
     logger.debug("Locating VPN enabled interface...")
-    time.sleep(5)
+    call('ss-display \"VPN: Waiting before Locating VPN enabled interface...\"')
+    time.sleep(15)
     # assuming the VPN interface (probably tap0) is the only one created during this script execution
     vpn_iface = detect_new_interface_in_30_sec(ifaces_prev)
     if not vpn_iface:
@@ -133,14 +127,19 @@ def deployvpn():
         return -1
 
     logger.debug("Resolving IP addresses...")
+    call('ss-display \"VPN: Resolving IP addresses...\"')
     vpn_local_ipv4_address = getInterfaceIPv4Address(vpn_iface)
+    vpn_local_ipv6_address = ""
     vpn_local_ipv6_address = getInterfaceIPv6Address(vpn_iface)
-    logger.debug("VPN using interface %s with ipaddr %s and ipv6addr %s"
-                 % (vpn_iface, vpn_local_ipv4_address, vpn_local_ipv6_address))
-
+    logger.debug("VPN using interface %s with ipaddr %s and ipv6addr %s" % (vpn_iface, vpn_local_ipv4_address, vpn_local_ipv6_address))
     logger.debug("Announcing IP addresses...")
+    call('ss-display \"VPN: Announcing IP addresses...\"')
+    if not vpn_local_ipv4_address:
+        call("ss-abort \"%s:Timeout! Failed to obtain ipv4\"" % instance_id)
+        return -1
     call("ss-set vpn.address %s" % vpn_local_ipv4_address)
-    call("ss-set vpn.address6 %s" % vpn_local_ipv6_address)
+    if vpn_local_ipv6_address:
+        call("ss-set vpn.address6 %s" % vpn_local_ipv6_address)
 
 
     # Communicate that the VPN has been established
@@ -148,10 +147,8 @@ def deployvpn():
     call('ss-set net.i2cat.cnsmo.service.vpn.ready true')
     logger.debug("Set net.i2cat.cnsmo.service.vpn.ready=true")
 
-    logger.debug("VPN has been established! Using interface %s with ipaddr %s and ipv6addr %s"
-                 % (vpn_iface, vpn_local_ipv4_address, vpn_local_ipv6_address))
-    call("ss-display \"VPN: VPN has been established! Using interface %s with ipaddr %s and ipv6addr %s\"" %
-         (vpn_iface, vpn_local_ipv4_address, vpn_local_ipv6_address))
+    logger.debug("VPN has been established! Using interface %s with ipaddr %s and ipv6addr %s" % (vpn_iface, vpn_local_ipv4_address, vpn_local_ipv6_address))
+    call("ss-display \"VPN: VPN has been established! Using interface %s with ipaddr %s and ipv6addr %s\"" % (vpn_iface, vpn_local_ipv4_address, vpn_local_ipv6_address))
 
     return 0
 
@@ -159,7 +156,7 @@ def deployvpn():
 def detect_new_interface_in_30_sec(ifaces_prev):
     vpn_iface = do_detect_new_interface(ifaces_prev)
     attempts = 0
-    while not vpn_iface and attempts < 6:
+    while not vpn_iface and attempts < 50:
         time.sleep(5)
         vpn_iface = do_detect_new_interface(ifaces_prev)
         attempts += 1
@@ -167,9 +164,12 @@ def detect_new_interface_in_30_sec(ifaces_prev):
 
 
 def do_detect_new_interface(ifaces_prev):
+    logger = logging.getLogger(__name__)
+    call("ss-display \"VPN: detecting new interface... new attempt\"")
     vpn_iface = None
     for current_iface in getCurrentInterfaces():
-        if current_iface not in ifaces_prev:
+        logger.debug("found iface ... %s" % current_iface)
+        if ("tap" in current_iface) and (current_iface not in ifaces_prev):
             vpn_iface = current_iface
     return vpn_iface
 
@@ -199,16 +199,37 @@ def launchVPNServer(hostname, redis_address, instance_id):
 
 
 def getCurrentInterfaces():
+    logger = logging.getLogger(__name__)
+    logger.debug("asking current interfaces")
     return call("""ls /sys/class/net | sed -e s/^\(.*\)$/\1/ | paste -sd ','""").rstrip('\n').split(',')
 
 
 def getInterfaceIPv4Address(iface):
-    return call("ifconfig " + iface + " | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}'").rstrip('\n')
+    logger = logging.getLogger(__name__)
+    call("ss-display \"VPN: begin getting Interface IP... \"")
+    ip = call("ip addr show " + iface + " | grep 'inet\b' | awk '{print $2}' | cut -d/ -f1")
+    logger.debug("found ip ... %s" % ip)
+    call("ss-display \"VPN: getting Interface IP... atempt 0  \"")
+    attempts = 0
+    while not ip and attempts < 50:
+        time.sleep(5)
+        ip = call("ifconfig " + iface + " | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}'").rstrip('\n')
+        #line = call("ip addr show " + iface + " | grep 'inet\b' | awk '{print $2}' | cut -d/ -f1").rstrip('\n')
+        line = call("ip addr show " + iface).rstrip('\n')
+        logger.debug("found ip ... %s" % ip)
+        logger.debug("found line ... %s" % line)
+        call("ss-display \"VPN: getting Interface IP...new atempt \"")
+        attempts += 1
+    call("ss-display \"VPN: returning IP... %s \"" % ip )
+    return ip
 
 
 def getInterfaceIPv6Address(iface):
-    return call("ifconfig " + iface + "| awk '/inet6 / { print $3 }'").rstrip('\n')
-
+    logger = logging.getLogger(__name__)
+    #ip = call("ip addr show " + iface + " | grep 'inet6\b' | awk '{print $2}' | cut -d/ -f1")
+    ip = (call("ifconfig " + iface + "| awk '/inet6 / { print $3 }'").rstrip('\n').split('/'))[0]
+    logger.debug("found ip ... %s" % ip)
+    return ip
 
 # Gets the instances that compose the deployment
 # NOTE: Currently there is no way to directly retrieve all nodes intances in a deployment.
