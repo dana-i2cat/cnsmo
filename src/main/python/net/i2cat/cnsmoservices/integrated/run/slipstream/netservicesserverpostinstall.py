@@ -61,8 +61,8 @@ def install_redis():
     DATA_DIR="/var/lib/redis/20379"
     EXECUTABLE="/usr/local/bin/redis-server"
 
-    call("echo -e '%s\n%s\n%s\n%s\n%s\n' | sudo utils/install_server.sh" %(PORT,CONFIG_FILE,LOG_FILE,DATA_DIR,EXECUTABLE) )
-
+    err = call("echo -e '%s\n%s\n%s\n%s\n%s\n' | sudo utils/install_server.sh" %(PORT,CONFIG_FILE,LOG_FILE,DATA_DIR,EXECUTABLE) )
+    logger.debug(err)
 
 def main():
     config_logging()
