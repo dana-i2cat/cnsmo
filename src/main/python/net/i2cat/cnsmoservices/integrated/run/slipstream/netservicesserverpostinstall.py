@@ -39,10 +39,10 @@ def install_redis():
 
     logger.debug("Postinstall SDN server on a SlipStream application...")
     logger.debug("Installing CNSMO requirements")
-    p = subprocess.Popen(["pip","install","-r","cnsmo/cnsmo/requirements.txt"])
+    #p = subprocess.Popen(["pip","install","-r","cnsmo/cnsmo/requirements.txt"])
 
     logger.debug("Remove persisted network configuration (for compatibility with pre-built images)")
-    call("rm -f /etc/udev/rules.d/*net*.rules")
+    #call("rm -f /etc/udev/rules.d/*net*.rules")
 
     logger.debug("Configuring integration with slipstream")
     os.chdir("/var/tmp/slipstream")
