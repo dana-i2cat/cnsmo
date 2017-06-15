@@ -61,7 +61,7 @@ def install_redis():
     DATA_DIR="/var/lib/redis/20379"
     EXECUTABLE="/usr/local/bin/redis-server"
 
-    err = call("echo -e '%s\n%s\n%s\n%s\n%s\n' | sudo utils/install_server.sh" %(PORT,CONFIG_FILE,LOG_FILE,DATA_DIR,EXECUTABLE) )
+    err = call("echo -e '%s\n%s\n%s\n%s\n%s\n' | utils/install_server.sh" %(PORT,CONFIG_FILE,LOG_FILE,DATA_DIR,EXECUTABLE) )
     logger.debug(err)
 
 def main():
@@ -70,7 +70,9 @@ def main():
     logger.debug("Running net services server postinstall script")
     call('ss-display \"Running net services server postinstall script\"')
 
-    install_redis()
+    #install_redis()
+    os.chdir("/var/tmp/slipstream")
+    call("sudo rm -f /etc/udev/rules.d/*net*.rules")
 
     netservices = get_net_services_to_enable()
     logger.debug("Will install software for the following services %s" % json.dumps(netservices))
