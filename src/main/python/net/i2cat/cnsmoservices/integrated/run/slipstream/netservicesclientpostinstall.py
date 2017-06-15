@@ -44,7 +44,7 @@ def main():
     #p = subprocess.Popen(["pip","install","-r","cnsmo/cnsmo/requirements.txt"])
 
     logger.debug("Remove persisted network configuration (for compatibility with pre-built images)")
-    #call("rm -f /etc/udev/rules.d/*net*.rules")
+    call("sudo rm -f /etc/udev/rules.d/*net*.rules")
 
     logger.debug("Finished posinstalling net services")
     call("ss-set net.services.installed true")
