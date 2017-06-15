@@ -47,13 +47,13 @@ def install_redis():
     logger.debug("Configuring integration with slipstream")
     os.chdir("/var/tmp/slipstream")
 
-    #logger.debug("Install redis")
-    #call("wget http://download.redis.io/releases/redis-3.0.7.tar.gz")
-    #call("tar xzf redis-3.0.7.tar.gz")
-    #call("rm redis-3.0.7.tar.gz")
-    #os.chdir("/var/tmp/slipstream/redis-3.0.7")
-    #call("make")################
-    #call("sudo make install --quiet")
+    logger.debug("Install redis")
+    call("wget http://download.redis.io/releases/redis-3.0.7.tar.gz")
+    call("tar xzf redis-3.0.7.tar.gz")
+    call("rm redis-3.0.7.tar.gz")
+    os.chdir("/var/tmp/slipstream/redis-3.0.7")
+    call("make")################
+    call("sudo make install --quiet")
 
     #PORT="20379"
     #CONFIG_FILE="/etc/redis/20379.conf"
