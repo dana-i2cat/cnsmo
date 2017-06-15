@@ -51,8 +51,9 @@ def install_redis():
     call("wget http://download.redis.io/releases/redis-3.0.7.tar.gz")
     call("tar xzf redis-3.0.7.tar.gz")
     call("rm redis-3.0.7.tar.gz")
-    call("make -C ./redis-3.0.7")
-    call("sudo make install --quiet -C ./redis-3.0.7")
+    os.chdir("/var/tmp/slipstream/redis-3.0.7")
+    call("make")################
+    call("sudo make install --quiet")
 
     PORT="20379"
     CONFIG_FILE="/etc/redis/20379.conf"
@@ -60,7 +61,7 @@ def install_redis():
     DATA_DIR="/var/lib/redis/20379"
     EXECUTABLE="/usr/local/bin/redis-server"
 
-    call("echo -e '%s\n%s\n%s\n%s\n%s\n' | sudo ./redis-3.0.7/utils/install_server.sh" %(PORT,CONFIG_FILE,LOG_FILE,DATA_DIR,EXECUTABLE) )
+    call("echo -e '%s\n%s\n%s\n%s\n%s\n' | sudo utils/install_server.sh" %(PORT,CONFIG_FILE,LOG_FILE,DATA_DIR,EXECUTABLE) )
 
 
 def main():
