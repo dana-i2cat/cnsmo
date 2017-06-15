@@ -42,27 +42,27 @@ def install_redis():
     #p = subprocess.Popen(["pip","install","-r","cnsmo/cnsmo/requirements.txt"])
 
     logger.debug("Remove persisted network configuration (for compatibility with pre-built images)")
-    #call("rm -f /etc/udev/rules.d/*net*.rules")
+    call("rm -f /etc/udev/rules.d/*net*.rules")
 
     logger.debug("Configuring integration with slipstream")
-   # os.chdir("/var/tmp/slipstream")
+    os.chdir("/var/tmp/slipstream")
 
     logger.debug("Install redis")
-    #call("wget http://download.redis.io/releases/redis-3.0.7.tar.gz")
-    #call("tar xzf redis-3.0.7.tar.gz")
-    #call("rm redis-3.0.7.tar.gz")
+    call("wget http://download.redis.io/releases/redis-3.0.7.tar.gz")
+    call("tar xzf redis-3.0.7.tar.gz")
+    call("rm redis-3.0.7.tar.gz")
     os.chdir("/var/tmp/slipstream/redis-3.0.7")
-    #call("make")################
-    #call("sudo make install --quiet")
+    call("make")################
+    call("sudo make install --quiet")
 
-    PORT="20379"
-    CONFIG_FILE="/etc/redis/20379.conf"
-    LOG_FILE="/var/log/redis_20379.log"
-    DATA_DIR="/var/lib/redis/20379"
-    EXECUTABLE="/usr/local/bin/redis-server"
+    #PORT="20379"
+    #CONFIG_FILE="/etc/redis/20379.conf"
+    #LOG_FILE="/var/log/redis_20379.log"
+    #DATA_DIR="/var/lib/redis/20379"
+    #EXECUTABLE="/usr/local/bin/redis-server"
 
-    err = call("echo -e '%s\n%s\n%s\n%s\n%s\n' | utils/install_server.sh" %(PORT,CONFIG_FILE,LOG_FILE,DATA_DIR,EXECUTABLE) )
-    logger.debug(err)
+    #err = call("echo -e '%s\n%s\n%s\n%s\n%s\n' | utils/install_server.sh" %(PORT,CONFIG_FILE,LOG_FILE,DATA_DIR,EXECUTABLE) )
+    #logger.debug(err)
 
 def main():
     config_logging()
@@ -70,10 +70,9 @@ def main():
     logger.debug("Running net services server postinstall script")
     call('ss-display \"Running net services server postinstall script\"')
 
-    #install_redis()
     os.chdir("/var/tmp/slipstream")
-    call("sudo rm -f /etc/udev/rules.d/*net*.rules")
-
+    install_redis()
+    
     netservices = get_net_services_to_enable()
     logger.debug("Will install software for the following services %s" % json.dumps(netservices))
     call('ss-display \"Deploying network services \'%s\'\"' % json.dumps(netservices))
