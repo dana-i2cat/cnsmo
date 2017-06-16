@@ -28,6 +28,7 @@ if src_dir not in sys.path:
     sys.path.append(src_dir)
 
 from src.main.python.net.i2cat.cnsmoservices.sdnoverlay.run.slipstream.sdnserverpostinstall import postinstallsdn
+from subprocess import Popen, PIPE
 
 
 call = lambda command: subprocess.check_output(command, shell=True)
@@ -55,11 +56,14 @@ def install_redis():
     call("make")################
     call("sudo make install --quiet")
 
-    #PORT="20379"
-    #CONFIG_FILE="/etc/redis/20379.conf"
-    #LOG_FILE="/var/log/redis_20379.log"
-    #DATA_DIR="/var/lib/redis/20379"
-    #EXECUTABLE="/usr/local/bin/redis-server"
+    PORT="20379"
+    CONFIG_FILE="/etc/redis/20379.conf\n"
+    LOG_FILE="/var/log/redis_20379.log\n"
+    DATA_DIR="/var/lib/redis/20379\n"
+    EXECUTABLE="/usr/local/bin/redis-server\n"
+
+    p = Popen(['/var/tmp/slipstream/redis-3.0.7/utils/install_server.sh'], stdin=PIPE, shell=True)
+    p.communicate(input='20379\n')
 
     #err = call("echo -e '%s\n%s\n%s\n%s\n%s\n' | utils/install_server.sh" %(PORT,CONFIG_FILE,LOG_FILE,DATA_DIR,EXECUTABLE) )
     #logger.debug(err)
