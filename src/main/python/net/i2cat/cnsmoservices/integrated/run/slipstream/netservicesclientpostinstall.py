@@ -7,11 +7,8 @@
 # All ss-get/ss-set applies to local node variables, unless a node instance_id is prefixed.
 #
 # Requires the following parameters in slipstream application component:
-# Input parameters:
-# net.services.enable: A json encoded list of strings indicating the network services to be enabled. e.g. ['vpn', 'fw', 'lb']
-#
 # Output parameters:
-# net.services.enabled: A json encoded list of strings indicating the network services that has been enabled. e.g. ['vpn', 'fw', 'lb']
+# net.services.installed: A json encoded list of strings indicating the network services that has been installed. e.g. ['vpn', 'fw', 'lb']
 ###
 
 import json

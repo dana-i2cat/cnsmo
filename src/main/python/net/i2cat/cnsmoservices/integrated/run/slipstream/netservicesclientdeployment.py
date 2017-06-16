@@ -48,7 +48,7 @@ def main():
 
     if netservices:
         logger.debug("Resolving cnsmo.server.nodeinstanceid...")
-        cnsmo_server_instance_id = call('ss-get --timeout=2000 cnsmo.server.nodeinstanceid').rstrip('\n')
+        cnsmo_server_instance_id = call('ss-get --timeout=3000 cnsmo.server.nodeinstanceid').rstrip('\n')
         if not cnsmo_server_instance_id:
             logger.error("Timeout waiting for cnsmo.server.nodeinstanceid")
             # timeout! Abort the script immediately (ss-get will abort the whole deployment in short time)

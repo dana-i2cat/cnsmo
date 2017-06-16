@@ -41,7 +41,7 @@ def install_karaf():
 
     logger.debug("Downloading opendaylight executable")
     call("wget https://nexus.opendaylight.org/content/repositories/opendaylight.release/org/opendaylight/integration/distribution-karaf/0.3.2-Lithium-SR2/distribution-karaf-0.3.2-Lithium-SR2.zip")
-    call("unzip distribution-karaf-0.3.2-Lithium-SR2.zip")
+    call("sudo unzip distribution-karaf-0.3.2-Lithium-SR2.zip")
     os.chdir("/opt/odl/distribution-karaf-0.3.2-Lithium-SR2")
 
     with open("./bin/setenv", "a") as myfile:
