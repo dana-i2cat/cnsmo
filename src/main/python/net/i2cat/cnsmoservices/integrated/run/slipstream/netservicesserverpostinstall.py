@@ -8,10 +8,10 @@
 #
 # Requires the following parameters in slipstream application component:
 # Input parameters:
-# net.services.enable: A json encoded list of strings indicating the network services to be enabled. e.g. ['vpn', 'fw', 'lb']
+# net.services.enable: A json encoded list of strings indicating the network services to be enabled. e.g. ['vpn','sdn','fw', 'lb']
 #
 # Output parameters:
-# net.services.enabled: A json encoded list of strings indicating the network services that has been enabled. e.g. ['vpn', 'fw', 'lb']
+# net.services.installed: Boolean indicating if the services were installed properly
 ###
 
 import json
@@ -36,7 +36,6 @@ call = lambda command: subprocess.check_output(command, shell=True)
 
 def install_redis():
     logger = logging.getLogger(__name__)
-    #os.chdir("/var/tmp/slipstream")
 
     logger.debug("Postinstall SDN server on a SlipStream application...")
     logger.debug("Installing CNSMO requirements")
@@ -53,7 +52,7 @@ def install_redis():
     call("tar xzf redis-3.0.7.tar.gz")
     call("rm redis-3.0.7.tar.gz")
     os.chdir("/var/tmp/slipstream/redis-3.0.7")
-    call("make")################
+    call("make")
     call("sudo make install --quiet")
 
     PORT="20379"
@@ -65,8 +64,6 @@ def install_redis():
     p = Popen(['/var/tmp/slipstream/redis-3.0.7/utils/install_server.sh'], stdin=PIPE, shell=True)
     p.communicate(input='20379\n')
 
-    #err = call("echo -e '%s\n%s\n%s\n%s\n%s\n' | utils/install_server.sh" %(PORT,CONFIG_FILE,LOG_FILE,DATA_DIR,EXECUTABLE) )
-    #logger.debug(err)
 
 def main():
     config_logging()
