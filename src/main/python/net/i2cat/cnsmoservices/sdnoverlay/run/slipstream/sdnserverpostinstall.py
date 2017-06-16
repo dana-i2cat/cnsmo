@@ -42,7 +42,7 @@ def install_karaf():
     logger.debug("Downloading opendaylight executable")
     call("wget https://nexus.opendaylight.org/content/repositories/opendaylight.release/org/opendaylight/integration/distribution-karaf/0.3.2-Lithium-SR2/distribution-karaf-0.3.2-Lithium-SR2.zip")
     call("unzip distribution-karaf-0.3.2-Lithium-SR2.zip")
-    os.chdir("./distribution-karaf-0.3.2-Lithium-SR2")
+    os.chdir("/opt/odl/distribution-karaf-0.3.2-Lithium-SR2")
 
     with open("./bin/setenv", "a") as myfile:
         myfile.write("export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64")
@@ -63,6 +63,7 @@ def postinstallsdn():
     logger.debug("Set working directory")
     if not os.path.isdir("/opt/odl"):
         os.makedirs("/opt/odl")
+
     os.chdir("/opt/odl")
     
     install_karaf()    
