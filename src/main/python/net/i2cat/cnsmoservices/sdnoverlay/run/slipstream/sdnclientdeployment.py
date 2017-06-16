@@ -4,6 +4,16 @@
 # This script is meant to be run by SlipStream, using a privileged user
 #
 # All ss-get/ss-set applies to local node variables, unless a node instance_id is prefixed.
+#
+# Requires the following parameters in slipstream application component:
+# Input parameters:
+# vpn.server.nodeinstanceid: Indicates the node.id of the component acting as VPN server
+# vpn.server.address: Indicates the vpn address of the server
+#
+# Requires the following output parameters from the SDN server:
+# net.i2cat.cnsmo.core.ready: Used to communicate CNSMO core is ready.
+# net.i2cat.cnsmo.dss.address: Used to communicate CNSMO distributed system state address.
+# net.i2cat.cnsmo.service.sdn.server.ready: Used to communicate the SDN service to be configured properly
 ###
 
 import logging
@@ -30,7 +40,7 @@ def check_error(err):
 def check_preconditions():
     logger = logging.getLogger(__name__)
 
-    response_sdn=call("ss-get --timeout=1800 net.i2cat.cnsmo.service.sdn.server.ready")
+    #response_sdn=call("ss-get --timeout=1800 net.i2cat.cnsmo.service.sdn.server.ready")
 
     logger.debug("Resolving vpn.server.nodeinstanceid...")
     server_instance_id = call('ss-get --timeout=1200 vpn.server.nodeinstanceid').rstrip('\n')

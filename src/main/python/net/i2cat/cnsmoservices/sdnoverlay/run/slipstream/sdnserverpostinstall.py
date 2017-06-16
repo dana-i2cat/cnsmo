@@ -4,6 +4,8 @@
 # This script is meant to be run by SlipStream, using a privileged user
 #
 # All ss-get/ss-set applies to local node variables, unless a node instance_id is prefixed.
+# Requires the following output parameters from the SDN server:
+# net.i2cat.cnsmo.service.sdn.server.ready: Used to communicate the SDN service to be configured properly
 ###
 
 import logging
