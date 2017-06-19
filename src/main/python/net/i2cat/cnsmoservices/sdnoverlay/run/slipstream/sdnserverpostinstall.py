@@ -69,10 +69,10 @@ def postinstallsdn():
 
     os.chdir("/opt/odl")
     
-    install_karaf()    
+    err=install_karaf()    
     call('ss-set net.services.installed true')
     logger.debug("Set net.services.installed=true")
-    return 0
+    return err
 
 if __name__ == "__main__":
     main()
