@@ -69,7 +69,8 @@ def postinstallsdn():
     os.chdir("/opt/odl")
     
     install_karaf()    
-    call('ss-set net.i2cat.cnsmo.service.sdn.server.ready true')
+    call('ss-set net.services.installed true')
+    logger.debug("Set net.services.installed=true")
 
 if __name__ == "__main__":
     main()
