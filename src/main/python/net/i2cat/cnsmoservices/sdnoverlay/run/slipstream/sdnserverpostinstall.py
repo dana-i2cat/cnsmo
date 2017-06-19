@@ -72,6 +72,7 @@ def postinstallsdn():
     install_karaf()    
     call('ss-set net.services.installed true')
     logger.debug("Set net.services.installed=true")
+    return 0
 
 if __name__ == "__main__":
     main()
