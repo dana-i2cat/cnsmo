@@ -45,7 +45,16 @@ def install_karaf():
     call('ss-display \"Installing and configuring Karaf in postinstall\"')
     call("wget https://nexus.opendaylight.org/content/repositories/opendaylight.release/org/opendaylight/integration/distribution-karaf/0.3.2-Lithium-SR2/distribution-karaf-0.3.2-Lithium-SR2.zip")
     call("sudo unzip distribution-karaf-0.3.2-Lithium-SR2.zip")
-    os.chdir("/opt/odl/distribution-karaf-0.3.2-Lithium-SR2")
+    #os.chdir("/opt/odl/distribution-karaf-0.3.2-Lithium-SR2")
+
+    KARAF_DIR='/opt/odl/distribution-karaf-0.3.2-Lithium-SR2'
+    DLUX_DIRECTORY=str(KARAF_DIR)+'/system/org/opendaylight/dlux'
+    call("rm -R %s/*" % DLUX_DIRECTORY)
+    CNSMO_DIRECTORY='/var/tmp/slipstream/cnsmo/cnsmo'
+    call("cp %s/dlux-Lithium-SR2-MOD.zip  %s/" % (CNSMO_DIRECTORY , DLUX_DIRECTORY))
+    os.chdir(DLUX_DIRECTORY)
+    call("sudo unzip dlux-Lithium-SR2-MOD.zip")
+    os.chdir(KARAF_DIR)
 
     with open("./bin/setenv", "a") as myfile:
         myfile.write("export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64")
