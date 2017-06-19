@@ -37,6 +37,6 @@ if [ ! -f $file_done ]; then
     cwd=${PWD}
     python ${cwd}/cnsmo/cnsmo/src/main/python/net/i2cat/cnsmoservices/integrated/run/slipstream/netservicesclientpostinstall.py &
     disown $!
-    ss-get --timeout=1200 net.services.installed
+    ss-get --timeout=1800 net.services.installed
     
 fi
