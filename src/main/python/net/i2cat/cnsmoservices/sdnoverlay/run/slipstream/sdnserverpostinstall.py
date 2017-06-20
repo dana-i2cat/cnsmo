@@ -70,6 +70,8 @@ def install_karaf():
     p = subprocess.Popen(["./bin/client","-u","karaf","feature:install","odl-openflowjava-all","odl-netconf-all","odl-dlux-all","odl-l2switch-packethandler","odl-l2switch-loopremover","odl-l2switch-arphandler","odl-l2switch-switch-ui","odl-restconf-all","odl-l2switch-addresstracker","odl-l2switch-switch-rest","odl-l2switch-switch","odl-mdsal-all","odl-openflowjava-all","odl-mdsal-apidocs","odl-openflowplugin-all","odl-ovsdb-all"], stdout=PIPE)    
     os.waitpid(p.pid,0)
     logger.debug("Karaf features installed successfully and ready to run!")
+    call('ss-set net.services.installed true')
+    logger.debug("Set net.services.installed=true")
     return p
 
 def postinstallsdn():
@@ -80,10 +82,7 @@ def postinstallsdn():
         os.makedirs("/opt/odl")
 
     os.chdir("/opt/odl")
-    
     err=install_karaf()    
-    call('ss-set net.services.installed true')
-    logger.debug("Set net.services.installed=true")
     return err
 
 if __name__ == "__main__":
