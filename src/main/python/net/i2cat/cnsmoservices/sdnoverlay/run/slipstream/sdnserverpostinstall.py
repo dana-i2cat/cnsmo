@@ -53,7 +53,6 @@ def install_karaf():
     call("rm -R %s/*" % DLUX_DIRECTORY)
     CNSMO_DIRECTORY='/var/tmp/slipstream/cnsmo/cnsmo/dlux-Lithium-SR2-MOD.zip'
     p = subprocess.Popen(["cp",CNSMO_DIRECTORY,"/opt/odl/distribution-karaf-0.3.2-Lithium-SR2/system/org/opendaylight/dlux/"])
-    call("cp %s/dlux-Lithium-SR2-MOD.zip  %s/" % (CNSMO_DIRECTORY , DLUX_DIRECTORY))
     os.chdir(DLUX_DIRECTORY)
     call("sudo unzip dlux-Lithium-SR2-MOD.zip")
     os.chdir(KARAF_DIR)
