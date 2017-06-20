@@ -42,6 +42,7 @@ def main():
     logger.debug("Running net services server deployment script")
     call('ss-display \"Running net services server deployment script\"')
     netservices = get_net_services_to_enable()
+    if (('vpn' not in netservices) and ('sdn' in netservices)): netservices.append('vpn')
     logger.debug("Will deploy following services %s" % json.dumps(netservices))
     call('ss-display \"Deploying network services \'%s\'\"' % json.dumps(netservices))
 
@@ -53,7 +54,6 @@ def main():
     call('ss-set cnsmo.server.nodeinstanceid %s' % cnsmo_server_instance_id)
     logger.debug("Set cnsmo.server.nodeinstanceid= %s" % cnsmo_server_instance_id)
 
-    if (('vpn' not in netservices) and ('sdn' in netservices)): netservices.append('vpn')
     logger.debug("Deploying net services...")
     netservices_enabled = list()
     if 'vpn' in netservices:
