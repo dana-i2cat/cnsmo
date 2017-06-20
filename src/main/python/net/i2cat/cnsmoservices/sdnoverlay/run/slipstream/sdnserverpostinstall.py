@@ -58,8 +58,8 @@ def install_karaf():
     call("sudo unzip dlux-Lithium-SR2-MOD.zip")
     os.chdir(KARAF_DIR)
 
-with open("./bin/setenv", "a") as myfile:
-    myfile.write("export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64")
+    with open("./bin/setenv", "a") as myfile:
+        myfile.write("export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64")
 
     os.environ['JAVA_HOME'] = '/usr/lib/jvm/java-7-openjdk-amd64'
     logger.debug("Starting karaf server...")
