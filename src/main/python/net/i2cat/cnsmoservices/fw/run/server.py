@@ -1,10 +1,16 @@
+import subprocess
+
+call = lambda command: subprocess.call(command, shell=True)
+
 def get_server_app_request(host, port, service_id):
 
     bind_address = "0.0.0.0"
 
+    gitBranch = call('ss-get --timeout=500 net.i2cat.cnsmo.git.branch')
+
     d = dict(service_id=service_id,
              trigger='python server.py -a %s -p %s' % (bind_address, port),
-             resources=["https://raw.githubusercontent.com/dana-i2cat/cnsmo/SDNdevelop/src/main/python/net/i2cat/cnsmoservices/fw/app/server.py",
+             resources=["https://raw.githubusercontent.com/dana-i2cat/cnsmo/"+str(gitBranch)+"/src/main/python/net/i2cat/cnsmoservices/fw/app/server.py",
                         "https://raw.githubusercontent.com/dana-i2cat/cnsmo-net-services/master/src/main/docker/fw/Dockerfile",
                         "https://raw.githubusercontent.com/dana-i2cat/cnsmo-net-services/master/src/main/docker/fw/sc-manager.py",],
              dependencies=[],

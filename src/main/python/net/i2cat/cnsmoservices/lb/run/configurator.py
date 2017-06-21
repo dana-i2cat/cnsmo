@@ -2,6 +2,10 @@ import getopt
 import json
 import os
 import sys
+import subprocess
+
+call = lambda command: subprocess.call(command, shell=True)
+
 
 path = os.path.dirname(os.path.abspath(__file__))
 src_dir = path + "/../../../../../../../../"
@@ -16,11 +20,13 @@ def get_app_request(host, port, service_id, lb_address, lb_port, lb_mode, lb_bac
 
     bind_address = "0.0.0.0"
 
+    gitBranch = call('ss-get --timeout=500 net.i2cat.cnsmo.git.branch')
+
     d = dict(service_id=service_id,
 
              trigger='python configurator.py -a %s -p %s -s %s -t %s -m %s -b %s' % (bind_address, port, lb_address, lb_port, lb_mode, lb_backend_servers),
 
-             resources = ["https://raw.githubusercontent.com/dana-i2cat/cnsmo/SDNdevelop/src/main/python/net/i2cat/cnsmoservices/lb/app/configurator.py",
+             resources = ["https://raw.githubusercontent.com/dana-i2cat/cnsmo/"+str(gitBranch)+"/src/main/python/net/i2cat/cnsmoservices/lb/app/configurator.py",
                           "https://raw.githubusercontent.com/dana-i2cat/cnsmo-net-services/master/src/main/docker/lb/start.bash",
                           ],
              dependencies=[],

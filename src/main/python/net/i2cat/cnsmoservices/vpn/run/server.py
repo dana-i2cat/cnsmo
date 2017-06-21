@@ -1,12 +1,16 @@
+import subprocess
 
+call = lambda command: subprocess.call(command, shell=True)
 
 def get_server_app_request(host, port, service_id):
 
     bind_address = "0.0.0.0"
 
+    gitBranch = call('ss-get --timeout=500 net.i2cat.cnsmo.git.branch')
+
     d = dict(service_id=service_id,
              trigger='python server.py -a %s -p %s -w "$(pwd)"' %(bind_address, port),
-             resources=["https://raw.githubusercontent.com/dana-i2cat/cnsmo/SDNdevelop/src/main/python/net/i2cat/cnsmoservices/vpn/app/server.py",
+             resources=["https://raw.githubusercontent.com/dana-i2cat/cnsmo/"+str(gitBranch)+"/src/main/python/net/i2cat/cnsmoservices/vpn/app/server.py",
                         "https://raw.githubusercontent.com/dana-i2cat/cnsmo-net-services/master/src/main/docker/vpn/server/Dockerfile",
                         "https://raw.githubusercontent.com/dana-i2cat/cnsmo-net-services/master/src/main/docker/vpn/server/tun_manager.sh",],
              dependencies=[],
@@ -39,7 +43,7 @@ if __name__ == "__main__":
     import sys
     import os
     import time
-    import getopt
+    import getopt      
 
     path = os.path.dirname(os.path.abspath(__file__))
     src_dir = path + "/../../../../../../../../"

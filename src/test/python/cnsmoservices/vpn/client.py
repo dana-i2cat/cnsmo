@@ -1,14 +1,18 @@
 import sys
 import os
 import time
+import subprocess
 
+call = lambda command: subprocess.call(command, shell=True)
 
 def get_app_request():
+
+    gitBranch = call('ss-get --timeout=500 net.i2cat.cnsmo.git.branch')
 
     d = dict(service_id="ClientVPN",
              trigger='python client.py -a 127.0.0.1 -p 9092 -w "$(pwd)"',
 
-             resources=["https://raw.githubusercontent.com/dana-i2cat/cnsmo/SDNdevelop/src/main/python/net/i2cat/cnsmoservices/vpn/app/client.py",
+             resources=["https://raw.githubusercontent.com/dana-i2cat/cnsmo/"+str(gitBranch)+"/src/main/python/net/i2cat/cnsmoservices/vpn/app/client.py",
                         "https://raw.githubusercontent.com/dana-i2cat/cnsmo-net-services/master/src/main/docker/vpn/client/Dockerfile",
                         "https://raw.githubusercontent.com/dana-i2cat/cnsmo-net-services/master/src/main/docker/vpn/client/tun_manager.sh",
                         ],
