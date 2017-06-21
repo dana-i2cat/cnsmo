@@ -31,7 +31,6 @@ def deploysdn():
     logger = logging.getLogger(__name__)
     logger.debug("Deploying SDN server on a SlipStream application...")
 
-    # Communicate that the SDN has been established
     os.chdir("/opt/odl/distribution-karaf-0.3.2-Lithium-SR2")
 
     KARAF_DIR='/opt/odl/distribution-karaf-0.3.2-Lithium-SR2'
@@ -54,7 +53,8 @@ def deploysdn():
     time.sleep(30)
 
     p = subprocess.Popen(["./bin/client","-u","karaf","feature:install","odl-openflowjava-all","odl-netconf-all","odl-dlux-all","odl-l2switch-packethandler","odl-l2switch-loopremover","odl-l2switch-arphandler","odl-l2switch-switch-ui","odl-restconf-all","odl-l2switch-addresstracker","odl-l2switch-switch-rest","odl-l2switch-switch","odl-mdsal-all","odl-openflowjava-all","odl-mdsal-apidocs","odl-openflowplugin-all","odl-ovsdb-all"])    
-    os.waitpid(p.pid,0)
+    p.wait()
+    #os.waitpid(p.pid,0)
     #time.sleep(120)
     logger.debug("Karaf features installed successfully and ready to run!")
 
