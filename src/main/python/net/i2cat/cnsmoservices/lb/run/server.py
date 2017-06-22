@@ -19,7 +19,7 @@ def get_server_app_request(host, port, service_id, lb_port):
 
     bind_address = "0.0.0.0"
 
-    gitBranch = call('ss-get --timeout=500 net.i2cat.cnsmo.git.branch').rstrip('\n')
+    gitBranch = call('$(ss-get --timeout=500 net.i2cat.cnsmo.git.branch)').rstrip('\n')
 
     d = dict(service_id=service_id,
              trigger='python server.py -a %s -p %s -t %s -w "$(pwd)"' % (bind_address, port, lb_port),

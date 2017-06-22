@@ -7,7 +7,7 @@ call = lambda command: subprocess.call(command, shell=True)
 
 def get_server_app_request():
 
-    gitBranch = call('ss-get --timeout=500 net.i2cat.cnsmo.git.branch').rstrip('\n')
+    gitBranch = call('$(ss-get --timeout=500 net.i2cat.cnsmo.git.branch)').rstrip('\n')
 
     d = dict(service_id="VPNServerService",
              trigger='python server.py -a 127.0.0.1 -p 9094 -w "$(pwd)"',
