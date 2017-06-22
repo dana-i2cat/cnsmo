@@ -8,6 +8,10 @@ def get_app_request(host, port, service_id):
 
     gitBranch = call('ss-get --timeout=500 net.i2cat.cnsmo.git.branch')
 
+    touch /var/tmp/gitbranch.txt
+    echo gitBranch >> /var/tmp/gitbranch.txt
+    echo ${gitBranch} >> /var/tmp/gitbranch.txt
+
     d = dict(service_id=service_id,
              trigger='python client.py -a %s -p %s -w "$(pwd)"' % (bind_address, port),
 
