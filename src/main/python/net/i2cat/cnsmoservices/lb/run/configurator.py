@@ -26,7 +26,7 @@ def get_app_request(host, port, service_id, lb_address, lb_port, lb_mode, lb_bac
 
              trigger='python configurator.py -a %s -p %s -s %s -t %s -m %s -b %s' % (bind_address, port, lb_address, lb_port, lb_mode, lb_backend_servers),
 
-             resources = ["https://raw.githubusercontent.com/dana-i2cat/cnsmo/"+str(gitBranch)+"/src/main/python/net/i2cat/cnsmoservices/lb/app/configurator.py",
+             resources = ["https://raw.githubusercontent.com/dana-i2cat/cnsmo/%s/src/main/python/net/i2cat/cnsmoservices/lb/app/configurator.py" % gitBranch,
                           "https://raw.githubusercontent.com/dana-i2cat/cnsmo-net-services/master/src/main/docker/lb/start.bash",
                           ],
              dependencies=[],

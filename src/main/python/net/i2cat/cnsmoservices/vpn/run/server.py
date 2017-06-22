@@ -10,7 +10,7 @@ def get_server_app_request(host, port, service_id):
 
     d = dict(service_id=service_id,
              trigger='python server.py -a %s -p %s -w "$(pwd)"' %(bind_address, port),
-             resources=["https://raw.githubusercontent.com/dana-i2cat/cnsmo/"+str(gitBranch)+"/src/main/python/net/i2cat/cnsmoservices/vpn/app/server.py",
+             resources=["https://raw.githubusercontent.com/dana-i2cat/cnsmo/%s/src/main/python/net/i2cat/cnsmoservices/vpn/app/server.py"% gitBranch,
                         "https://raw.githubusercontent.com/dana-i2cat/cnsmo-net-services/master/src/main/docker/vpn/server/Dockerfile",
                         "https://raw.githubusercontent.com/dana-i2cat/cnsmo-net-services/master/src/main/docker/vpn/server/tun_manager.sh",],
              dependencies=[],
