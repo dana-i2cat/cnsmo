@@ -9,7 +9,7 @@ def get_app_request(host, port, service_id, vpn_server_address, vpn_server_port,
 
     bind_address = "0.0.0.0"
 
-    gitBranch = call('ss-get net.i2cat.cnsmo.git.branch').rstrip('\n')
+    gitBranch = call('ss-get net.i2cat.cnsmo.git.branch')
 
     d = dict(service_id=service_id,
              trigger= 'mkdir -p keys && chmod +x "$(pwd)"/build-* && python configurator.py -a %s -p %s -w "$(pwd)"/keys/ -s %s -m %s -v %s -o %s' % (bind_address, port, vpn_server_address, vpn_mask, vpn_address, vpn_server_port),

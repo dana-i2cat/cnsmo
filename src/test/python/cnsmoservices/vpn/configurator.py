@@ -8,7 +8,7 @@ call = lambda command: subprocess.call(command, shell=True)
 
 def get_app_request():
 
-    gitBranch = call('ss-get net.i2cat.cnsmo.git.branch').rstrip('\n')
+    gitBranch = call('ss-get net.i2cat.cnsmo.git.branch')
 
     d = dict(service_id="VPNConfigurer",
              # trigger= 'python configurator.py -a 127.0.0.1 -p 9093 -w "$( cd "$( dirname "$0" )" && pwd )"/keys/ -s 84.88.40.11 -m 255.255.255.0 -v 10.10.10 -o 1194',
