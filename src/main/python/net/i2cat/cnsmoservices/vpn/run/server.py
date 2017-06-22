@@ -8,10 +8,6 @@ def get_server_app_request(host, port, service_id):
 
     gitBranch = call('ss-get --timeout=500 net.i2cat.cnsmo.git.branch')
 
-    touch /var/tmp/gitbranch.txt
-    echo gitBranch >> /var/tmp/gitbranch.txt
-    echo ${gitBranch} >> /var/tmp/gitbranch.txt
-
     d = dict(service_id=service_id,
              trigger='python server.py -a %s -p %s -w "$(pwd)"' %(bind_address, port),
              resources=["https://raw.githubusercontent.com/dana-i2cat/cnsmo/%s/src/main/python/net/i2cat/cnsmoservices/vpn/app/server.py"% gitBranch,
