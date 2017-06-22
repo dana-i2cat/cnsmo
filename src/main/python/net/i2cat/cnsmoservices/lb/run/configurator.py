@@ -20,7 +20,7 @@ def get_app_request(host, port, service_id, lb_address, lb_port, lb_mode, lb_bac
 
     bind_address = "0.0.0.0"
 
-    gitBranch = call('$(ss-get --timeout=500 net.i2cat.cnsmo.git.branch)').rstrip('\n')
+    gitBranch = call('ss-get net.i2cat.cnsmo.git.branch').rstrip('\n')
 
     d = dict(service_id=service_id,
 
