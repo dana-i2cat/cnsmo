@@ -2,9 +2,6 @@ import sys
 import os
 import time
 import getopt
-import subprocess
-
-call = lambda command: subprocess.call(command, shell=True)
 
 path = os.path.dirname(os.path.abspath(__file__))
 src_dir = path + "/../../../../../../../../"
@@ -19,11 +16,9 @@ def get_server_app_request(host, port, service_id, lb_port):
 
     bind_address = "0.0.0.0"
 
-    gitBranch = call('ss-get net.i2cat.cnsmo.git.branch')
-
     d = dict(service_id=service_id,
              trigger='python server.py -a %s -p %s -t %s -w "$(pwd)"' % (bind_address, port, lb_port),
-             resources=["https://raw.githubusercontent.com/dana-i2cat/cnsmo/%s/src/main/python/net/i2cat/cnsmoservices/lb/app/server.py" % gitBranch,
+             resources=["https://raw.githubusercontent.com/dana-i2cat/cnsmo/SDNdevelop/src/main/python/net/i2cat/cnsmoservices/lb/app/server.py",
                         "https://raw.githubusercontent.com/dana-i2cat/cnsmo-net-services/master/src/main/docker/lb/start.bash",],
              dependencies=[],
              endpoints=[{"uri":"http://%s:%s/lb/server/config/" %(host, port), "driver":"REST", "logic":"upload",

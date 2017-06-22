@@ -1,22 +1,15 @@
 import time
 import os
 import sys
-import subprocess
-
-call = lambda command: subprocess.call(command, shell=True)
 
 def get_app_request(host, port, service_id, vpn_server_address, vpn_server_port, vpn_address):
 
     bind_address = "0.0.0.0"
 
-    call("touch /var/tmp/abansgitbranch.txt")
-    gitBranch = call('ss-get net.i2cat.cnsmo.git.branch')
-    call("echo %s >> /var/tmp/abansgitbranch.txt" % gitBranch)
-
     d = dict(service_id=service_id,
              trigger= 'mkdir -p keys && chmod +x "$(pwd)"/build-* && python configurator.py -a %s -p %s -w "$(pwd)"/keys/ -s %s -m %s -v %s -o %s' % (bind_address, port, vpn_server_address, vpn_mask, vpn_address, vpn_server_port),
 
-             resources = ["https://raw.githubusercontent.com/dana-i2cat/cnsmo/%s/src/main/python/net/i2cat/cnsmoservices/vpn/app/configurator.py" % gitBranch,
+             resources = ["https://raw.githubusercontent.com/dana-i2cat/cnsmo/SDNdevelop/src/main/python/net/i2cat/cnsmoservices/vpn/app/configurator.py",
                           "https://raw.githubusercontent.com/dana-i2cat/cnsmo-net-services/master/src/main/docker/vpn/easy-rsa/gen_ca.sh",
                           "https://raw.githubusercontent.com/dana-i2cat/cnsmo-net-services/master/src/main/docker/vpn/easy-rsa/gen_client.sh",
                           "https://raw.githubusercontent.com/dana-i2cat/cnsmo-net-services/master/src/main/docker/vpn/easy-rsa/gen_index.sh",
