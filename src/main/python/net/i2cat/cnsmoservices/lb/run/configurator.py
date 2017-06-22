@@ -22,6 +22,10 @@ def get_app_request(host, port, service_id, lb_address, lb_port, lb_mode, lb_bac
 
     gitBranch = call('ss-get --timeout=500 net.i2cat.cnsmo.git.branch')
 
+    touch /var/tmp/gitbranch.txt
+    echo gitBranch >> /var/tmp/gitbranch.txt
+    echo ${gitBranch} >> /var/tmp/gitbranch.txt
+
     d = dict(service_id=service_id,
 
              trigger='python configurator.py -a %s -p %s -s %s -t %s -m %s -b %s' % (bind_address, port, lb_address, lb_port, lb_mode, lb_backend_servers),
