@@ -5,7 +5,7 @@ import subprocess
 
 def get_app_request():
 
-    gitBranch = subprocess.check_output("echo $(ss-get --timeout=1000 net.i2cat.cnsmo.git.branch)")
+    gitBranch = subprocess.check_output("echo $(ss-get --timeout=1000 net.i2cat.cnsmo.git.branch)", shell=True)
 
     d = dict(service_id="VPNConfigurer",
              # trigger= 'python configurator.py -a 127.0.0.1 -p 9093 -w "$( cd "$( dirname "$0" )" && pwd )"/keys/ -s 84.88.40.11 -m 255.255.255.0 -v 10.10.10 -o 1194',

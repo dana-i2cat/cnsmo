@@ -4,7 +4,7 @@ def get_app_request(host, port, service_id):
 
     bind_address = "0.0.0.0"
 
-    gitBranch = subprocess.check_output("echo $(ss-get --timeout=1000 net.i2cat.cnsmo.git.branch)")
+    gitBranch = subprocess.check_output("echo $(ss-get --timeout=1000 net.i2cat.cnsmo.git.branch)", shell=True)
 
     d = dict(service_id=service_id,
              trigger='python client.py -a %s -p %s -w "$(pwd)"' % (bind_address, port),

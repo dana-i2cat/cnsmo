@@ -5,7 +5,7 @@ import subprocess
 
 def get_app_request():
 
-    gitBranch = subprocess.check_output("echo $(ss-get --timeout=1000 net.i2cat.cnsmo.git.branch)")
+    gitBranch = subprocess.check_output("echo $(ss-get --timeout=1000 net.i2cat.cnsmo.git.branch)", shell=True)
 
     d = dict(service_id="ClientVPN",
              trigger='python client.py -a 127.0.0.1 -p 9092 -w "$(pwd)"',
