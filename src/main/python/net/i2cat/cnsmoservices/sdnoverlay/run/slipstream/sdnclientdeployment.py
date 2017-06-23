@@ -41,7 +41,7 @@ def check_preconditions():
     logger = logging.getLogger(__name__)
 
     #response_sdn=call("ss-get --timeout=1800 net.i2cat.cnsmo.service.sdn.server.ready")
-
+    
     logger.debug("Resolving vpn.server.nodeinstanceid...")
     server_instance_id = call('ss-get --timeout=1200 vpn.server.nodeinstanceid').rstrip('\n')
     if not server_instance_id:

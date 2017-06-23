@@ -1,12 +1,15 @@
 import time
 import sys
 import os
+import subprocess
 
 def get_server_app_request():
 
+    gitBranch = subprocess.check_output("echo $(ss-get --timeout=1000 net.i2cat.cnsmo.git.branch)")
+
     d = dict(service_id="VPNServerService",
              trigger='python server.py -a 127.0.0.1 -p 9094 -w "$(pwd)"',
-             resources=["https://raw.githubusercontent.com/dana-i2cat/cnsmo/SDNdevelop/src/main/python/net/i2cat/cnsmoservices/vpn/app/server.py",
+             resources=["https://raw.githubusercontent.com/dana-i2cat/cnsmo/%s/src/main/python/net/i2cat/cnsmoservices/vpn/app/server.py" % gitBranch,
                         "https://raw.githubusercontent.com/dana-i2cat/cnsmo-net-services/master/src/main/docker/vpn/server/Dockerfile",
                         "https://raw.githubusercontent.com/dana-i2cat/cnsmo-net-services/master/src/main/docker/vpn/server/tun_manager.sh",],
              dependencies=[],
