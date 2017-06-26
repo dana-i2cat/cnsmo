@@ -2,6 +2,7 @@ import getopt
 import json
 import os
 import sys
+import subprocess
 
 path = os.path.dirname(os.path.abspath(__file__))
 src_dir = path + "/../../../../../../../../"
@@ -20,8 +21,8 @@ def get_app_request(host, port, service_id, lb_address, lb_port, lb_mode, lb_bac
 
              trigger='python configurator.py -a %s -p %s -s %s -t %s -m %s -b %s' % (bind_address, port, lb_address, lb_port, lb_mode, lb_backend_servers),
 
-             resources = ["https://raw.githubusercontent.com/dana-i2cat/cnsmo/develop/src/main/python/net/i2cat/cnsmoservices/lb/app/configurator.py",
-                          "https://raw.githubusercontent.com/dana-i2cat/cnsmo-net-services/develop/src/main/docker/lb/start.bash",
+             resources = ["https://raw.githubusercontent.com/dana-i2cat/cnsmo/SDNdevelop/src/main/python/net/i2cat/cnsmoservices/lb/app/configurator.py",
+                          "https://raw.githubusercontent.com/dana-i2cat/cnsmo-net-services/master/src/main/docker/lb/start.bash",
                           ],
              dependencies=[],
              endpoints=[{"uri":"http://%s:%s/lb/configs/haproxy/" %(host, port), "driver":"REST", "logic":"get", "name":"get_haproxy_config"},
