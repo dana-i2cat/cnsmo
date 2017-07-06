@@ -111,7 +111,12 @@ def deploy_vpn_and_wait(vpn_server_instance_id):
 def deploy_sdn_and_wait(sdn_server_instance_id):
     logger = logging.getLogger(__name__)
     logger.debug("Deploying SDN...")
-    return configureOvs()
+    err = check_preconditions()
+    if err == 0:
+        configureOvs()
+    else:
+        logger.debug("::: ERROR ::: Preconditions not fully satisfied")
+        return -1
 
 def deploy_fw_and_wait(cnsmo_server_instance_id):
     logger = logging.getLogger(__name__)
