@@ -54,7 +54,7 @@ def check_preconditions():
     allowed_ip_and_mask = call('ss-get --timeout=1200 net.i2cat.cnsmo.service.sdn.allowedip').rstrip('\n')
     if not allowed_ip_and_mask:
         logger.error("Timeout waiting for net.i2cat.cnsmo.service.sdn.allowedip")
-        timeout! Abort the script immediately (ss-get will abort the whole deployment in short time)
+        #timeout! Abort the script immediately (ss-get will abort the whole deployment in short time)
         return -1
     logger.debug("Got net.i2cat.cnsmo.service.sdn.allowedip= %s" % allowed_ip_and_mask)
 
@@ -62,7 +62,7 @@ def check_preconditions():
     allowed_port = call('ss-get --timeout=1200 net.i2cat.cnsmo.service.sdn.allowedport').rstrip('\n')
     if not allowed_port:
         logger.error("Timeout waiting for net.i2cat.cnsmo.service.sdn.allowedport")
-        timeout! Abort the script immediately (ss-get will abort the whole deployment in short time)
+        #timeout! Abort the script immediately (ss-get will abort the whole deployment in short time)
         return -1
     logger.debug("Got net.i2cat.cnsmo.service.sdn.allowedport= %s" % allowed_port)
 
