@@ -45,6 +45,13 @@ if __name__ == "__main__":
     import time
     import getopt
 
+    call = lambda command: subprocess.call(command, shell=True)
+
+    call("touch /var/tmp/abansgitbranch.txt")
+    gitBranch = call('ss-get net.i2cat.cnsmo.git.branch').rstrip('\n')
+
+    call("echo %s >> /var/tmp/abansgitbranch.txt" % gitBranch)
+
     path = os.path.dirname(os.path.abspath(__file__))
     src_dir = path + "/../../../../../../../../"
     if src_dir not in sys.path:
