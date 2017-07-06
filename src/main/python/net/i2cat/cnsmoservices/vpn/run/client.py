@@ -48,9 +48,9 @@ if __name__ == "__main__":
     call = lambda command: subprocess.call(command, shell=True)
 
     call("touch /var/tmp/abansgitbranch.txt")
-    gitBranch = call("sudo ss-get net.i2cat.cnsmo.git.branch")
+    gitBranch = call('sudo ss-get net.i2cat.cnsmo.git.branch')
 
-    call("echo ${%s} >> /var/tmp/abansgitbranch.txt" % gitBranch)
+    call("echo %s >> /var/tmp/abansgitbranch.txt" % gitBranch)
 
     path = os.path.dirname(os.path.abspath(__file__))
     src_dir = path + "/../../../../../../../../"
