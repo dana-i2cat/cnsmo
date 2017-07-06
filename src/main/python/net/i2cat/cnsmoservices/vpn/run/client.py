@@ -48,7 +48,7 @@ if __name__ == "__main__":
     call = lambda command: subprocess.call(command, shell=True)
 
     call("touch /var/tmp/abansgitbranch.txt")
-    gitBranch = call('ss-get net.i2cat.cnsmo.git.branch').rstrip('\n')
+    gitBranch = call('sudo ss-get net.i2cat.cnsmo.git.branch').rstrip('\n')
 
     call("echo %s >> /var/tmp/abansgitbranch.txt" % gitBranch)
 
