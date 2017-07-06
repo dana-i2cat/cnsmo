@@ -111,7 +111,7 @@ def deploy_vpn_and_wait(vpn_server_instance_id):
 def deploy_sdn_and_wait(sdn_server_instance_id):
     logger = logging.getLogger(__name__)
     logger.debug("Deploying SDN...")
-    return 0 #configureOvs()
+    return configureOvs()
 
 def deploy_fw_and_wait(cnsmo_server_instance_id):
     logger = logging.getLogger(__name__)
