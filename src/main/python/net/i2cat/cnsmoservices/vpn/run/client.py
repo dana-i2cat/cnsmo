@@ -9,7 +9,7 @@ def get_app_request(host, port, service_id):
     call("touch /var/tmp/abansgitbranch.txt")
     gitBranch = call('ss-get net.i2cat.cnsmo.git.branch').rstrip('\n')
 
-    call("echo ${%s} >> /var/tmp/abansgitbranch.txt" % gitBranch)
+    call("echo 'holaaaa' >> /var/tmp/abansgitbranch.txt" % gitBranch)
 
     d = dict(service_id=service_id,
              trigger='python client.py -a %s -p %s -w "$(pwd)"' % (bind_address, port),
