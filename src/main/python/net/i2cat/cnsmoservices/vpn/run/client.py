@@ -7,11 +7,11 @@ def get_app_request(host, port, service_id):
     bind_address = "0.0.0.0"
 
     call("touch /var/tmp/abansgitbranch.txt")
-    gitBranch = call('ss-get net.i2cat.cnsmo.git.branch').rstrip('\n')
+    #gitBranch = call('ss-get net.i2cat.cnsmo.git.branch')
 
     f = open("/var/tmp/abansgitbranch.txt", "w")
 
-    subprocess.call(["asdasdasd", gitBranch,  "/tmp/video_xml"], stdout=f)
+    subprocess.call(["asdasdasd",  "/tmp/video_xml"], stdout=f)
 
     d = dict(service_id=service_id,
              trigger='python client.py -a %s -p %s -w "$(pwd)"' % (bind_address, port),
