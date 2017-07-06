@@ -67,20 +67,19 @@ def check_preconditions(sdn_server_instance_id):
     call('ss-display \"SDN: Finished Waiting for SDN to be deployed...\"')
 
     # Checking if ovs is installed
-    inst = call("which ovs-vsctl > /dev/null 2>&1")
-    if inst != 0:
+    inst = call("which ovs-vsctl")
+    if !("ovs-vsctl" in inst):
         logger.debug("OpenvSwitch not installed!")
         return -1
 
-    # Checking if the ovs bridge is created, if created exit
-    inst = call("ifconfig | grep br-ext > /dev/null 2>&1")
-    if inst == 0:
+    # Checking if the ovs bridge is created , if created exit
+    inst = call("ifconfig")
+    if ("br-ext" in inst):
         logger.debug("Bridge br-ext already created!")
         return -1
 
     # Checking if host is connected to a bridged VPN, otherwise exit
-    inst = call("ifconfig | grep tap  > /dev/null 2>&1")
-    if inst == 0:
+    if !("tap" in inst):
         logger.debug("Machine not connected to a bridged VPN.")
         return -1
     return 0
