@@ -32,6 +32,7 @@ if src_dir not in sys.path:
 from src.main.python.net.i2cat.cnsmoservices.vpn.run.slipstream.vpnclientdeployment import deployvpn
 from src.main.python.net.i2cat.cnsmoservices.fw.run.slipstream.fwdeployment import deployfw
 from src.main.python.net.i2cat.cnsmoservices.sdnoverlay.run.slipstream.sdnclientdeployment import configureOvs
+from src.main.python.net.i2cat.cnsmoservices.sdnoverlay.run.slipstream.sdnclientdeployment import check_preconditions
 
 call = lambda command: subprocess.check_output(command, shell=True)
 
