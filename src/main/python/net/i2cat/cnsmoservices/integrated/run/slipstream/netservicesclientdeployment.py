@@ -112,7 +112,7 @@ def deploy_vpn_and_wait(vpn_server_instance_id):
 def deploy_sdn_and_wait(sdn_server_instance_id):
     logger = logging.getLogger(__name__)
     logger.debug("Deploying SDN...")
-    err = check_preconditions()
+    err = check_preconditions(sdn_server_instance_id)
     if err == 0:
         configureOvs()
     else:

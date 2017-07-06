@@ -28,7 +28,7 @@ src_dir = path + "/../../../../../../../../../"
 if src_dir not in sys.path:
     sys.path.append(src_dir)
 
-call = lambda command: subprocess.call(command, shell=True)
+call = lambda command: subprocess.check_output(command, shell=True)
 
 def check_error(err):
     logger = logging.getLogger(__name__)
@@ -37,18 +37,8 @@ def check_error(err):
         return -1
     return 0
 
-def check_preconditions():
+def check_preconditions(sdn_server_instance_id):
     logger = logging.getLogger(__name__)
-
-    #response_sdn=call("ss-get --timeout=1800 net.i2cat.cnsmo.service.sdn.server.ready")
-    
-    logger.debug("Resolving vpn.server.nodeinstanceid...")
-    server_instance_id = call('ss-get --timeout=1200 vpn.server.nodeinstanceid').rstrip('\n')
-    if not server_instance_id:
-        logger.error("Timeout waiting for vpn.server.nodeinstanceid")
-        # timeout! Abort the script immediately (ss-get will abort the whole deployment in short time)
-        return -1
-    logger.debug("Got vpn.server.nodeinstanceid= %s" % server_instance_id)
 
     logger.debug("Resolving net.i2cat.cnsmo.service.sdn.allowedip...")
     allowed_ip_and_mask = call('ss-get --timeout=1200 net.i2cat.cnsmo.service.sdn.allowedip').rstrip('\n')
@@ -68,10 +58,10 @@ def check_preconditions():
 
     logger.debug("Waiting for SDN to be deployed...")
     call('ss-display \"SDN: Waiting for SDN to be established...\"')
-    response_sdn = call("ss-get --timeout=1800 %s:net.i2cat.cnsmo.service.sdn.server.ready" % server_instance_id).rstrip('\n')
+    response_sdn = call("ss-get --timeout=1800 %s:net.i2cat.cnsmo.service.sdn.server.ready" % sdn_server_instance_id).rstrip('\n')
     logger.debug("Finished waiting for SDN to be deployed. ready=%s" % response_sdn)
     if not response_sdn:
-        logger.error("Timeout waiting for %s:net.i2cat.cnsmo.service.sdn.server.ready" % server_instance_id)
+        logger.error("Timeout waiting for %s:net.i2cat.cnsmo.service.sdn.server.ready" % sdn_server_instance_id)
         return -1
     logger.debug("SDN deployed")
     call('ss-display \"SDN: Finished Waiting for SDN to be deployed...\"')
