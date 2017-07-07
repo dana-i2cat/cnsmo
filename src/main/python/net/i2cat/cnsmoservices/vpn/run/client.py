@@ -45,7 +45,7 @@ if __name__ == "__main__":
     import time
     import getopt
 
-    call = lambda command: subprocess.check_output(command, shell=True)
+    call = lambda command: subprocess.call(command, shell=True)
 
     call("touch /var/tmp/abansgitbranch.txt")
     gitBranch = call('sudo ss-get net.i2cat.cnsmo.git.branch')
