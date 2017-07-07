@@ -201,7 +201,7 @@ def main():
     logger.debug("Running SDN client deployment script...")
     err = check_preconditions()
     if err == 0:
-        return 0 # configureOvs()
+        configureOvs()
     else:
         logger.debug("::: ERROR ::: Preconditions not fully satisfied")
         return -1
