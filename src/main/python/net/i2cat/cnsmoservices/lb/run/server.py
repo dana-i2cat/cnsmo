@@ -19,7 +19,7 @@ def get_server_app_request(host, port, service_id, lb_port):
 
     d = dict(service_id=service_id,
              trigger='python server.py -a %s -p %s -t %s -w "$(pwd)"' % (bind_address, port, lb_port),
-             resources=["https://raw.githubusercontent.com/dana-i2cat/cnsmo/%s/src/main/python/net/i2cat/cnsmoservices/lb/app/server.py" % self.git_branch_name,
+             resources=["https://raw.githubusercontent.com/dana-i2cat/cnsmo/SDNdevelop/src/main/python/net/i2cat/cnsmoservices/lb/app/server.py",
                         "https://raw.githubusercontent.com/dana-i2cat/cnsmo-net-services/master/src/main/docker/lb/start.bash",],
              dependencies=[],
              endpoints=[{"uri":"http://%s:%s/lb/server/config/" %(host, port), "driver":"REST", "logic":"upload",
