@@ -45,11 +45,6 @@ if __name__ == "__main__":
     import time
     import getopt
 
-    file = open('/var/tmp/abansgitbranch.txt')
-    for line in file:
-        fields = line.strip().split()
-        call("echo %s >> /var/tmp/abansgitbranch.txt" % line)
-
     path = os.path.dirname(os.path.abspath(__file__))
     src_dir = path + "/../../../../../../../../"
     if src_dir not in sys.path:
