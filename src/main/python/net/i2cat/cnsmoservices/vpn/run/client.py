@@ -45,12 +45,10 @@ if __name__ == "__main__":
     import time
     import getopt
 
-    call = lambda command: subprocess.check_output(command, shell=True)
-
-    call("touch /var/tmp/abansgitbranch.txt")
-    gitBranch = call('sudo ss-get net.i2cat.cnsmo.git.branch')
-
-    call("echo %s >> /var/tmp/abansgitbranch.txt" % str(gitBranch))
+    file = open('/var/tmp/abansgitbranch.txt')
+    for line in file:
+        fields = line.strip().split()
+        call("echo %s >> /var/tmp/abansgitbranch.txt" % line)
 
     path = os.path.dirname(os.path.abspath(__file__))
     src_dir = path + "/../../../../../../../../"
