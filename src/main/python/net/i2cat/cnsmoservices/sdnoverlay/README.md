@@ -18,7 +18,7 @@ Executable files can be located at:
 Requirements:
 * openvswitch-switch
 * unzip
-* Have VPN server running and the VPN clients configured
+* TO HAVE VPN SERVER RUNNING AND THE VPN CLIENTS CONFIGURED
 
 ### Run the server
 1. Run the VPN server and configure all the VPN clients.
