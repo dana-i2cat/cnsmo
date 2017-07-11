@@ -7,13 +7,9 @@ def get_app_request():
 
     call = lambda command: subprocess.check_output(command, shell=True)
 
-    call("touch /var/tmp/abansgitbranch.txt")
-
     os.chdir("/var/tmp/slipstream/cnsmo/cnsmo")
 
     gitBranch = call('git branch').rstrip('\n').lstrip('* ')
-
-    call("echo %s >> /var/tmp/abansgitbranch.txt" % gitBranch)
 
     d = dict(service_id="VPNConfigurer",
              # trigger= 'python configurator.py -a 127.0.0.1 -p 9093 -w "$( cd "$( dirname "$0" )" && pwd )"/keys/ -s 84.88.40.11 -m 255.255.255.0 -v 10.10.10 -o 1194',

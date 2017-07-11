@@ -9,13 +9,9 @@ def get_app_request(host, port, service_id, vpn_server_address, vpn_server_port,
 
     call = lambda command: subprocess.check_output(command, shell=True)
 
-    call("touch /var/tmp/abansgitbranch.txt")
-
     os.chdir("/var/tmp/slipstream/cnsmo/cnsmo")
 
     gitBranch = call('git branch').rstrip('\n').lstrip('* ')
-
-    call("echo %s >> /var/tmp/abansgitbranch.txt" % gitBranch)
 
     d = dict(service_id=service_id,
              trigger= 'mkdir -p keys && chmod +x "$(pwd)"/build-* && python configurator.py -a %s -p %s -w "$(pwd)"/keys/ -s %s -m %s -v %s -o %s' % (bind_address, port, vpn_server_address, vpn_mask, vpn_address, vpn_server_port),

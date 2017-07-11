@@ -28,21 +28,3 @@ Requirements:
 ### Run the client
 4. Run the installation script in :  ```src/main/python/net/i2cat/cnsmoservices/sdn/run/slpistream/sdnclientpostinstall.sh ```
 5. Run the installation script in :  ```src/main/python/net/i2cat/cnsmoservices/sdn/run/slpistream/sdnclientpostinstall.sh ```
-
-###Clean up
-
-```
-# IN CLIENT VM:
-sudo killall python
-sudo rm -rf /home/CNSMO
-sudo docker rm -f client-vpn
-sudo docker rmi client-vpn
-
-# IN SERVER HOST:
-sudo killall python
-sudo rm -rf /home/CNSMO
-sudo docker rm -f server-vpn
-sudo docker rmi vpn-server
-```
-Run ```vagrant destroy``` from ```src/main/python/net/i2cat/cnsmoservices/sdn/run/provision/client/``` directory.
-Also, stop the redis server.

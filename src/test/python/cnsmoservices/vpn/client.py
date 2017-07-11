@@ -7,13 +7,9 @@ def get_app_request():
 
     call = lambda command: subprocess.check_output(command, shell=True)
 
-    call("touch /var/tmp/abansgitbranch.txt")
-
     os.chdir("/var/tmp/slipstream/cnsmo/cnsmo")
 
     gitBranch = call('git branch').rstrip('\n').lstrip('* ')
-
-    call("echo %s >> /var/tmp/abansgitbranch.txt" % gitBranch)
 
     d = dict(service_id="ClientVPN",
              trigger='python client.py -a 127.0.0.1 -p 9092 -w "$(pwd)"',

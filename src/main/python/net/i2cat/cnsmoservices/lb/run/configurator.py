@@ -19,13 +19,9 @@ def get_app_request(host, port, service_id, lb_address, lb_port, lb_mode, lb_bac
 
     call = lambda command: subprocess.check_output(command, shell=True)
 
-    call("touch /var/tmp/abansgitbranch.txt")
-
     os.chdir("/var/tmp/slipstream/cnsmo/cnsmo")
 
     gitBranch = call('git branch').rstrip('\n').lstrip('* ')
-
-    call("echo %s >> /var/tmp/abansgitbranch.txt" % gitBranch)
 
     d = dict(service_id=service_id,
 
