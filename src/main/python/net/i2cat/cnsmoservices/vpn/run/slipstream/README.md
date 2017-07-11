@@ -1,4 +1,4 @@
-# This directory contains the set of scripts SlipStream runs to deploy the VPN.
+# This directory contains the set of scripts SlipStream runs to deploy the VPN
 
 SlipStream defines the following phases which are run in this order in each VM:
 pre-install, install, post-install, deployment and reporting.

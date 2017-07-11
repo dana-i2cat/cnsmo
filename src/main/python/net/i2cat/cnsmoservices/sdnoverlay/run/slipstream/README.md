@@ -1,4 +1,4 @@
-# This directory contains the set of scripts SlipStream runs to deploy the SDN. 
+# This directory contains the set of scripts SlipStream runs to deploy the SDN
 Currently, the SDN requieres a version of Ubuntu 14.04 in order to run properly. We are planning to widen the compatibility requirements in the future.
 
 SlipStream defines the following phases which are run in this order in each VM:
