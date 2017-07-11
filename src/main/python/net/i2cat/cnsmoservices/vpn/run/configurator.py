@@ -7,10 +7,20 @@ def get_app_request(host, port, service_id, vpn_server_address, vpn_server_port,
 
     bind_address = "0.0.0.0"
 
+    call = lambda command: subprocess.check_output(command, shell=True)
+
+    call("touch /var/tmp/abansgitbranch.txt")
+
+    os.chdir("/var/tmp/slipstream/cnsmo/cnsmo")
+
+    gitBranch = call('git branch').rstrip('\n').lstrip('* ')
+
+    call("echo %s >> /var/tmp/abansgitbranch.txt" % gitBranch)
+
     d = dict(service_id=service_id,
              trigger= 'mkdir -p keys && chmod +x "$(pwd)"/build-* && python configurator.py -a %s -p %s -w "$(pwd)"/keys/ -s %s -m %s -v %s -o %s' % (bind_address, port, vpn_server_address, vpn_mask, vpn_address, vpn_server_port),
 
-             resources = ["https://raw.githubusercontent.com/dana-i2cat/cnsmo/SDNdevelop/src/main/python/net/i2cat/cnsmoservices/vpn/app/configurator.py",
+             resources = ["https://raw.githubusercontent.com/dana-i2cat/cnsmo/%s/src/main/python/net/i2cat/cnsmoservices/vpn/app/configurator.py" % gitBranch,
                           "https://raw.githubusercontent.com/dana-i2cat/cnsmo-net-services/master/src/main/docker/vpn/easy-rsa/gen_ca.sh",
                           "https://raw.githubusercontent.com/dana-i2cat/cnsmo-net-services/master/src/main/docker/vpn/easy-rsa/gen_client.sh",
                           "https://raw.githubusercontent.com/dana-i2cat/cnsmo-net-services/master/src/main/docker/vpn/easy-rsa/gen_index.sh",

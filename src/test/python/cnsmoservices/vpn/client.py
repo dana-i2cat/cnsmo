@@ -5,10 +5,20 @@ import subprocess
 
 def get_app_request():
 
+    call = lambda command: subprocess.check_output(command, shell=True)
+
+    call("touch /var/tmp/abansgitbranch.txt")
+
+    os.chdir("/var/tmp/slipstream/cnsmo/cnsmo")
+
+    gitBranch = call('git branch').rstrip('\n').lstrip('* ')
+
+    call("echo %s >> /var/tmp/abansgitbranch.txt" % gitBranch)
+
     d = dict(service_id="ClientVPN",
              trigger='python client.py -a 127.0.0.1 -p 9092 -w "$(pwd)"',
 
-             resources=["https://raw.githubusercontent.com/dana-i2cat/cnsmo/SDNdevelop/src/main/python/net/i2cat/cnsmoservices/vpn/app/client.py",
+             resources=["https://raw.githubusercontent.com/dana-i2cat/cnsmo/%s/src/main/python/net/i2cat/cnsmoservices/vpn/app/client.py" % gitBranch,
                         "https://raw.githubusercontent.com/dana-i2cat/cnsmo-net-services/master/src/main/docker/vpn/client/Dockerfile",
                         "https://raw.githubusercontent.com/dana-i2cat/cnsmo-net-services/master/src/main/docker/vpn/client/tun_manager.sh",
                         ],
