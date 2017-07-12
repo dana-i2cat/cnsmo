@@ -10,7 +10,7 @@
 # vpn.server.nodeinstanceid: Indicates the node.id of the component acting as VPN server
 # vpn.server.address: Indicates the vpn address of the server
 #
-# Requires the following output parameters from the SDN server:
+# Output parameters:
 # net.i2cat.cnsmo.core.ready: Used to communicate CNSMO core is ready.
 # net.i2cat.cnsmo.dss.address: Used to communicate CNSMO distributed system state address.
 # net.i2cat.cnsmo.service.sdn.server.ready: Used to communicate the SDN service to be configured properly
