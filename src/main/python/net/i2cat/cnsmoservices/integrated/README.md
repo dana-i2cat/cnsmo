@@ -30,6 +30,4 @@ Output parameter net.i2cat.cnsmo.dss.address set to default
 
 Output parameter net.services.enabled set to default
 
-
-
-### Some services might need additional parameters to be configured. Read services documentation in /../cnsmoservices/{service}/ for more information
+### Some services might need additional parameters to be configured. Read services documentation in /../cnsmoservices/{service}/run/slipstream for more information
