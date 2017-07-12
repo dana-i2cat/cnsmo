@@ -1,5 +1,5 @@
 # This directory contains the set of scripts SlipStream runs to deploy the LB service
-Currently, the SDN requieres a version of Ubuntu 14.04 in order to run properly. We are planning to widen the compatibility requirements in the future.
+Currently, the LB requieres a version of Ubuntu 14.04 in order to run properly. We are planning to widen the compatibility requirements in the future.
 
 SlipStream defines the following phases which are run in this order in each VM:
 pre-install, install, post-install, deployment and reporting.
@@ -9,7 +9,6 @@ curl
 cython
 git
 python-pip
-openvswitch-switch
 unzip
 
 * About the scripts:
@@ -28,7 +27,7 @@ No extra parameters to add.
 
 * Server
 
-Input lb.mode acceptes the values: leastconn/roundrobin/source. Defaults to leastconn
+Input lb.mode accepts the values: leastconn/roundrobin/source. Defaults to leastconn
 
 Input lb.node indicates the SlipStream node whose instances will be load balanced
 
