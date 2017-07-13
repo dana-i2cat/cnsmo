@@ -93,36 +93,29 @@ def configure_bridge(NIC, IP, GW, MAC, MASK):
     call('ss-display \"Creating an OpenvSwitch bridge to the physical interface...\"')
     logger.debug("Creating an OpenvSwitch bridge to the physical interface...")
     err = call("sudo ovs-vsctl add-br br-ext -- set bridge br-ext other-config:hwaddr=%s > /dev/null 2>&1" % (MAC))
-    call('ss-display \"Sent add-br comand...\"') ##TO DELETE
     totalErr = totalErr + check_error(err)
     err = call("sudo ovs-vsctl set bridge br-ext protocols=OpenFlow10,OpenFlow12,OpenFlow13")
-    call('ss-display \"Sent set bridge comand...\"') ##TO DELETE
     totalErr = totalErr + check_error(err)
     logger.debug("Done!")
-
+    
+    #TO BE PERFORMED IN ONE STEP
+    call('ss-display \"starting bash script temp.sh...\"')
+    err = call("sudo echo \"#!/bin/bash\" >> ./temp.sh")
+    totalErr = totalErr + check_error(err)
+    err = call("sudo chmod +x ./temp.sh")
+    totalErr = totalErr + check_error(err)
     logger.debug("Adding the physical interface to the ovs bridge...")
-    call('ss-display \"Adding the physical interface to the ovs bridge...\"')
-    err = call("sudo ovs-vsctl add-port br-ext %s > /dev/null 2>&1" % (NIC))
-    call('ss-display \"Sent add-port br-ext eth0 comand...\"') ##TO DELETE
+    call('ss-display \"Add to Bash script: Adding the physical interface to the ovs bridge...\"')
+    err = call("sudo echo \"ovs-vsctl add-port br-ext %s > /dev/null 2>&1\" >> ./temp.sh" % (NIC))
     totalErr = totalErr + check_error(err)
-    logger.debug("Done!")
-
-    #logger.debug("Adding the VPN interface to the ovs bridge...")
-    #err = call("sudo ovs-vsctl add-port br-ext tap0 > /dev/null 2>&1")
-    #totalErr = totalErr + check_error(err)
-    #logger.debug("Done!")
-
     logger.debug("Removing IP address from the physical interface...")
-    call('ss-display \"Removing IP address from the physical interface...\"')
-    err = call("sudo ifconfig %s 0.0.0.0 > /dev/null 2>&1" % (NIC))
+    call('ss-display \"Add to Bash script: Removing IP address from the physical interface...\"')
+    err = call("sudo echo \"ifconfig %s 0.0.0.0 > /dev/null 2>&1\" >> ./temp.sh" % (NIC))
     totalErr = totalErr + check_error(err)
-    logger.debug("Done!")
-
     logger.debug("Giving the ovs bridge the host IP address...")
-    call('ss-display \"Giving the ovs bridge the host IP address...\"')
-    err = call("sudo ifconfig br-ext %s/%s > /dev/null 2>&1" % (IP,MASK))
+    call('ss-display \"Add to Bash script: Giving the ovs bridge the host IP address...\"')
+    err = call("sudo echo \"ifconfig br-ext %s/%s > /dev/null 2>&1\" >> ./temp.sh" % (IP,MASK))
     totalErr = totalErr + check_error(err)
-    logger.debug("Done!")
 
     logger.debug("Changing the interface MAC address...")
     LAST_MAC_CHAR=list(MAC)[len(MAC)-1]
@@ -134,23 +127,22 @@ def configure_bridge(NIC, IP, GW, MAC, MASK):
         NL="a"
 
     NEW_MAC=AUX+NL
-    call('ss-display \"Configuring bridge and route table...\"')
-    err = call("sudo ifconfig %s down > /dev/null 2>&1" % (NIC))
+    call('ss-display \"Add to Bash script: Configuring bridge and route table...\"')
+    err = call("sudo echo \"ifconfig %s down > /dev/null 2>&1\" >> ./temp.sh" % (NIC))
     totalErr = totalErr + check_error(err)
-    err = call("sudo ifconfig %s hw ether %s > /dev/null 2>&1" % (NIC,NEW_MAC))
+    err = call("sudo echo \"ifconfig %s hw ether %s > /dev/null 2>&1\" >> ./temp.sh" % (NIC,NEW_MAC))
     totalErr = totalErr + check_error(err)
-    err = call("sudo ifconfig %s up > /dev/null 2>&1" % (NIC))
+    err = call("sudo echo \"ifconfig %s up > /dev/null 2>&1\" >> ./temp.sh" % (NIC))
     totalErr = totalErr + check_error(err)
-    logger.debug("Done!")
-
     logger.debug("Routing traffic through the new bridge...")
-
-    while (call("sudo ip route del default > /dev/null 2>&1") == 0):
-        pass
-
-    err = call("sudo ip route add default via %s dev br-ext > /dev/null 2>&1" % (GW))
+    err = call("sudo echo \"while $(ip route del default > /dev/null 2>&1); do :; done\" >> ./temp.sh" % (GW))
     totalErr = totalErr + check_error(err)
-    logger.debug("Done!")
+
+    call('ss-display \"Executing Bash script...\"')
+    err = call("sudo ./temp.sh" % (NIC))
+    totalErr = totalErr + check_error(err)
+
+    sleep(10)
     return totalErr
 
 
