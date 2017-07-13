@@ -157,7 +157,7 @@ def detect_new_interface_in_30_sec(ifaces_prev):
     vpn_iface = do_detect_new_interface(ifaces_prev)
     attempts = 0
     while not vpn_iface and attempts < 50:
-        time.sleep(5)
+        time.sleep(10)
         vpn_iface = do_detect_new_interface(ifaces_prev)
         attempts += 1
     return vpn_iface
