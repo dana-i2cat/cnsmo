@@ -41,6 +41,7 @@ def check_error(err):
 def check_preconditions(sdn_server_instance_id):
     logger = logging.getLogger(__name__)
 
+    """
     logger.debug("Resolving net.i2cat.cnsmo.service.sdn.allowedip...")
     allowed_ip_and_mask = callWithResp('ss-get --timeout=1200 net.i2cat.cnsmo.service.sdn.allowedip').rstrip('\n')
     if not allowed_ip_and_mask:
@@ -56,6 +57,7 @@ def check_preconditions(sdn_server_instance_id):
         #timeout! Abort the script immediately (ss-get will abort the whole deployment in short time)
         return -1
     logger.debug("Got net.i2cat.cnsmo.service.sdn.allowedport= %s" % allowed_port)
+    """
 
     logger.debug("Waiting for SDN to be deployed...")
     call('ss-display \"SDN: Waiting for SDN to be established...\"')
@@ -91,14 +93,17 @@ def configure_bridge(NIC, IP, GW, MAC, MASK):
     call('ss-display \"Creating an OpenvSwitch bridge to the physical interface...\"')
     logger.debug("Creating an OpenvSwitch bridge to the physical interface...")
     err = call("sudo ovs-vsctl add-br br-ext -- set bridge br-ext other-config:hwaddr=%s > /dev/null 2>&1" % (MAC))
+    call('ss-display \"Sent add-br comand...\"') ##TO DELETE
     totalErr = totalErr + check_error(err)
     err = call("sudo ovs-vsctl set bridge br-ext protocols=OpenFlow10,OpenFlow12,OpenFlow13")
+    call('ss-display \"Sent set bridge comand...\"') ##TO DELETE
     totalErr = totalErr + check_error(err)
     logger.debug("Done!")
 
     logger.debug("Adding the physical interface to the ovs bridge...")
     call('ss-display \"Adding the physical interface to the ovs bridge...\"')
     err = call("sudo ovs-vsctl add-port br-ext %s > /dev/null 2>&1" % (NIC))
+    call('ss-display \"Sent add-port br-ext eth0 comand...\"') ##TO DELETE
     totalErr = totalErr + check_error(err)
     logger.debug("Done!")
 
@@ -181,8 +186,8 @@ def configureOvs():
 
     logger.debug("Updating problematic OpenFlow rules if any...")
     time.sleep(5)
-    call('sudo ovs-ofctl mod-flows br-ext "actions:output=1" > /dev/null 2>&1')
-    call('sudo ovs-ofctl mod-flows br-ext "in_port=1, actions:output=LOCAL" > /dev/null 2>&1')
+    call('sudo ovs-ofctl mod-flows br-ext "in_port=LOCAL, priority=500, actions:output=1" > /dev/null 2>&1')
+    call('sudo ovs-ofctl mod-flows br-ext "in_port=1, priority=500, actions:output=LOCAL" > /dev/null 2>&1')
     logger.debug("Done!")
     call('ss-display \"SDN ovs bridge configured successfully\"')
     
