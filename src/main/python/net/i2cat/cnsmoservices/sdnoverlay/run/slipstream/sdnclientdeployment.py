@@ -7,8 +7,8 @@
 #
 # Requires the following parameters in slipstream application component:
 # Input parameters:
-# vpn.server.nodeinstanceid: Indicates the node.id of the component acting as VPN server
-# vpn.server.address: Indicates the vpn address of the server
+# net.i2cat.cnsmo.service.sdn.allowedip
+# net.i2cat.cnsmo.service.sdn.allowedport
 #
 # Output parameters:
 # net.i2cat.cnsmo.core.ready: Used to communicate CNSMO core is ready.
@@ -28,53 +28,59 @@ src_dir = path + "/../../../../../../../../../"
 if src_dir not in sys.path:
     sys.path.append(src_dir)
 
+callWithResp = lambda command: subprocess.check_output(command, shell=True)
 call = lambda command: subprocess.call(command, shell=True)
 
 def check_error(err):
     logger = logging.getLogger(__name__)
-    if err == "0":
+    if err != 0:
         logger.error("Error!")
         return -1
     return 0
 
-def check_preconditions():
+def check_preconditions(sdn_server_instance_id):
     logger = logging.getLogger(__name__)
 
-    #response_sdn=call("ss-get --timeout=1800 net.i2cat.cnsmo.service.sdn.server.ready")
-    
-    logger.debug("Resolving vpn.server.nodeinstanceid...")
-    server_instance_id = call('ss-get --timeout=1200 vpn.server.nodeinstanceid').rstrip('\n')
-    if not server_instance_id:
-        logger.error("Timeout waiting for vpn.server.nodeinstanceid")
-        # timeout! Abort the script immediately (ss-get will abort the whole deployment in short time)
+    logger.debug("Resolving net.i2cat.cnsmo.service.sdn.allowedip...")
+    allowed_ip_and_mask = callWithResp('ss-get --timeout=1200 net.i2cat.cnsmo.service.sdn.allowedip').rstrip('\n')
+    if not allowed_ip_and_mask:
+        logger.error("Timeout waiting for net.i2cat.cnsmo.service.sdn.allowedip")
+        #timeout! Abort the script immediately (ss-get will abort the whole deployment in short time)
         return -1
-    logger.debug("Got vpn.server.nodeinstanceid= %s" % server_instance_id)
+    logger.debug("Got net.i2cat.cnsmo.service.sdn.allowedip= %s" % allowed_ip_and_mask)
+
+    logger.debug("Resolving net.i2cat.cnsmo.service.sdn.allowedport...")
+    allowed_port = callWithResp('ss-get --timeout=1200 net.i2cat.cnsmo.service.sdn.allowedport').rstrip('\n')
+    if not allowed_port:
+        logger.error("Timeout waiting for net.i2cat.cnsmo.service.sdn.allowedport")
+        #timeout! Abort the script immediately (ss-get will abort the whole deployment in short time)
+        return -1
+    logger.debug("Got net.i2cat.cnsmo.service.sdn.allowedport= %s" % allowed_port)
 
     logger.debug("Waiting for SDN to be deployed...")
     call('ss-display \"SDN: Waiting for SDN to be established...\"')
-    response_sdn = call("ss-get --timeout=1800 %s:net.i2cat.cnsmo.service.sdn.server.ready" % server_instance_id).rstrip('\n')
+    response_sdn = callWithResp("ss-get --timeout=1800 %s:net.i2cat.cnsmo.service.sdn.server.ready" % sdn_server_instance_id).rstrip('\n')
     logger.debug("Finished waiting for SDN to be deployed. ready=%s" % response_sdn)
     if not response_sdn:
-        logger.error("Timeout waiting for %s:net.i2cat.cnsmo.service.sdn.server.ready" % server_instance_id)
+        logger.error("Timeout waiting for %s:net.i2cat.cnsmo.service.sdn.server.ready" % sdn_server_instance_id)
         return -1
     logger.debug("SDN deployed")
     call('ss-display \"SDN: Finished Waiting for SDN to be deployed...\"')
 
     # Checking if ovs is installed
-    inst = call("which ovs-vsctl > /dev/null 2>&1")
-    if inst != 0:
+    inst = callWithResp("which ovs-vsctl")
+    if not "ovs-vsctl" in inst:
         logger.debug("OpenvSwitch not installed!")
         return -1
 
-    # Checking if the ovs bridge is created, if created exit
-    inst = call("ifconfig | grep br-ext > /dev/null 2>&1")
-    if inst == 0:
+    # Checking if the ovs bridge is created , if created exit
+    inst = callWithResp("ifconfig")
+    if "br-ext" in inst:
         logger.debug("Bridge br-ext already created!")
         return -1
 
     # Checking if host is connected to a bridged VPN, otherwise exit
-    inst = call("ifconfig | grep tap  > /dev/null 2>&1")
-    if inst == 0:
+    if not "tap" in inst:
         logger.debug("Machine not connected to a bridged VPN.")
         return -1
     return 0
@@ -151,17 +157,16 @@ def configureOvs():
     VPN_SERVER_IP="10.10.10.1"
     VPN_SERVER_IP=call("ss-get --timeout=3600 vpn.server.address")
     SDN_CTRL_IP_PORT=str(VPN_SERVER_IP)+str(SDN_PORT_CONCAT)
-    #SDN_CTRL_IP="10.8.44.55:6633"
     call('ss-display \"Deploying SDN...\"')
 
     PROTO_SDN="tcp"
-    IP = subprocess.check_output("ip addr show %s | grep 'inet ' | awk '{{print $2}}' | cut -d/ -f1" % (NIC), shell=True)
+    IP = callWithResp("ip addr show %s | grep 'inet ' | awk '{{print $2}}' | cut -d/ -f1" % (NIC))
     IP = IP.split('\n')[0]
-    GW = subprocess.check_output("ip route | grep default | awk '{{print $3}}'", shell=True)
+    GW = callWithResp("ip route | grep default | awk '{{print $3}}'")
     GW = GW.split('\n')[0]
-    MAC = subprocess.check_output("ifconfig %s | grep 'HWaddr ' | awk '{{print $5}}'" % (NIC), shell=True)
+    MAC = callWithResp("ifconfig %s | grep 'HWaddr ' | awk '{{print $5}}'" % (NIC))
     MAC = MAC.split('\n')[0]
-    MASK = subprocess.check_output("ip addr show %s | grep 'inet ' | awk '{{print $2}}' | cut -d/ -f2" % (NIC), shell=True)
+    MASK = callWithResp("ip addr show %s | grep 'inet ' | awk '{{print $2}}' | cut -d/ -f2" % (NIC))
     MASK = MASK.split('\n')[0]
 
     # Configure OVS bridge
@@ -198,7 +203,7 @@ def main():
     logger.debug("Running SDN client deployment script...")
     err = check_preconditions()
     if err == 0:
-        return 0 #configureOvs()
+        configureOvs()
     else:
         logger.debug("::: ERROR ::: Preconditions not fully satisfied")
         return -1
