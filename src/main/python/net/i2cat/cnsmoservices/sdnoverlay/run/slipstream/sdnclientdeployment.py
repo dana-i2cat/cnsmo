@@ -10,7 +10,9 @@
 # net.i2cat.cnsmo.service.sdn.allowedip
 # net.i2cat.cnsmo.service.sdn.allowedport
 #
-# Requires the following output parameters from the SDN server:
+# Output parameters:
+# net.i2cat.cnsmo.core.ready: Used to communicate CNSMO core is ready.
+# net.i2cat.cnsmo.dss.address: Used to communicate CNSMO distributed system state address.
 # net.i2cat.cnsmo.service.sdn.server.ready: Used to communicate the SDN service to be configured properly
 ###
 

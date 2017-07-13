@@ -17,9 +17,15 @@ def get_server_app_request(host, port, service_id, lb_port):
 
     bind_address = "0.0.0.0"
 
+    call = lambda command: subprocess.check_output(command, shell=True)
+
+    os.chdir("/var/tmp/slipstream/cnsmo/cnsmo")
+
+    gitBranch = call('git branch').rstrip('\n').lstrip('* ')
+
     d = dict(service_id=service_id,
              trigger='python server.py -a %s -p %s -t %s -w "$(pwd)"' % (bind_address, port, lb_port),
-             resources=["https://raw.githubusercontent.com/dana-i2cat/cnsmo/develop/src/main/python/net/i2cat/cnsmoservices/lb/app/server.py",
+             resources=["https://raw.githubusercontent.com/dana-i2cat/cnsmo/%s/src/main/python/net/i2cat/cnsmoservices/lb/app/server.py" % gitBranch,
                         "https://raw.githubusercontent.com/dana-i2cat/cnsmo-net-services/master/src/main/docker/lb/start.bash",],
              dependencies=[],
              endpoints=[{"uri":"http://%s:%s/lb/server/config/" %(host, port), "driver":"REST", "logic":"upload",

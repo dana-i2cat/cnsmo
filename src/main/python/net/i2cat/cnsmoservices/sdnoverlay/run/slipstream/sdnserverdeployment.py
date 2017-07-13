@@ -5,7 +5,7 @@
 #
 # All ss-get/ss-set applies to local node variables, unless a node instance_id is prefixed.
 #
-# Requires the following output parameters from the SDN server:
+# Output parameters:
 # net.i2cat.cnsmo.service.sdn.server.ready: Used to communicate the SDN service to be configured properly
 ###
 
