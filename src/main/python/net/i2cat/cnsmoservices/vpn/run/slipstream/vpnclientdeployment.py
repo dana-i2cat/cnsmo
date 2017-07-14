@@ -41,13 +41,15 @@ def deployvpn():
     logger = logging.getLogger(__name__)
     logger.debug("Deploying VPN client on a SlipStream application...")
 
+    ifaces_prev = getCurrentInterfaces()
+    logger.debug("Got current interfaces: %s" % ifaces_prev)
+
     ss_nodename = call('ss-get nodename').rstrip('\n')
     ss_node_instance = call('ss-get id').rstrip('\n')
     instance_id = "%s.%s" % (ss_nodename, ss_node_instance)
     log_file = os.getcwd() + "/cnsmo/vpn.log"
 
-    ifaces_prev = getCurrentInterfaces()
-    logger.debug("Got current interfaces: %s" % ifaces_prev)
+    
 
     logger.debug("Resolving vpn.server.nodeinstanceid...")
     server_instance_id = call('ss-get --timeout=1200 vpn.server.nodeinstanceid').rstrip('\n')
