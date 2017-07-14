@@ -142,7 +142,8 @@ def do_detect_new_interface(ifaces_prev):
     vpn_iface = None
     call("ss-display \"VPN: detecting new interface... new attempt\"")
     for current_iface in getCurrentInterfaces():
-        if current_iface not in ifaces_prev:
+        logger.debug("found iface ... %s" % current_iface)
+        if ("tap" in current_iface) and (current_iface not in ifaces_prev):
             vpn_iface = current_iface
     return vpn_iface
 
