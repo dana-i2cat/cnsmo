@@ -134,10 +134,11 @@ def configure_bridge(NIC, IP, GW, MAC, MASK):
     totalErr = totalErr + check_error(err)
     err = call("sudo echo \"ifconfig %s up > /dev/null 2>&1\" >> ./temp.sh" % (NIC))
     totalErr = totalErr + check_error(err)
+    call('ss-display \"Add to Bash script: Configuring bridge and route table...\"')
     logger.debug("Routing traffic through the new bridge...")
     err = call("sudo echo \"while $(ip route del default > /dev/null 2>&1); do :; done\" >> ./temp.sh")
     totalErr = totalErr + check_error(err)
-    err = call("sudo echo \"ip route add default via $GW dev br-ext\" >> ./temp.sh" % (GW))
+    err = call("sudo echo \"ip route add default via $GW dev br-ext > /dev/null 2>&1\" >> ./temp.sh" % (GW))
     totalErr = totalErr + check_error(err)
 
     call('ss-display \"Executing Bash script...\"')
