@@ -139,6 +139,7 @@ def detect_new_interface_in_30_sec(ifaces_prev):
 
 
 def do_detect_new_interface(ifaces_prev):
+    logger = logging.getLogger(__name__)
     vpn_iface = None
     call("ss-display \"VPN: detecting new interface... new attempt\"")
     for current_iface in getCurrentInterfaces():
