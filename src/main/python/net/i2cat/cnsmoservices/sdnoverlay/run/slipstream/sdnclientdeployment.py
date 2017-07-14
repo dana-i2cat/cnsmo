@@ -127,17 +127,18 @@ def configure_bridge(NIC, IP, GW, MAC, MASK):
         NL="a"
 
     NEW_MAC=AUX+NL
-    call('ss-display \"Add to Bash script: Configuring bridge and route table...\"')
+    call('ss-display \"Add to Bash script: Configuring bridge...\"')
     err = call("sudo echo \"ifconfig %s down > /dev/null 2>&1\" >> ./temp.sh" % (NIC))
     totalErr = totalErr + check_error(err)
     err = call("sudo echo \"ifconfig %s hw ether %s > /dev/null 2>&1\" >> ./temp.sh" % (NIC,NEW_MAC))
     totalErr = totalErr + check_error(err)
     err = call("sudo echo \"ifconfig %s up > /dev/null 2>&1\" >> ./temp.sh" % (NIC))
     totalErr = totalErr + check_error(err)
-    call('ss-display \"Add to Bash script: Configuring bridge and route table...\"')
+    call('ss-display \"Add to Bash script: Configuring route table while loop...\"')
     logger.debug("Routing traffic through the new bridge...")
     err = call("sudo echo \"while $(ip route del default > /dev/null 2>&1); do :; done\" >> ./temp.sh")
     totalErr = totalErr + check_error(err)
+    call('ss-display \"Add to Bash script: Configuring route table default gw...\"')
     err = call("sudo echo \"ip route add default via $GW dev br-ext > /dev/null 2>&1\" >> ./temp.sh" % (GW))
     totalErr = totalErr + check_error(err)
 
