@@ -146,7 +146,37 @@ def configure_bridge(NIC, IP, GW, MAC, MASK):
     err = call("sudo ./temp.sh")
     totalErr = totalErr + check_error(err)
     call('ss-display \"Executed Bash Script...\"')
-    sleep(10)
+
+    return totalErr
+
+def subscribe_to_controller(PROTO_SDN,SDN_CTRL_IP):
+    totalErr = 0
+    logger = logging.getLogger(__name__)
+    
+    #TO BE PERFORMED IN ONE STEP
+    call('ss-display \"starting bash script temp2.sh...\"')
+    err = call("sudo echo \"#!/bin/bash\" >> ./temp2.sh")
+    totalErr = totalErr + check_error(err)
+    err = call("sudo chmod +x ./temp2.sh")
+    totalErr = totalErr + check_error(err)
+
+    logger.debug("Connecting OVS brige to controller...")
+    call('ss-display \"Add to Bash script: Connecting OVS brige to controller...\"')
+    err = call("sudo echo \"ovs-vsctl set-controller br-ext %s:%s> /dev/null 2>&1\" >> ./temp2.sh" % (PROTO_SDN,SDN_CTRL_IP))
+    totalErr = totalErr + check_error(err)
+
+    logger.debug("Updating problematic OpenFlow rules if any...")
+    call('ss-display \"Add to Bash script: Updating problematic OpenFlow rules if any...\"')
+    err = call("sudo echo \"ovs-ofctl mod-flows br-ext \"in_port=LOCAL, priority=500, actions:output=1\" > /dev/null 2>&1\" >> ./temp2.sh")
+    totalErr = totalErr + check_error(err)
+    err = call("sudo echo \"ovs-ofctl mod-flows br-ext \"in_port=1, priority=500, actions:output=LOCAL\" > /dev/null 2>&1\" >> ./temp2.sh")
+    totalErr = totalErr + check_error(err)
+
+    call('ss-display \"Executing Bash script...\"')
+    err = call("sudo ./temp2.sh")
+    totalErr = totalErr + check_error(err)
+    call('ss-display \"Executed Bash Script...\"')
+
     return totalErr
 
 
@@ -174,17 +204,9 @@ def configureOvs():
     call('ss-display \"Configuring SDN bridge...\"')
     totalErr = configure_bridge(NIC, IP, GW, MAC, MASK)
 
-    # Connect OVS and update rules
-    logger.debug("Connecting OVS brige to controller...")
-    err = call("sudo ovs-vsctl set-controller br-ext %s:%s> /dev/null 2>&1" % (PROTO_SDN,SDN_CTRL_IP))
-    totalErr = totalErr + check_error(err)
-    logger.debug("Done!")
+    call('ss-display \"Subscribing to controller...\"')
+    totalErr = totalErr + subscribe_to_controller(PROTO_SDN,SDN_CTRL_IP)
 
-    logger.debug("Updating problematic OpenFlow rules if any...")
-    time.sleep(5)
-    call('sudo ovs-ofctl mod-flows br-ext "in_port=LOCAL, priority=500, actions:output=1" > /dev/null 2>&1')
-    call('sudo ovs-ofctl mod-flows br-ext "in_port=1, priority=500, actions:output=LOCAL" > /dev/null 2>&1')
-    logger.debug("Done!")
     call('ss-display \"SDN ovs bridge configured successfully\"')
     
     logger.debug("Assuming SDN client is ready")
