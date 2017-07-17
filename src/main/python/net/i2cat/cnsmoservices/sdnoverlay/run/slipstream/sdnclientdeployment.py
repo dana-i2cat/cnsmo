@@ -143,7 +143,7 @@ def configure_bridge(NIC, IP, GW, MAC, MASK):
     totalErr = totalErr + check_error(err)
 
     call('ss-display \"Executing Bash script...\"')
-    err = call("sudo ./temp.sh" % (NIC))
+    err = call("sudo ./temp.sh")
     totalErr = totalErr + check_error(err)
     call('ss-display \"Executed Bash Script...\"')
     sleep(10)
