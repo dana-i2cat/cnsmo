@@ -139,7 +139,7 @@ def configure_bridge(NIC, IP, GW, MAC, MASK):
     err = call("sudo echo \"while ip route del default; do :; done\" >> ./temp.sh")
     totalErr = totalErr + check_error(err)
     call('ss-display \"Add to Bash script: Configuring route table default gw...\"')
-    err = call("sudo echo \"ip route add default via $GW dev br-ext > /dev/null 2>&1\" >> ./temp.sh" % (GW))
+    err = call("sudo echo \"ip route add default via %s dev br-ext > /dev/null 2>&1\" >> ./temp.sh" % (GW))
     totalErr = totalErr + check_error(err)
 
     call('ss-display \"Executing Bash script...\"')
