@@ -94,7 +94,7 @@ def configure_bridge(NIC, IP, GW, MAC, MASK):
     logger.debug("Creating an OpenvSwitch bridge to the physical interface...")
     err = call("sudo ovs-vsctl add-br br-ext -- set bridge br-ext other-config:hwaddr=%s > /dev/null 2>&1" % (MAC))
     totalErr = totalErr + check_error(err)
-    err = call("sudo ovs-vsctl set bridge br-ext protocols=OpenFlow10,OpenFlow12,OpenFlow13")
+    err = call("sudo ovs-vsctl set bridge br-ext")
     totalErr = totalErr + check_error(err)
     logger.debug("Done!")
     
@@ -162,7 +162,7 @@ def subscribe_to_controller(PROTO_SDN,SDN_CTRL_IP_PORT):
 
     logger.debug("Connecting OVS brige to controller...")
     call('ss-display \"Add to Bash script: Connecting OVS brige to controller...\"')
-    err = call("sudo echo \"ovs-vsctl set-controller br-ext %s:%s> /dev/null 2>&1\" >> ./temp2.sh" % (PROTO_SDN,SDN_CTRL_IP_PORT))
+    err = call("sudo echo \"ovs-vsctl set-controller br-ext %s:%s protocols=OpenFlow10,OpenFlow12,OpenFlow13 > /dev/null 2>&1\" >> ./temp2.sh" % (PROTO_SDN,SDN_CTRL_IP_PORT))
     totalErr = totalErr + check_error(err)
 
     logger.debug("Updating problematic OpenFlow rules if any...")
