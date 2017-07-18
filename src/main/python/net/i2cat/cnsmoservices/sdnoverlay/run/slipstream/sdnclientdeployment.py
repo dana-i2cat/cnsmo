@@ -98,7 +98,7 @@ def configure_bridge(NIC, IP, GW, MAC, MASK):
     totalErr = totalErr + check_error(err)
     logger.debug("Done!")
     
-    #TO BE PERFORMED IN ONE STEP
+    #in order to avoid being disconnected we have to execute several commands as a single script
     call('ss-display \"starting bash script temp.sh...\"')
     err = call("sudo echo \"#!/bin/bash\" >> ./temp.sh")
     totalErr = totalErr + check_error(err)
@@ -153,7 +153,7 @@ def subscribe_to_controller(PROTO_SDN,SDN_CTRL_IP_PORT):
     totalErr = 0
     logger = logging.getLogger(__name__)
     
-    #TO BE PERFORMED IN ONE STEP
+    #in order to avoid being disconnected we have to execute several commands as a single script
     call('ss-display \"starting bash script temp2.sh...\"')
     err = call("sudo echo \"#!/bin/bash\" >> ./temp2.sh")
     totalErr = totalErr + check_error(err)
@@ -186,7 +186,7 @@ def configureOvs():
     NIC = "eth0"    
     SDN_PORT_CONCAT=":6633"
     VPN_SERVER_IP="10.10.10.1"
-    VPN_SERVER_IP=call("ss-get --timeout=3600 vpn.server.address")
+    VPN_SERVER_IP= callWithResp("ss-get --timeout=3600 vpn.server.address")
     SDN_CTRL_IP_PORT=str(VPN_SERVER_IP)+str(SDN_PORT_CONCAT)
     call('ss-display \"Deploying SDN...\"')
 
