@@ -143,7 +143,7 @@ def configure_bridge(NIC, IP, GW, MAC, MASK):
     totalErr = totalErr + check_error(err)
 
     call('ss-display \"Executing Bash script...\"')
-    err = call("sudo ./temp.sh")
+    ###########err = call("sudo ./temp.sh")
     totalErr = totalErr + check_error(err)
     call('ss-display \"Executed Bash Script...\"')
 
@@ -175,7 +175,7 @@ def subscribe_to_controller(PROTO_SDN,SDN_CTRL_IP_PORT):
     totalErr = totalErr + check_error(err)
 
     call('ss-display \"Executing Bash script...\"')
-    err = call("sudo ./temp2.sh")
+    ############err = call("sudo ./temp2.sh")
     totalErr = totalErr + check_error(err)
     call('ss-display \"Executed Bash Script...\"')
 
