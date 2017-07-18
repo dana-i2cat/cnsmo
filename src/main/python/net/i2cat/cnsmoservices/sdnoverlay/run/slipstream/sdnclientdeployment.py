@@ -149,7 +149,7 @@ def configure_bridge(NIC, IP, GW, MAC, MASK):
 
     return totalErr
 
-def subscribe_to_controller(PROTO_SDN,SDN_CTRL_IP):
+def subscribe_to_controller(PROTO_SDN,SDN_CTRL_IP_PORT):
     totalErr = 0
     logger = logging.getLogger(__name__)
     
@@ -162,7 +162,7 @@ def subscribe_to_controller(PROTO_SDN,SDN_CTRL_IP):
 
     logger.debug("Connecting OVS brige to controller...")
     call('ss-display \"Add to Bash script: Connecting OVS brige to controller...\"')
-    err = call("sudo echo \"ovs-vsctl set-controller br-ext %s:%s> /dev/null 2>&1\" >> ./temp2.sh" % (PROTO_SDN,SDN_CTRL_IP))
+    err = call("sudo echo \"ovs-vsctl set-controller br-ext %s:%s> /dev/null 2>&1\" >> ./temp2.sh" % (PROTO_SDN,SDN_CTRL_IP_PORT))
     totalErr = totalErr + check_error(err)
 
     logger.debug("Updating problematic OpenFlow rules if any...")
@@ -205,7 +205,7 @@ def configureOvs():
     totalErr = configure_bridge(NIC, IP, GW, MAC, MASK)
 
     call('ss-display \"Subscribing to controller...\"')
-    totalErr = totalErr + subscribe_to_controller(PROTO_SDN,SDN_CTRL_IP)
+    totalErr = totalErr + subscribe_to_controller(PROTO_SDN,SDN_CTRL_IP_PORT)
 
     call('ss-display \"SDN ovs bridge configured successfully\"')
     
