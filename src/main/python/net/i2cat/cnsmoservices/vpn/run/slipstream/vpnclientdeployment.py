@@ -41,13 +41,15 @@ def deployvpn():
     logger = logging.getLogger(__name__)
     logger.debug("Deploying VPN client on a SlipStream application...")
 
+    ifaces_prev = getCurrentInterfaces()
+    logger.debug("Got current interfaces: %s" % ifaces_prev)
+
     ss_nodename = call('ss-get nodename').rstrip('\n')
     ss_node_instance = call('ss-get id').rstrip('\n')
     instance_id = "%s.%s" % (ss_nodename, ss_node_instance)
     log_file = os.getcwd() + "/cnsmo/vpn.log"
 
-    ifaces_prev = getCurrentInterfaces()
-    logger.debug("Got current interfaces: %s" % ifaces_prev)
+    
 
     logger.debug("Resolving vpn.server.nodeinstanceid...")
     server_instance_id = call('ss-get --timeout=1200 vpn.server.nodeinstanceid').rstrip('\n')
@@ -137,10 +139,12 @@ def detect_new_interface_in_30_sec(ifaces_prev):
 
 
 def do_detect_new_interface(ifaces_prev):
+    logger = logging.getLogger(__name__)
     vpn_iface = None
     call("ss-display \"VPN: detecting new interface... new attempt\"")
     for current_iface in getCurrentInterfaces():
-        if current_iface not in ifaces_prev:
+        logger.debug("found iface ... %s" % current_iface)
+        if ("tap" in current_iface) and (current_iface not in ifaces_prev):
             vpn_iface = current_iface
     return vpn_iface
 
