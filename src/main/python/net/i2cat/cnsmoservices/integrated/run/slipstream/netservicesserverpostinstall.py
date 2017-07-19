@@ -36,15 +36,6 @@ call = lambda command: subprocess.check_output(command, shell=True)
 
 def install_redis():
     logger = logging.getLogger(__name__)
-
-    logger.debug("Postinstall SDN server on a SlipStream application...")
-    logger.debug("Installing CNSMO requirements")
-    p = subprocess.Popen(["pip","install","-r","cnsmo/cnsmo/requirements.txt"])
-
-    logger.debug("Remove persisted network configuration (for compatibility with pre-built images)")
-    call("rm -f /etc/udev/rules.d/*net*.rules")
-
-    logger.debug("Configuring integration with slipstream")
     os.chdir("/var/tmp/slipstream")
 
     logger.debug("Install redis")
@@ -70,6 +61,12 @@ def main():
     logger = logging.getLogger(__name__)
     logger.debug("Running net services server postinstall script")
     call('ss-display \"Running net services server postinstall script\"')
+
+    logger.debug("Installing CNSMO requirements")
+    p = subprocess.Popen(["pip","install","-r","cnsmo/cnsmo/requirements.txt"])
+
+    logger.debug("Remove persisted network configuration (for compatibility with pre-built images)")
+    call("rm -f /etc/udev/rules.d/*net*.rules")
 
     os.chdir("/var/tmp/slipstream")
     install_redis()
