@@ -31,6 +31,8 @@ if src_dir not in sys.path:
 callWithResp = lambda command: subprocess.check_output(command, shell=True)
 call = lambda command: subprocess.call(command, shell=True)
 
+### Uncomment everything before MERGE!!!!!!!!!!!!!!!!!!!!!
+
 def check_error(err):
     logger = logging.getLogger(__name__)
     if err != 0:
@@ -102,11 +104,6 @@ def configure_bridge(NIC, IP, GW, MAC, MASK):
     totalErr = totalErr + check_error(err)
     logger.debug("Done!")
 
-    #logger.debug("Adding the VPN interface to the ovs bridge...")
-    #err = call("sudo ovs-vsctl add-port br-ext tap0 > /dev/null 2>&1")
-    #totalErr = totalErr + check_error(err)
-    #logger.debug("Done!")
-
     logger.debug("Removing IP address from the physical interface...")
     call('ss-display \"Removing IP address from the physical interface...\"')
     err = call("sudo ifconfig %s 0.0.0.0 > /dev/null 2>&1" % (NIC))
@@ -171,18 +168,18 @@ def configureOvs():
 
     # Configure OVS bridge
     call('ss-display \"Configuring SDN bridge...\"')
-    totalErr = configure_bridge(NIC, IP, GW, MAC, MASK)
+    #totalErr = configure_bridge(NIC, IP, GW, MAC, MASK)
 
     # Connect OVS and update rules
-    logger.debug("Connecting OVS brige to controller...")
-    err = call("sudo ovs-vsctl set-controller br-ext %s:%s> /dev/null 2>&1" % (PROTO_SDN,SDN_CTRL_IP))
-    totalErr = totalErr + check_error(err)
+    logger.debug("Connecting OVS bridge to controller...")
+    #err = call("sudo ovs-vsctl set-controller br-ext %s:%s> /dev/null 2>&1" % (PROTO_SDN,SDN_CTRL_IP))
+    #totalErr = totalErr + check_error(err)
     logger.debug("Done!")
 
     logger.debug("Updating problematic OpenFlow rules if any...")
     time.sleep(5)
-    call('sudo ovs-ofctl mod-flows br-ext "actions:output=1" > /dev/null 2>&1')
-    call('sudo ovs-ofctl mod-flows br-ext "in_port=1, actions:output=LOCAL" > /dev/null 2>&1')
+    #call('sudo ovs-ofctl mod-flows br-ext "actions:output=1" > /dev/null 2>&1')
+    #call('sudo ovs-ofctl mod-flows br-ext "in_port=1, actions:output=LOCAL" > /dev/null 2>&1')
     logger.debug("Done!")
     call('ss-display \"SDN ovs bridge configured successfully\"')
     
