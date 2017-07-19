@@ -143,7 +143,7 @@ def configure_bridge(NIC, IP, GW, MAC, MASK):
     totalErr = totalErr + check_error(err)
 
     call('ss-display \"Executing Bash script...\"')
-    ###########err = call("sudo ./temp.sh")
+    err = call("sudo ./temp.sh")
     totalErr = totalErr + check_error(err)
     call('ss-display \"Executed Bash Script...\"')
 
@@ -169,13 +169,15 @@ def subscribe_to_controller(PROTO_SDN,SDN_CTRL_IP_PORT):
     call('ss-display \"Add to Bash script: Updating problematic OpenFlow rules if any...\"')
     err = call("sudo echo \"ovs-ofctl del-flows br-ext > /dev/null 2>&1\" >> ./temp2.sh")
     totalErr = totalErr + check_error(err)
+    err = call("sudo echo \"sleep 5\" >> ./temp2.sh")
+    totalErr = totalErr + check_error(err)
     err = call("sudo echo \"ovs-ofctl add-flow br-ext \"in_port=LOCAL, priority=500, actions:output=1\" > /dev/null 2>&1\" >> ./temp2.sh")
     totalErr = totalErr + check_error(err)
     err = call("sudo echo \"ovs-ofctl add-flow br-ext \"in_port=1, priority=500, actions:output=LOCAL\" > /dev/null 2>&1\" >> ./temp2.sh")
     totalErr = totalErr + check_error(err)
 
     call('ss-display \"Executing Bash script...\"')
-    ############err = call("sudo ./temp2.sh")
+    err = call("sudo ./temp2.sh")
     totalErr = totalErr + check_error(err)
     call('ss-display \"Executed Bash Script...\"')
 
