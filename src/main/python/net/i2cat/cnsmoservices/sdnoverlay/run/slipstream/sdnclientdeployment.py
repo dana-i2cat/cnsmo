@@ -215,7 +215,7 @@ def configureOvs():
     totalErr = totalErr + subscribe_to_controller(PROTO_SDN,SDN_CTRL_IP_PORT)
 
     call('ss-display \"SDN ovs bridge configured successfully\"')
-    
+    logger.debug("Error is: %s " % (totalErr))
     logger.debug("Assuming SDN client is ready")
     return totalErr
 
