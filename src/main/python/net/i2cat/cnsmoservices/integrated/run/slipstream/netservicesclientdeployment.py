@@ -116,7 +116,7 @@ def deploy_sdn_and_wait(sdn_server_instance_id):
     logger.debug("Deploying SDN...")
     err = check_preconditions(sdn_server_instance_id)
     if err == 0:
-        configureOvs()
+        return configureOvs()
     else:
         logger.debug("::: ERROR ::: Preconditions not fully satisfied")
         return -1
