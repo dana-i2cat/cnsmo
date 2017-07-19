@@ -23,7 +23,8 @@ path = os.path.dirname(os.path.abspath(__file__))
 src_dir = path + "/../../../../../../../../../"
 if src_dir not in sys.path:
     sys.path.append(src_dir)
-
+    
+from subprocess import Popen, PIPE
 
 call = lambda command: subprocess.check_output(command, shell=True)
 
