@@ -40,6 +40,14 @@ def launchSDNServer(hostname, redis_address, instance_id):
 
 def deploysdn():
     logger = logging.getLogger(__name__)
+
+    ss_nodename = call('ss-get nodename').rstrip('\n')
+    ss_node_instance = call('ss-get id').rstrip('\n')
+    instance_id = "%s.%s" % (ss_nodename, ss_node_instance)
+    hostname = call('ss-get hostname').rstrip('\n')
+    logger.debug("Resolving net.i2cat.cnsmo.dss.address...")
+    redis_address = call("ss-get net.i2cat.cnsmo.dss.address").rstrip('\n')
+
     logger.debug("Installing karaf and features...")
     call('ss-display \"Installing karaf and features..."')
 
