@@ -17,11 +17,9 @@ GET = "GET"
 POST = "POST"
 
 
-@app.route("/sdn/server/flows", methods=[GET])
+@app.route("/sdn/server/flows/", methods=[GET])
 def get_flows():
-    status = dict()
-    status["Content"] = json.loads(request.data)
-    return jsonify(status), 200
+    return jsonify(request.data), 200
 
 if __name__ == "__main__":
 
