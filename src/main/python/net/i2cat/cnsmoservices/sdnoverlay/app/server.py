@@ -16,10 +16,12 @@ app = Flask(__name__)
 GET = "GET"
 POST = "POST"
 
-
 @app.route("/sdn/server/flows/", methods=[GET])
 def get_flows():
-    return jsonify(request.data), 200
+    status = dict()
+    status["host"] = app.config["host"]
+    status["port"] = app.config["port"]
+    return jsonify(status), 200
 
 if __name__ == "__main__":
 
@@ -37,4 +39,5 @@ if __name__ == "__main__":
 
     app.config["UPLOAD_FOLDER"] = working_dir
     app.config["host"] = host
+    app.config["port"] = port
     app.run(host=host, port=port, debug=True)
