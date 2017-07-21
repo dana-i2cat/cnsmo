@@ -3,6 +3,7 @@ import os
 import logging
 import shlex
 import subprocess
+import requests
 
 import sys
 from flask import Flask, jsonify
@@ -22,6 +23,12 @@ def get_flows():
     status["host"] = app.config["host"]
     status["port"] = app.config["port"]
     return jsonify(status), 200
+
+@app.route("/sdn/server/nodes/", methods=[GET])
+def get_nodes():
+    r = requests.get('http://134.158.74.110:8080/restconf/operational/opendaylight-inventory:nodes/' , auth=HTTPBasicAuth('user', 'pass'))
+    return r.json()
+
 
 if __name__ == "__main__":
 

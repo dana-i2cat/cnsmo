@@ -15,7 +15,7 @@ def get_server_app_request(host, port, service_id):
              resources=["https://raw.githubusercontent.com/dana-i2cat/cnsmo/%s/src/main/python/net/i2cat/cnsmoservices/sdnoverlay/app/server.py" % gitBranch,
                         ],
              dependencies=[],
-             endpoints=[{ "uri":"http://%s:%s/sdn/" %(host, port), "driver":"REST", "logic":"get", "name":"get_status"},])
+             endpoints=[{ "uri":"http://%s:%s/sdn/server/flows/" %(host, port), "driver":"REST", "logic":"get", "name":"get_status"},])
     return d
 
 
