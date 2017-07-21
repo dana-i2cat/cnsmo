@@ -55,6 +55,8 @@ def install_karaf():
 
 def postinstallsdn():
     logger = logging.getLogger(__name__)
+
+    call('pip install requests')
     
     logger.debug("Set working directory")
     if not os.path.isdir("/opt/odl"):
