@@ -8,6 +8,7 @@ import requests
 import sys
 from flask import Flask, jsonify
 from flask import request
+from requests.auth import HTTPBasicAuth
 
 log = logging.getLogger('cnsmoservices.sdn.app.server')
 
