@@ -32,8 +32,9 @@ def get_nodes():
     j = r.json()
     nodes = list()
     for key in j['nodes']['node']:
-        noes.append(key['id'])
-    return r.json()
+        nodes.append(str(key['id']))
+
+    return nodes
 
 
 if __name__ == "__main__":
