@@ -28,14 +28,16 @@ def get_flows():
 # Returns a list of strings with the id of the nodes
 @app.route("/sdn/server/nodes/", methods=[GET])
 def get_nodes():
-    r = requests.get('http://134.158.74.110:8080/restconf/operational/opendaylight-inventory:nodes/' , auth=HTTPBasicAuth('admin', 'admin'))
-    j = r.json()
-    nodes = list()
-    for key in j['nodes']['node']:
-        nodes.append(str(key['id']))
+r = requests.get('http://134.158.74.110:8080/restconf/operational/opendaylight-inventory:nodes/' , auth=HTTPBasicAuth('admin', 'admin'))
+j = r.json()
+nodes = {}
+for key in j['nodes']['node']:
+    nodes[str(key['id'])] = str(key['flow-node-inventory:ip-address'])
 
     return nodes
 
+@app.route("/sdn/server/filter/blockbyport/", methods=[PUT])
+def add_filter_by_port():
 
 if __name__ == "__main__":
 
