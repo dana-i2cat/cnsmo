@@ -36,8 +36,18 @@ def get_nodes():
 
     return nodes
 
+#la crida sera del format: /blockbyport/SlipstreamInstanceId:port
 @app.route("/sdn/server/filter/blockbyport/", methods=[PUT])
 def add_filter_by_port():
+
+
+# Returns the last flowId manually added to the filter
+@app.route("/sdn/server/filter/flowcount/", methods=[GET])
+def get_flowcount():
+    r = requests.get('http://134.158.74.110:8080/restconf/config/opendaylight-inventory:nodes/' , auth=HTTPBasicAuth('admin', 'admin'))
+    j = r.json()
+
+
 
 if __name__ == "__main__":
 
