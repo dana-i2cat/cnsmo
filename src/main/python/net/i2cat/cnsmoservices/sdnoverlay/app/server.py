@@ -25,9 +25,14 @@ def get_flows():
     status["port"] = app.config["port"]
     return jsonify(status), 200
 
+# Returns a list of strings with the id of the nodes
 @app.route("/sdn/server/nodes/", methods=[GET])
 def get_nodes():
-    r = requests.get('http://134.158.74.110:8080/restconf/operational/opendaylight-inventory:nodes/' , auth=HTTPBasicAuth('user', 'pass'))
+    r = requests.get('http://134.158.74.110:8080/restconf/operational/opendaylight-inventory:nodes/' , auth=HTTPBasicAuth('admin', 'admin'))
+    j = r.json()
+    nodes = list()
+    for key in j['nodes']['node']:
+        noes.append(key['id'])
     return r.json()
 
 
