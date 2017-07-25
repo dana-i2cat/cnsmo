@@ -36,6 +36,50 @@ def set_config_file():
     except Exception as e:
         return str(e), 409
 
+# Function to return all the vpn clients with their ID and their @IP
+@app.route("/vpn/server/clients/", methods=[GET])
+def get_all_vpn_clients():
+    all_instances = ss_getinstances()
+    # remove slipstream orchestrator instances
+    client_instances = [x for x in all_instances if not x.startswith("orchestrator")]
+    # remove this instance
+    ss_nodename = call('ss-get nodename').rstrip('\n')
+    ss_node_instance = call('ss-get id').rstrip('\n')
+    instance_id = "%s.%s" % (ss_nodename, ss_node_instance)
+    client_instances.remove(instance_id)
+    
+
+
+# Gets the instances that compose the deployment
+# NOTE: Currently there is no way to directly retrieve all nodes intances in a deployment.
+#       As of now we have to find them out by parsing the ss:groups, and then the node's
+#       <nodename>:<id> runtime parameters.
+#       There is an issue to implement this enhancement: https://github.com/slipstream/SlipStreamServer/issues/628
+def ss_getinstances():
+    # ss:groups  cyclone-fr2:VPN,cyclone-fr1:client2,cyclone-fr2:client1
+
+    groups = call("ss-get ss:groups").rstrip('\n')
+    cloud_node_pairs = groups.split(",")
+
+    nodes = list()
+    for pair in cloud_node_pairs:
+        nodes.append(pair.split(":")[1])
+
+    # nodes = VPN, client2, client1
+
+    indexes = dict()
+    # client1:ids     1,2
+    for node in nodes:
+        indexes[node] = call("ss-get %s:ids" % node).split(",")
+
+    # {"client1":["1","2"]}
+    instances = list()
+    for node, node_indexes in indexes.iteritems():
+        for index in node_indexes:
+            instances.append(node + "." + index.rstrip('\n'))
+
+    return instances
+
 
 @app.route("/vpn/server/cert/ca/", methods=[POST])
 def set_ca_cert():
