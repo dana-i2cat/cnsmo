@@ -10,6 +10,8 @@ from flask import request
 
 log = logging.getLogger('cnsmoservices.vpn.app.server')
 
+call = lambda command: subprocess.check_output(command, shell=True)
+
 
 app = Flask(__name__)
 
