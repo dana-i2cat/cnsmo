@@ -55,7 +55,7 @@ def get_all_vpn_clients():
         Clientlist[str(client_id)] = str(response)
     
     call("echo %s >> /var/tmp/testfile.txt" % Clientlist)
-    return Clientlist,200
+    return str(Clientlist),200
 
 
 # Gets the instances that compose the deployment
