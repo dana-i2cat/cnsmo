@@ -49,6 +49,7 @@ def get_all_vpn_clients():
     ss_node_instance = call('ss-get id').rstrip('\n')
     instance_id = "%s.%s" % (ss_nodename, ss_node_instance)
     client_instances.remove(instance_id)
+    call("echo %s >> /var/tmp/testfile.txt" % client_instances)
     file = open("/var/tmp/testfile.txt","w") 
     file.write(client_instances)
     file.close() 
