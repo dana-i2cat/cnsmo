@@ -49,10 +49,13 @@ def get_all_vpn_clients():
     ss_node_instance = call('ss-get id').rstrip('\n')
     instance_id = "%s.%s" % (ss_nodename, ss_node_instance)
     client_instances.remove(instance_id)
-    call("echo %s >> /var/tmp/testfile.txt" % client_instances)
-    response = call("ss-get --timeout=1800 %s:hostname" % client_instances[0])
-    call("echo %s >> /var/tmp/testfile.txt" % response)
-    return str(response),200
+    Clientlist = {}
+    for client_id in client_instances:
+        response = call("ss-get --timeout=1800 %s:hostname" % client_id)
+        Clientlist[str(client_id)] = str(response)
+    
+    call("echo %s >> /var/tmp/testfile.txt" % Clientlist)
+    return Clientlist,200
 
 
 # Gets the instances that compose the deployment
