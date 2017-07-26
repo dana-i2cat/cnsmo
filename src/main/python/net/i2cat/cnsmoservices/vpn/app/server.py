@@ -50,6 +50,7 @@ def get_all_vpn_clients():
     instance_id = "%s.%s" % (ss_nodename, ss_node_instance)
     client_instances.remove(instance_id)
     call("echo %s >> /var/tmp/testfile.txt" % client_instances)
+    return str(client_instances),200
 
 
 # Gets the instances that compose the deployment
