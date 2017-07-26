@@ -50,8 +50,7 @@ def get_all_vpn_clients():
     instance_id = "%s.%s" % (ss_nodename, ss_node_instance)
     client_instances.remove(instance_id)
     call("echo %s >> /var/tmp/testfile.txt" % client_instances)
-    client = client_instances.lstrip('[').rstrip(']')
-    response = call("ss-get --timeout=1800 %s:hostname" % client)
+    response = call("ss-get --timeout=1800 %s:hostname" % client_instances[0])
     call("echo %s >> /var/tmp/testfile.txt" % response)
     return str(response),200
 
