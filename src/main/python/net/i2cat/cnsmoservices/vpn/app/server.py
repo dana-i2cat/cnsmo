@@ -44,7 +44,7 @@ def get_all_vpn_clients():
     all_instances = ss_getinstances()
     # remove slipstream orchestrator instances
     client_instances = [x for x in all_instances if not x.startswith("orchestrator")]
-    # remove this instance
+    # remove this instance (from the server)
     ss_nodename = call('ss-get nodename').rstrip('\n')
     ss_node_instance = call('ss-get id').rstrip('\n')
     instance_id = "%s.%s" % (ss_nodename, ss_node_instance)
@@ -52,7 +52,7 @@ def get_all_vpn_clients():
     Clientlist = {}
     for client_id in client_instances:
         response = call("ss-get --timeout=1800 %s:vpn.address" % client_id)
-        Clientlist[str(client_id)] = str(response)
+        Clientlist[str(client_id)] = str(response).rstrip('\n')
     
     call("echo %s >> /var/tmp/testfile.txt" % Clientlist)
     return str(Clientlist),200
