@@ -35,7 +35,7 @@ def get_nodes():
     for key in j['nodes']['node']:
         nodes[str(key['id'])] = str(key['flow-node-inventory:ip-address'])
 
-    return nodes
+    return str(nodes),200
 
 #la crida sera del format: /blockbyport/SlipstreamInstanceId:port
 @app.route("/sdn/server/filter/blockbyport/", methods=[PUT])
