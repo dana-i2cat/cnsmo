@@ -38,8 +38,8 @@ def get_nodes():
     return str(nodes),200
 
 #la crida sera del format: /blockbyport/SlipstreamInstanceId:port
-@app.route("/sdn/server/filter/blockbyport/", methods=[PUT])
-def add_filter_by_port():
+#@app.route("/sdn/server/filter/blockbyport/", methods=[PUT])
+#def add_filter_by_port():
 
 
 # Returns the last flowId manually added to the filter
