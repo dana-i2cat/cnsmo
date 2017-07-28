@@ -12,6 +12,7 @@ from requests.auth import HTTPBasicAuth
 
 log = logging.getLogger('cnsmoservices.sdn.app.server')
 
+call = lambda command: subprocess.check_output(command, shell=True)
 
 app = Flask(__name__)
 
