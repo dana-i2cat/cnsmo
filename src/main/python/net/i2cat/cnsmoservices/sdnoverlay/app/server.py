@@ -78,4 +78,5 @@ if __name__ == "__main__":
     app.config["UPLOAD_FOLDER"] = working_dir
     app.config["host"] = host
     app.config["port"] = port
+    call("echo %s >> /var/tmp/SDNservice.txt" % port)
     app.run(host=host, port=port, debug=True)
