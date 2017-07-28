@@ -45,22 +45,21 @@ def get_nodes():
 
 # Returns the last flowId manually added to the filter
 # to access flowID use: print j['nodes']['node'][0]['flow-node-inventory:table'][0]['flow'][0]['id'] 
-@app.route("/sdn/server/filter/flowcount/", methods=[GET])
 def get_flowcount():
-    r = requests.get('http://134.158.74.110:8080/restconf/config/opendaylight-inventory:nodes/' , auth=HTTPBasicAuth('admin', 'admin'))
-    j = r.json()
-    max = 0
-    flows = {}
-    for key in j['nodes']['node']:
-        for idKey in key['flow-node-inventory:table']:
-            for flowId in idKey['flow']:
-                aux = flowId['id']
-                print aux
-                if int(aux)>int(max):
-                    max = aux
-                    
-            
-    return max
+r = requests.get('http://134.158.74.110:8080/restconf/config/opendaylight-inventory:nodes/' , auth=HTTPBasicAuth('admin', 'admin'))
+j = r.json()
+max = 0
+flows = {}
+for key in j['nodes']['node']:
+    for idKey in key['flow-node-inventory:table']:
+        for flowId in idKey['flow']:
+            aux = flowId['id']
+            print aux
+            if int(aux)>int(max):
+                max = aux
+                
+        
+return max
 
     
 
