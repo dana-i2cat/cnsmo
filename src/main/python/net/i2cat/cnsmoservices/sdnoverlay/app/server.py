@@ -39,9 +39,9 @@ def get_nodes():
     return str(nodes),200
 
 #la crida sera del format: /blockbyport/SlipstreamInstanceId:port
-#@app.route("/sdn/server/filter/blockbyport/", methods=[PUT])
-#def add_filter_by_port():
-
+@app.route("/sdn/server/filter/blockbyport/<ssinstanceid>", methods=[PUT])
+def add_filter_by_port(ssinstanceid):
+    return str(ssinstanceid),200
 
 # Returns the last flowId manually added to the filter
 # to access flowID use: print j['nodes']['node'][0]['flow-node-inventory:table'][0]['flow'][0]['id'] 
