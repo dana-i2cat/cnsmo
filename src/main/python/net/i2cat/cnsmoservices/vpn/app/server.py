@@ -54,9 +54,9 @@ def get_all_vpn_clients():
         response = call("ss-get --timeout=1800 %s:vpn.address" % client_id)
         # respInstanceID = call("ss-get --timeout=1800 %s:instanceid" % client_id) if we want to return instanceid
         Clientlist[str(client_id)] = {}
-        Clientlist["VPN address:"] = str(response).rstrip('\n')
+        Clientlist[str(client_id)]["VPN address:"] = str(response).rstrip('\n')
         response = call("ss-get --timeout=1800 %s:net.services.enabled" % client_id)
-        Clientlist["Services:"] = str(response).rstrip('\n')
+        Clientlist[str(client_id)]["Services:"] = str(response).rstrip('\n')
     
     call("echo %s >> /var/tmp/testfile.txt" % Clientlist)
     return str(Clientlist),200
