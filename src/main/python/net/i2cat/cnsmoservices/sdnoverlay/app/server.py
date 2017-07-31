@@ -18,6 +18,7 @@ app = Flask(__name__)
 
 GET = "GET"
 POST = "POST"
+PUT = "PUT"
 
 # Practice call, does nothing
 @app.route("/sdn/server/flows/", methods=[GET])
