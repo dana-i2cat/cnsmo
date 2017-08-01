@@ -59,7 +59,7 @@ def get_all_vpn_clients():
         Clientlist[str(client_id)]["Services:"] = str(response).rstrip('\n')
     
     call("echo %s >> /var/tmp/testfile.txt" % Clientlist)
-    return str(Clientlist),200
+    return jsonify(Clientlist),200
 
 
 # Gets the instances that compose the deployment
