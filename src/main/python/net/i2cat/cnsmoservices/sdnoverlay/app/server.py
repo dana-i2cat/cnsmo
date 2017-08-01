@@ -46,9 +46,46 @@ def add_filter_by_port(ssinstanceid):
     vpnAddr = get_corresp_vpn(ssinstanceid)
     flowID = get_flowID(vpnAddr)
     # URL has to follow this format: http://134.158.74.110:8080/restconf/config/opendaylight-inventory:nodes/node/openflow:274973442922995/table/0/flow/12
-    url = str("http://134.158.74.110:8080/restconf/config/opendaylight-inventory:nodes/node/"+flowID+"/table/0/flow/"+newflowCount)
-    
-    return jsonify(ssinstanceid),200
+    url = str("http://134.158.74.110:8080/restconf/config/opendaylight-inventory:nodes/node/"+flowID+"/table/0/flow/"+str(newflowCount))
+    xml = """
+    <flow xmlns="urn:opendaylight:flow:inventory">
+        <strict>false</strict>
+        <instructions>
+            <instruction>
+                <order>0</order>
+                <apply-actions>
+                    <action>
+                        <order>0</order>
+                        <drop-action/>
+                    </action>
+                </apply-actions>
+            </instruction>
+        </instructions>
+        <table_id>0</table_id>
+        <id>"""+str(newflowCount)+"""</id>
+        <cookie_mask>255</cookie_mask>
+        <installHw>false</installHw>
+        <match>
+            <ethernet-match>
+                <ethernet-type>
+                    <type>2048</type>
+                </ethernet-type>
+            </ethernet-match>
+            <ip-match>
+                <ip-protocol>6</ip-protocol>
+            </ip-match>
+            <ipv4-destination>134.158.0.0/16</ipv4-destination>
+            <tcp-destination-port>8080</tcp-destination-port>
+        </match>
+        <cookie>8</cookie>
+        <idle-timeout>3400</idle-timeout>
+        <flow-name>portweb-drop</flow-name>
+        <priority>650</priority>
+        <barrier>false</barrier>
+    </flow>"""
+    header = {'Content-Type': 'application/xml'}
+    r = requests.put(url, data = xml, auth=HTTPBasicAuth('admin', 'admin'), headers=header)
+    return r.json(),r.status_code
 
 def get_corresp_vpn(ssinstanceid):
     vpnClients = requests.get('http://127.0.0.1:20092/vpn/server/clients/')
