@@ -85,7 +85,7 @@ def add_filter_by_port(ssinstanceid):
     </flow>"""
     header = {'Content-Type': 'application/xml'}
     r = requests.put(url, data = xml, auth=HTTPBasicAuth('admin', 'admin'), headers=header)
-    return r.json(),r.status_code
+    return jsonify(r.headers),r.status_code
 
 def get_corresp_vpn(ssinstanceid):
     vpnClients = requests.get('http://127.0.0.1:20092/vpn/server/clients/')
