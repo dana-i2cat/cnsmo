@@ -42,10 +42,26 @@ def get_nodes():
 #la crida sera del format: /blockbyport/SlipstreamInstanceId:port
 @app.route("/sdn/server/filter/blockbyport/<ssinstanceid>", methods=[PUT])
 def add_filter_by_port(ssinstanceid):
-    nodes = get_nodes()
-    newflowID = get_flowcount() + 1
-    vpnClients = requests.get('http://127.0.0.1:20092/vpn/server/clients/')
+    newflowCount = get_flowcount() + 1
+    vpnAddr = get_corresp_vpn(ssinstanceid)
+    flowID = get_flowID(vpnAddr)
+    # URL has to follow this format: http://134.158.74.110:8080/restconf/config/opendaylight-inventory:nodes/node/openflow:274973442922995/table/0/flow/12
+    url = str("http://134.158.74.110:8080/restconf/config/opendaylight-inventory:nodes/node/"+flowID+"/table/0/flow/"+newflowCount)
+    
     return jsonify(ssinstanceid),200
+
+def get_corresp_vpn(ssinstanceid):
+    vpnClients = requests.get('http://127.0.0.1:20092/vpn/server/clients/')
+    vpnClients = vpnClients.json()
+    return str(vpnClients[ssinstanceid]["VPN address:"])
+
+def get_flowID(vpnaddress):
+    nodes = get_nodes()
+    nodes = nodes.json()
+    for key,value in nodes.iteritems():
+        if str(value)==vpnaddress:
+            return str(key)
+    return "ERROR"
 
 # Returns the last flowId manually added to the filter
 # to access flowID use: print j['nodes']['node'][0]['flow-node-inventory:table'][0]['flow'][0]['id'] 
