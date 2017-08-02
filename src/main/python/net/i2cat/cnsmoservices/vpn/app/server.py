@@ -58,7 +58,6 @@ def get_all_vpn_clients():
         response = call("ss-get --timeout=1800 %s:net.services.enabled" % client_id)
         Clientlist[str(client_id)]["Services:"] = str(response).rstrip('\n')
     
-    call("echo %s >> /var/tmp/testfile.txt" % Clientlist)
     return jsonify(Clientlist),200
 
 

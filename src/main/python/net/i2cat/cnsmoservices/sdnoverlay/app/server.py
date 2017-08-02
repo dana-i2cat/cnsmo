@@ -36,7 +36,6 @@ def get_nodes():
     nodes = {}
     for key in j['nodes']['node']:
         nodes[str(key['id'])] = str(key['flow-node-inventory:ip-address'])
-
     return jsonify(nodes),200
 
 #la crida sera del format: /blockbyport/SlipstreamInstanceId:port
@@ -94,11 +93,12 @@ def get_corresp_vpn(ssinstanceid):
     return str(vpnClients[ssinstanceid]["VPN address:"])
 
 def get_flowID(vpnaddress):
-    nodes = get_nodes()
+    nodes = requests.get('http://127.0.0.1:20199/sdn/server/nodes/')
     nodes = nodes.json()
     for key,value in nodes.iteritems():
         if str(value)==vpnaddress:
             return str(key)
+            
     return "ERROR"
 
 # Returns the last flowId manually added to the filter
