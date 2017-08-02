@@ -42,7 +42,7 @@ def get_nodes():
 #la crida sera del format: /blockbyport/SlipstreamInstanceId:port
 @app.route("/sdn/server/filter/blockbyport/<ssinstanceid>", methods=[PUT])
 def add_filter_by_port(ssinstanceid):
-    newflowCount = get_flowcount() + 1
+    newflowCount = get_flowcount()
     vpnAddr = get_corresp_vpn(ssinstanceid)
     flowID = get_flowID(vpnAddr)
     call("echo %s, %s, %s>> /var/tmp/SDNservice.txt" % (str(newflowCount),vpnAddr, flowID))
@@ -112,12 +112,11 @@ def get_flowcount():
         for idKey in key['flow-node-inventory:table']:
             for flowId in idKey['flow']:
                 aux = flowId['id']
-                print aux
                 if int(aux)>int(max):
                     max = aux
                     
             
-    return max
+    return int(max)+1
 
     
 
