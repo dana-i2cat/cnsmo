@@ -45,7 +45,7 @@ def add_filter_by_port(ssinstanceid):
     newflowCount = get_flowcount()
     vpnAddr = get_corresp_vpn(ssinstanceid)
     flowID = get_flowID(vpnAddr)
-    call("echo %s, %s, %s>> /var/tmp/SDNservice.txt" % (str(newflowCount),vpnAddr, flowID))
+    call("echo %s >> /var/tmp/SDNservice.txt" % flowID)
     # URL has to follow this format: http://134.158.74.110:8080/restconf/config/opendaylight-inventory:nodes/node/openflow:274973442922995/table/0/flow/12
     url = str("http://134.158.74.110:8080/restconf/config/opendaylight-inventory:nodes/node/"+flowID+"/table/0/flow/"+str(newflowCount))
     xml = """
