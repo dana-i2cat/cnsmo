@@ -86,7 +86,7 @@ def add_filter_by_port(ssinstanceid):
     </flow>"""
     header = {'Content-Type': 'application/xml'}
     r = requests.put(url, data = xml, auth=HTTPBasicAuth('admin', 'admin'), headers=header)
-    return jsonify(r.headers),r.status_code
+    return str(r.headers),r.status_code
 
 def get_corresp_vpn(ssinstanceid):
     vpnClients = requests.get('http://127.0.0.1:20092/vpn/server/clients/')
@@ -99,7 +99,7 @@ def get_flowID(vpnaddress):
     for key,value in nodes.iteritems():
         if str(value)==str(vpnaddress):
             return str(key)
-
+            
     return "ERROR"
 
 # Returns the last flowId manually added to the filter
