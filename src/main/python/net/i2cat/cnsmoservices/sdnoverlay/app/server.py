@@ -95,9 +95,9 @@ def get_corresp_vpn(ssinstanceid):
 
 def get_flowID(vpnaddress):
     nodes = requests.get('http://127.0.0.1:20199/sdn/server/nodes/')
-    nodes = jsonify(nodes.headers)
+    nodes = nodes.json()
     for key,value in nodes.iteritems():
-        if str(value)==vpnaddress:
+        if str(value)==str(vpnaddress):
             return str(key)
 
     return "ERROR"
