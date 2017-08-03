@@ -102,7 +102,6 @@ def get_flowID(vpnaddress):
     for key,value in nodes.iteritems():
         if str(value)==str(vpnaddress):
             return str(key)
-            
     return "ERROR"
 
 # Returns the last flowId manually added to the filter
