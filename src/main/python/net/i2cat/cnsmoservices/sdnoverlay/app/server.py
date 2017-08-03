@@ -97,7 +97,7 @@ def get_corresp_vpn(ssinstanceid):
     return str(vpnClients[str(ssinstanceid)]["VPN address:"])
 
 def get_flowID(vpnaddress):
-    nodes = requests.get('http://127.0.0.1:20199/sdn/server/nodes/')
+    nodes = get_nodes()
     nodes = nodes.json()
     call("echo 3.1: %s >> /var/tmp/SDNservice.txt" % (nodes))
     auxi = ""
