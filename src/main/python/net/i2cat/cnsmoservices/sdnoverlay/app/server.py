@@ -94,7 +94,7 @@ def add_filter_by_port(ssinstanceid):
 def get_corresp_vpn(ssinstanceid):
     vpnClients = requests.get('http://127.0.0.1:20092/vpn/server/clients/')
     vpnClients = vpnClients.json()
-    return str(vpnClients[ssinstanceid]["VPN address:"])
+    return str(vpnClients[str(ssinstanceid)]["VPN address:"])
 
 def get_flowID(vpnaddress):
     nodes = requests.get('http://127.0.0.1:20199/sdn/server/nodes/')
