@@ -99,11 +99,12 @@ def get_corresp_vpn(ssinstanceid):
 def get_flowID(vpnaddress):
     nodes = requests.get('http://127.0.0.1:20199/sdn/server/nodes/')
     nodes = nodes.json()
+    call("echo 3.1: %s >> /var/tmp/SDNservice.txt" % (nodes))
     auxi = ""
     for key,value in nodes.iteritems():
         if str(value)==str(vpnaddress):
             auxi=str(key)
-    call("echo 3: %s >> /var/tmp/SDNservice.txt" % (auxi))
+    call("echo 3.2: %s >> /var/tmp/SDNservice.txt" % (auxi))
     return auxi
 
 # Returns the last flowId manually added to the filter
