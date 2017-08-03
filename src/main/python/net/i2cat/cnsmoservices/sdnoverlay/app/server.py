@@ -97,8 +97,11 @@ def get_corresp_vpn(ssinstanceid):
     return str(vpnClients[str(ssinstanceid)]["VPN address:"])
 
 def get_flowID(vpnaddress):
-    nodes = get_nodes()
-    nodes = nodes.json()
+    r = requests.get('http://134.158.74.110:8080/restconf/operational/opendaylight-inventory:nodes/' , auth=HTTPBasicAuth('admin', 'admin'))
+    j = r.json()
+    nodes = {}
+    for key in j['nodes']['node']:
+        nodes[str(key['id'])] = str(key['flow-node-inventory:ip-address'])
     call("echo 3.1: %s >> /var/tmp/SDNservice.txt" % (nodes))
     auxi = ""
     for key,value in nodes.iteritems():
