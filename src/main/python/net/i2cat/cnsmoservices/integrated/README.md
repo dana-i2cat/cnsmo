@@ -4,7 +4,7 @@ In this file we find the information on how to configure properly the CNSMO serv
 
 The Input/Output parameters are used for the correct synchronization between client, server and orchestrator, and they are also used in order to pass important information between them. Depending on which services we want to deploy on the machines, we will need to configure different parameters so that we make visible the private information needed for the services to work properly. For example, a VPN server should make his IP address visible to the clients so that they can stablish a VPN with the server.
 
-Parameters of a SlipStream apllication that need to be created and their values or mappings. 
+Parameters of a SlipStream application that need to be created and their values or mappings. 
 
 * Agent
 
