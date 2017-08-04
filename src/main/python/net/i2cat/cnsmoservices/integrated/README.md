@@ -32,7 +32,7 @@ Output parameter net.services.enabled set to default
 
 ### Some services might need additional parameters to be configured. Read services documentation in:
 
-* LB in [documentation](/src/main/python/net/i2cat/cnsmoservices/lb/run/slipstream/README.md)
-* FW in [documentation](/src/main/python/net/i2cat/cnsmoservices/fw/run/slipstream/README.md)
-* SDN in [documentation](/src/main/python/net/i2cat/cnsmoservices/sdn/run/slipstream/README.md)
-* VPN in [documentation](/src/main/python/net/i2cat/cnsmoservices/vpn/run/slipstream/README.md)
+* [LB documentation](/src/main/python/net/i2cat/cnsmoservices/lb/run/slipstream/README.md)
+* [FW documentation](/src/main/python/net/i2cat/cnsmoservices/fw/run/slipstream/README.md)
+* [SDN documentation](/src/main/python/net/i2cat/cnsmoservices/sdnoverlay/run/slipstream/README.md)
+* [VPN documentation](/src/main/python/net/i2cat/cnsmoservices/vpn/run/slipstream/README.md)
