@@ -44,11 +44,8 @@ def get_nodes():
 def add_filter_by_port(ssinstanceid):
     #problema del ssinstanceid???
     newflowCount = get_flowcount()
-    call("echo 1: %s>> /var/tmp/SDNservice.txt" % (newflowCount))
     vpnAddr = get_corresp_vpn(ssinstanceid)
-    call("echo 2: %s>> /var/tmp/SDNservice.txt" % (vpnAddr))
     flowID = get_flowID(vpnAddr)
-    call("echo 4: %s>> /var/tmp/SDNservice.txt" % (flowID))
     # URL has to follow this format: http://134.158.74.110:8080/restconf/config/opendaylight-inventory:nodes/node/openflow:274973442922995/table/0/flow/12
     url = str("http://134.158.74.110:8080/restconf/config/opendaylight-inventory:nodes/node/"+flowID+"/table/0/flow/"+str(newflowCount))
     xml = """
@@ -102,12 +99,10 @@ def get_flowID(vpnaddress):
     nodes = {}
     for key in j['nodes']['node']:
         nodes[str(key['id'])] = str(key['flow-node-inventory:ip-address'])
-    call("echo 3.1: %s >> /var/tmp/SDNservice.txt" % (nodes))
     auxi = ""
     for key,value in nodes.iteritems():
         if str(value)==str(vpnaddress):
             auxi=str(key)
-    call("echo 3.2: %s >> /var/tmp/SDNservice.txt" % (auxi))
     return auxi
 
 # Returns the last flowId manually added to the filter
