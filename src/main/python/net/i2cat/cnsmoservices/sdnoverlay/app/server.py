@@ -89,7 +89,7 @@ def add_filter_by_port(ssinstanceid):
         r = requests.put(url, data = xml, auth=HTTPBasicAuth('admin', 'admin'), headers=header)
         return str(r.headers),r.status_code
     else:
-        return "Node doesn't exist: " + str(app.config["config_files"]), 409
+        return "Node doesn't exist", 409
 
 def get_corresp_vpn(ssinstanceid):
     vpnClients = requests.get('http://127.0.0.1:20092/vpn/server/clients/')
