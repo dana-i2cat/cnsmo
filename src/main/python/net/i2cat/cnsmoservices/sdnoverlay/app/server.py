@@ -89,6 +89,8 @@ def add_filter_by_port(ssinstanceid):
             header = {'Content-Type': 'application/xml'}
             r = requests.put(url, data = xml, auth=HTTPBasicAuth('admin', 'admin'), headers=header)
             return str(r.headers),r.status_code
+        else:
+            return "Node doesn't exist", 409
     else:
         return "Node doesn't exist", 409
 
