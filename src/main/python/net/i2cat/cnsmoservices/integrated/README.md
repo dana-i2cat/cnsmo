@@ -1,4 +1,8 @@
-# CNSMO services parameters configuration
+# CNSMO services configuration
+
+In this file we find the information on how to configure properly the CNSMO services [vpn,sdn, fw, lb]. Every service uses some global parameters (whose configuration can be found in this file) and some parameters that are specific for the service (the links can be found at the bottom of this file).
+
+The Input/Output parameters are used for the correct synchronization between client, server and orchestrator, and they are also used in order to pass important information between them. Depending on which services we want to deploy on the machines, we will need to configure different parameters so that we make visible the private information needed for the services to work properly. For example, a VPN server should make his IP address visible to the clients so that they can stablish a VPN with the server.
 
 Parameters of a SlipStream apllication that need to be created and their values or mappings. 
 
