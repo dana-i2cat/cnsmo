@@ -40,7 +40,7 @@ def get_nodes():
     return jsonify(nodes),200
 
 #la crida sera del format: /blockbyport/SlipstreamInstanceId:port
-@app.route("/sdn/server/filter/blockbyport/<ssinstanceid>", methods=[PUT])
+@app.route("/sdn/server/filter/blockbyport/<ssinstanceid>", methods=[POST])
 def add_filter_by_port(ssinstanceid):
     #problema del ssinstanceid???
     newflowCount = get_flowcount()
@@ -89,7 +89,7 @@ def add_filter_by_port(ssinstanceid):
                 <barrier>false</barrier>
             </flow>"""
             header = {'Content-Type': 'application/xml'}
-            r = requests.put(url, data = xml, auth=HTTPBasicAuth('admin', 'admin'), headers=header)
+            r = requests.post(url, data = xml, auth=HTTPBasicAuth('admin', 'admin'), headers=header)
             return str(r.headers),r.status_code
         else:
             return "Node doesn't exist", 409
