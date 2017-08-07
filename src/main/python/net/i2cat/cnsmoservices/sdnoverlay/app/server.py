@@ -80,7 +80,7 @@ def add_filter_by_port(ssinstanceid):
                         <ip-protocol>6</ip-protocol>
                     </ip-match>
                     <ipv4-destination>134.158.0.0/16</ipv4-destination>
-                    <tcp-destination-port>8080</tcp-destination-port>
+                    <tcp-destination-port>"""+str(data["tcp-destination-port"])+"""</tcp-destination-port>
                 </match>
                 <cookie>8</cookie>
                 <idle-timeout>3400</idle-timeout>
