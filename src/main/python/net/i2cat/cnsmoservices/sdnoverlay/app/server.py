@@ -42,7 +42,11 @@ def get_flows():
             url = str("http://134.158.74.110:8080/restconf/config/opendaylight-inventory:nodes/node/"+str(flowID))
             r = requests.get(url , auth=HTTPBasicAuth('admin', 'admin'))
             j = r.json()
-            call("echo %s >> /var/tmp/getflows.txt" % j)
+            nodes = {}
+            for key in j['node'][0]["flow-node-inventory:table"]:
+                nodes[str(flowID)] = key['flow']
+            call("echo %s >> /var/tmp/getflows.txt" % nodes)
+            return jsonify(nodes),200
     else:
         return "adeu",409
 
