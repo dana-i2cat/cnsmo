@@ -43,7 +43,8 @@ def get_flows():
             r = requests.get(url , auth=HTTPBasicAuth('admin', 'admin'))
             j = r.json()
             nodes = {}
-            nodes[str(flowID)]['vpnIP'] = vpnAddr
+            nodes[str(flowID)] = {}
+            nodes[str(flowID)]['vpnID']="10.10.10.2"
             for key in j['node'][0]["flow-node-inventory:table"]:
                 nodes[str(flowID)]['flows'] = key['flow']
             call("echo %s >> /var/tmp/getflows.txt" % nodes)
