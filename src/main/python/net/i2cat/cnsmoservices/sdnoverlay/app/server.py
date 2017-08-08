@@ -20,14 +20,6 @@ GET = "GET"
 POST = "POST"
 PUT = "PUT"
 
-# Practice call, does nothing
-@app.route("/sdn/server/flows/", methods=[GET])
-def get_flows():
-    status = dict()
-    status["host"] = app.config["host"]
-    status["port"] = app.config["port"]
-    return jsonify(status), 200
-
 # Returns a list of strings with the id of the nodes
 @app.route("/sdn/server/nodes/", methods=[GET])
 def get_nodes():
