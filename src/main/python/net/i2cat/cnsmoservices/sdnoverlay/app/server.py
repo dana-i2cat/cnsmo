@@ -51,22 +51,26 @@ def get_flows():
             return jsonify(nodes),200
     else:
         # Get all sdn clients
-r = requests.get('http://134.158.74.110:8080/restconf/operational/opendaylight-inventory:nodes/' , auth=HTTPBasicAuth('admin', 'admin'))
-j = r.json()
-clients = {}
-for key in j['nodes']['node']:
-    clients[str(key['id'])] = str(key['flow-node-inventory:ip-address'])
-# get all flows from every sdn client
-url = str("http://134.158.74.110:8080/restconf/config/opendaylight-inventory:nodes/")
-r = requests.get(url , auth=HTTPBasicAuth('admin', 'admin'))
-j = r.json()
-nodes = {}
-for key in j['nodes']['node']:
-    nodes[str(key['id'])] = {}
-    nodes[str(key['id'])]['vpnID']=str(clients[str(key['id'])])
-    for tables in key["flow-node-inventory:table"]:
-        nodes[str(key['id'])]['flows'] = key['flow']
-return "adeu",409
+        r = requests.get('http://134.158.74.110:8080/restconf/operational/opendaylight-inventory:nodes/' , auth=HTTPBasicAuth('admin', 'admin'))
+        j = r.json()
+        clients = {}
+        for key in j['nodes']['node']:
+            clients[str(key['id'])] = str(key['flow-node-inventory:ip-address'])
+
+        # get all flows from every sdn client
+        url = str("http://134.158.74.110:8080/restconf/config/opendaylight-inventory:nodes/")
+        r = requests.get(url , auth=HTTPBasicAuth('admin', 'admin'))
+        j = r.json()
+        nodes = {}
+        for key in j['nodes']['node']:
+            if key['id']!='':
+                nodes[str(key['id'])] = {}
+                nodes[str(key['id'])]['vpnID']=str(clients[str(key['id'])])
+                for tables in key["flow-node-inventory:table"]:
+                    nodes[str(key['id'])]['flows'] = tables['flow']
+        if not nodes:
+            return "List is empty",404
+        return jsonify(nodes),200
 
 
 #la crida sera del format: /blockbyport/SlipstreamInstanceId:port
