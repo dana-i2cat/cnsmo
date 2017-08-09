@@ -52,7 +52,6 @@ def add_filter_by_port(ssinstanceid):
         if flowID!="":
             # URL has to follow this format: http://134.158.74.110:8080/restconf/config/opendaylight-inventory:nodes/node/openflow:274973442922995/table/0/flow/12
             url = str("http://134.158.74.110:8080/restconf/config/opendaylight-inventory:nodes/node/"+flowID+"/table/0/flow/"+str(newflowCount))
-            data = request.json
             call("echo %s >> /var/tmp/sdntest.txt" % data["tcp-destination-port"])
             xml = """
             <flow xmlns="urn:opendaylight:flow:inventory">
