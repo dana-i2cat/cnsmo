@@ -44,13 +44,29 @@ def get_flows():
             j = r.json()
             nodes = {}
             nodes[str(flowID)] = {}
-            nodes[str(flowID)]['vpnID']="10.10.10.2"
+            nodes[str(flowID)]['vpnID']=str(vpnAddr)
             for key in j['node'][0]["flow-node-inventory:table"]:
                 nodes[str(flowID)]['flows'] = key['flow']
             call("echo %s >> /var/tmp/getflows.txt" % nodes)
             return jsonify(nodes),200
     else:
-        return "adeu",409
+        # Get all sdn clients
+r = requests.get('http://134.158.74.110:8080/restconf/operational/opendaylight-inventory:nodes/' , auth=HTTPBasicAuth('admin', 'admin'))
+j = r.json()
+clients = {}
+for key in j['nodes']['node']:
+    clients[str(key['id'])] = str(key['flow-node-inventory:ip-address'])
+# get all flows from every sdn client
+url = str("http://134.158.74.110:8080/restconf/config/opendaylight-inventory:nodes/")
+r = requests.get(url , auth=HTTPBasicAuth('admin', 'admin'))
+j = r.json()
+nodes = {}
+for key in j['nodes']['node']:
+    nodes[str(key['id'])] = {}
+    nodes[str(key['id'])]['vpnID']=str(clients[str(key['id'])])
+    for tables in key["flow-node-inventory:table"]:
+        nodes[str(key['id'])]['flows'] = key['flow']
+return "adeu",409
 
 
 #la crida sera del format: /blockbyport/SlipstreamInstanceId:port
