@@ -40,10 +40,12 @@ def get_nodes():
     return jsonify(nodes),200
 
 #la crida sera del format: /blockbyport/SlipstreamInstanceId:port
-@app.route("/sdn/server/filter/blockbyport/<ssinstanceid>", methods=[PUT])
+@app.route("/sdn/server/filter/blockbyport/", methods=[PUT])
 def add_filter_by_port(ssinstanceid):
     #problema del ssinstanceid???
     newflowCount = get_flowcount()
+    data = request.json
+    ssinstanceid = str(data["ssinstanceid"])
     vpnAddr = get_corresp_vpn(ssinstanceid)
     if vpnAddr!="":
         flowID = get_flowID(vpnAddr)
@@ -79,7 +81,7 @@ def add_filter_by_port(ssinstanceid):
                     <ip-match>
                         <ip-protocol>6</ip-protocol>
                     </ip-match>
-                    <ipv4-destination>134.158.0.0/16</ipv4-destination>
+                    <ipv4-destination>"""+str(data["ip4-destination"])+"""</ipv4-destination>
                     <tcp-destination-port>"""+str(data["tcp-destination-port"])+"""</tcp-destination-port>
                 </match>
                 <cookie>8</cookie>
