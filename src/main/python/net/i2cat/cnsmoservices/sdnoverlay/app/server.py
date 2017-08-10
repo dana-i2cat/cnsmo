@@ -44,8 +44,8 @@ def get_nodes():
 def add_filter_by_port(ssinstanceid):
     #problema del ssinstanceid???
     newflowCount = get_flowcount()
-    data = request.json
-    call("echo %s >> /var/tmp/sdntest.txt" % data)
+    #data = request.json
+    #call("echo %s >> /var/tmp/sdntest.txt" % data)
     ssinstanceid = str(data["ssinstanceid"])
     vpnAddr = get_corresp_vpn(ssinstanceid)
     if vpnAddr!="":
