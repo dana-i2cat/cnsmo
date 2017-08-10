@@ -41,12 +41,12 @@ def get_nodes():
 
 #la crida sera del format: /blockbyport/SlipstreamInstanceId:port
 @app.route("/sdn/server/filter/blockbyport/", methods=[PUT])
-def add_filter_by_port(ssinstanceid):
+def add_filter_by_port():
     #problema del ssinstanceid???
     newflowCount = get_flowcount()
     #data = request.json
     #call("echo %s >> /var/tmp/sdntest.txt" % data)
-    ssinstanceid = str(data["ssinstanceid"])
+    #ssinstanceid = str(data["ssinstanceid"])
     vpnAddr = get_corresp_vpn(ssinstanceid)
     if vpnAddr!="":
         flowID = get_flowID(vpnAddr)
