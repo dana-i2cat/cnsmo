@@ -49,6 +49,8 @@ def get_flows():
                 nodes[str(flowID)]['flows'] = key['flow']
             call("echo %s >> /var/tmp/getflows.txt" % nodes)
             return jsonify(nodes),200
+    elif vpnAddr=="":
+        return "Node doesn't exist",404
     else:
         # Get all sdn clients
         r = requests.get('http://134.158.74.110:8080/restconf/operational/opendaylight-inventory:nodes/' , auth=HTTPBasicAuth('admin', 'admin'))
@@ -125,9 +127,9 @@ def add_filter_by_port(ssinstanceid):
             r = requests.put(url, data = xml, auth=HTTPBasicAuth('admin', 'admin'), headers=header)
             return str(r.headers),r.status_code
         else:
-            return "Node doesn't exist", 409
+            return "Node doesn't exist", 404
     else:
-        return "Node doesn't exist", 409
+        return "Node doesn't exist", 404
 
 def get_corresp_vpn(ssinstanceid):
     vpnClients = requests.get('http://127.0.0.1:20092/vpn/server/clients/')
