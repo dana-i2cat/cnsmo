@@ -34,23 +34,23 @@ def get_nodes():
 @app.route("/sdn/server/flows/", methods=[GET])
 def get_flows():
     data = request.json
-    instanceID = str(data["ssinstanceid"])
-    vpnAddr = get_corresp_vpn(instanceID)
-    if vpnAddr!="":
-        flowID = get_flowID(vpnAddr)
-        if flowID!="":
-            url = str("http://134.158.74.110:8080/restconf/config/opendaylight-inventory:nodes/node/"+str(flowID))
-            r = requests.get(url , auth=HTTPBasicAuth('admin', 'admin'))
-            j = r.json()
-            nodes = {}
-            nodes[str(flowID)] = {}
-            nodes[str(flowID)]['vpnID']=str(vpnAddr)
-            for key in j['node'][0]["flow-node-inventory:table"]:
-                nodes[str(flowID)]['flows'] = key['flow']
-            call("echo %s >> /var/tmp/getflows.txt" % nodes)
-            return jsonify(nodes),200
-    elif vpnAddr=="":
-        return "Node doesn't exist",404
+    if data:
+        instanceID = str(data["ssinstanceid"])
+        vpnAddr = get_corresp_vpn(instanceID)
+        if vpnAddr!="":
+            flowID = get_flowID(vpnAddr)
+            if flowID!="":
+                url = str("http://134.158.74.110:8080/restconf/config/opendaylight-inventory:nodes/node/"+str(flowID))
+                r = requests.get(url , auth=HTTPBasicAuth('admin', 'admin'))
+                j = r.json()
+                nodes = {}
+                nodes[str(flowID)] = {}
+                nodes[str(flowID)]['vpnID']=str(vpnAddr)
+                for key in j['node'][0]["flow-node-inventory:table"]:
+                    nodes[str(flowID)]['flows'] = key['flow']
+                return jsonify(nodes),200
+        else:
+            return "Node doesn't exist",404
     else:
         # Get all sdn clients
         r = requests.get('http://134.158.74.110:8080/restconf/operational/opendaylight-inventory:nodes/' , auth=HTTPBasicAuth('admin', 'admin'))
