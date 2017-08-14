@@ -45,7 +45,7 @@ def get_flows():
                 j = r.json()
                 nodes = {}
                 nodes[str(flowID)] = {}
-                nodes[str(flowID)]['vpnID']=str(vpnAddr)
+                nodes[str(flowID)]['vpnIP']=str(vpnAddr)
                 for key in j['node'][0]["flow-node-inventory:table"]:
                     nodes[str(flowID)]['flows'] = key['flow']
                 return jsonify(nodes),200
