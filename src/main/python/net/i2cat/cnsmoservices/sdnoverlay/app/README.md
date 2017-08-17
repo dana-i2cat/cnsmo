@@ -1,4 +1,4 @@
-# SDN app: How to use?
+# SDN app: How to use
 
 ## Server
 

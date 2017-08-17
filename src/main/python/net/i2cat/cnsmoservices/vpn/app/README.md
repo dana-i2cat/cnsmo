@@ -1,4 +1,4 @@
-# VPN app: How to use?
+# VPN app: How to use
 
 ## Server
 
