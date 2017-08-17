@@ -11,5 +11,5 @@ Methods:
 
 + http://127.0.0.1:20199/sdn/server/nodes/ , methods=[GET] : Returns a list of pairs with the nodeid and his corresponding vpn address. No parameters need to be configured.
 
-+ http://127.0.0.1:20199/sdn/server/filter/blockbyport/ , methods=[PUT] :Adds a new rule to filter flows by port. We need to specify the destination port, the address and the node name following the format: 
++ http://127.0.0.1:20199/sdn/server/filter/blockbyport/ , methods=[PUT] : Adds a new rule to filter flows by port. We need to specify the destination port, the address and the node name following the format: 
 {"tcp-destination-port":1919,"ip4-destination":"134.157.24.35/16","ssinstanceid":"Agent.1"}
