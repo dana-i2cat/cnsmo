@@ -33,7 +33,7 @@ def get_nodes():
 
 @app.route("/sdn/server/flows/", methods=[GET])
 def get_flows():
-    data = request.args
+    data = request.json
     if data:
         instanceID = str(data["ssinstanceid"])
         vpnAddr = get_corresp_vpn(instanceID)
