@@ -20,14 +20,6 @@ GET = "GET"
 POST = "POST"
 PUT = "PUT"
 
-# Practice call, does nothing
-@app.route("/sdn/server/flows/", methods=[GET])
-def get_flows():
-    status = dict()
-    status["host"] = app.config["host"]
-    status["port"] = app.config["port"]
-    return jsonify(status), 200
-
 # Returns a list of strings with the id of the nodes
 @app.route("/sdn/server/nodes/", methods=[GET])
 def get_nodes():
@@ -38,6 +30,50 @@ def get_nodes():
         nodes[str(key['id'])] = str(key['flow-node-inventory:ip-address'])
 
     return jsonify(nodes),200
+
+@app.route("/sdn/server/flows/", methods=[GET])
+def get_flows():
+    data = request.args
+    if data:
+        instanceID = str(data["ssinstanceid"])
+        vpnAddr = get_corresp_vpn(instanceID)
+        if vpnAddr!="":
+            flowID = get_flowID(vpnAddr)
+            if flowID!="":
+                url = str("http://134.158.74.110:8080/restconf/config/opendaylight-inventory:nodes/node/"+str(flowID))
+                r = requests.get(url , auth=HTTPBasicAuth('admin', 'admin'))
+                j = r.json()
+                nodes = {}
+                nodes[str(flowID)] = {}
+                nodes[str(flowID)]['vpnIP']=str(vpnAddr)
+                for key in j['node'][0]["flow-node-inventory:table"]:
+                    nodes[str(flowID)]['flows'] = key['flow']
+                return jsonify(nodes),200
+        else:
+            return "Node doesn't exist",404
+    else:
+        # Get all sdn clients
+        r = requests.get('http://134.158.74.110:8080/restconf/operational/opendaylight-inventory:nodes/' , auth=HTTPBasicAuth('admin', 'admin'))
+        j = r.json()
+        clients = {}
+        for key in j['nodes']['node']:
+            clients[str(key['id'])] = str(key['flow-node-inventory:ip-address'])
+
+        # get all flows from every sdn client
+        url = str("http://134.158.74.110:8080/restconf/config/opendaylight-inventory:nodes/")
+        r = requests.get(url , auth=HTTPBasicAuth('admin', 'admin'))
+        j = r.json()
+        nodes = {}
+        for key in j['nodes']['node']:
+            if key['id']!='':
+                nodes[str(key['id'])] = {}
+                nodes[str(key['id'])]['vpnID']=str(clients[str(key['id'])])
+                for tables in key["flow-node-inventory:table"]:
+                    nodes[str(key['id'])]['flows'] = tables['flow']
+        if not nodes:
+            return "List is empty",404
+        return jsonify(nodes),200
+
 
 #la crida sera del format: /blockbyport/SlipstreamInstanceId:port
 @app.route("/sdn/server/filter/blockbyport/", methods=[PUT])
@@ -93,9 +129,9 @@ def add_filter_by_port():
             r = requests.put(url, data = xml, auth=HTTPBasicAuth('admin', 'admin'), headers=header)
             return str(r.headers),r.status_code
         else:
-            return "Node doesn't exist", 409
+            return "Node doesn't exist", 404
     else:
-        return "Node doesn't exist", 409
+        return "Node doesn't exist", 404
 
 def get_corresp_vpn(ssinstanceid):
     vpnClients = requests.get('http://127.0.0.1:20092/vpn/server/clients/')
