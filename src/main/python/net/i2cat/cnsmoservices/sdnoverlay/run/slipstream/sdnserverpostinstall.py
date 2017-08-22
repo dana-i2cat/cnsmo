@@ -51,7 +51,7 @@ def install_karaf():
 
     call('ss-set net.services.installed true')
     logger.debug("Set net.services.installed=true")
-    return "OK"
+    return 0
 
 def postinstallsdn():
     logger = logging.getLogger(__name__)
