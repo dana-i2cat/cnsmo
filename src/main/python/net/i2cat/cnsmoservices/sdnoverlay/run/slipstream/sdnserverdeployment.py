@@ -51,29 +51,29 @@ def deploysdn():
     logger.debug("Installing karaf and features...")
     call('ss-display \"Installing karaf and features..."')
 
-    #os.chdir("/opt/odl/distribution-karaf-0.3.2-Lithium-SR2")
+    os.chdir("/opt/odl/distribution-karaf-0.3.2-Lithium-SR2")
 
     KARAF_DIR='/opt/odl/distribution-karaf-0.3.2-Lithium-SR2'
     DLUX_DIRECTORY=str(KARAF_DIR)+'/system/org/opendaylight/dlux'
-    #call("rm -R %s/*" % DLUX_DIRECTORY)
+    call("rm -R %s/*" % DLUX_DIRECTORY)
     CNSMO_DIRECTORY='/var/tmp/slipstream/cnsmo/cnsmo/dlux-Lithium-SR2-MOD.zip'
-    #call("cp %s  %s/" % (CNSMO_DIRECTORY , DLUX_DIRECTORY))
-    #os.chdir("/opt/odl/distribution-karaf-0.3.2-Lithium-SR2/system/org/opendaylight/dlux/")
-    #call("sudo unzip dlux-Lithium-SR2-MOD.zip")
-    #os.chdir(KARAF_DIR)
+    call("cp %s  %s/" % (CNSMO_DIRECTORY , DLUX_DIRECTORY))
+    os.chdir("/opt/odl/distribution-karaf-0.3.2-Lithium-SR2/system/org/opendaylight/dlux/")
+    call("sudo unzip dlux-Lithium-SR2-MOD.zip")
+    os.chdir(KARAF_DIR)
 
-    #with open("./bin/setenv", "a") as myfile:
-    #    myfile.write("export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64")
+    with open("./bin/setenv", "a") as myfile:
+        myfile.write("export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64")
 
-    #os.environ['JAVA_HOME'] = '/usr/lib/jvm/java-7-openjdk-amd64'
+    os.environ['JAVA_HOME'] = '/usr/lib/jvm/java-7-openjdk-amd64'
     logger.debug("Starting karaf server...")
-    #p = subprocess.Popen(["sudo","./bin/karaf","server"])
+    p = subprocess.Popen(["sudo","./bin/karaf","server"])
 
     logger.debug("Installing karaf features")
     time.sleep(30)
 
-    #p = subprocess.Popen(["./bin/client","-u","karaf","feature:install","odl-openflowjava-all","odl-netconf-all","odl-dlux-all","odl-l2switch-packethandler","odl-l2switch-loopremover","odl-l2switch-arphandler","odl-l2switch-switch-ui","odl-restconf-all","odl-l2switch-addresstracker","odl-l2switch-switch-rest","odl-l2switch-switch","odl-mdsal-all","odl-openflowjava-all","odl-mdsal-apidocs","odl-openflowplugin-all","odl-ovsdb-all"])    
-    #p.wait()
+    p = subprocess.Popen(["./bin/client","-u","karaf","feature:install","odl-openflowjava-all","odl-netconf-all","odl-dlux-all","odl-l2switch-packethandler","odl-l2switch-loopremover","odl-l2switch-arphandler","odl-l2switch-switch-ui","odl-restconf-all","odl-l2switch-addresstracker","odl-l2switch-switch-rest","odl-l2switch-switch","odl-mdsal-all","odl-openflowjava-all","odl-mdsal-apidocs","odl-openflowplugin-all","odl-ovsdb-all"])    
+    p.wait()
     logger.debug("Karaf features installed successfully and ready to run!")
 
     ts = threading.Thread(target=launchSDNServer, args=(hostname, redis_address, instance_id))
