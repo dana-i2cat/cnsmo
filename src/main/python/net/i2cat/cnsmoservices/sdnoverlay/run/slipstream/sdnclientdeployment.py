@@ -43,6 +43,7 @@ def check_error(err):
 def check_preconditions(sdn_server_instance_id):
     logger = logging.getLogger(__name__)
 
+<<<<<<< HEAD
     #logger.debug("Resolving net.i2cat.cnsmo.service.sdn.allowedip...")
     #allowed_ip_and_mask = callWithResp('ss-get --timeout=1200 net.i2cat.cnsmo.service.sdn.allowedip').rstrip('\n')
     #if not allowed_ip_and_mask:
@@ -59,6 +60,8 @@ def check_preconditions(sdn_server_instance_id):
         #return -1
     #logger.debug("Got net.i2cat.cnsmo.service.sdn.allowedport= %s" % allowed_port)
 
+=======
+>>>>>>> 92ae345ad07f7ea1f228ed4568c9329b676863b8
     logger.debug("Waiting for SDN to be deployed...")
     call('ss-display \"SDN: Waiting for SDN to be established...\"')
     response_sdn = callWithResp("ss-get --timeout=1800 %s:net.i2cat.cnsmo.service.sdn.server.ready" % sdn_server_instance_id).rstrip('\n')
@@ -97,24 +100,30 @@ def configure_bridge(NIC, IP, GW, MAC, MASK):
     err = call("sudo ovs-vsctl set bridge br-ext protocols=OpenFlow10,OpenFlow12,OpenFlow13")
     totalErr = totalErr + check_error(err)
     logger.debug("Done!")
-
+    
+    #in order to avoid being disconnected we have to execute several commands as a single script
+    call('ss-display \"starting bash script temp.sh...\"')
+    err = call("sudo echo \"#!/bin/bash\" >> ./temp.sh")
+    totalErr = totalErr + check_error(err)
+    err = call("sudo chmod +x ./temp.sh")
+    totalErr = totalErr + check_error(err)
     logger.debug("Adding the physical interface to the ovs bridge...")
-    call('ss-display \"Adding the physical interface to the ovs bridge...\"')
-    err = call("sudo ovs-vsctl add-port br-ext %s > /dev/null 2>&1" % (NIC))
+    call('ss-display \"Add to Bash script: Adding the physical interface to the ovs bridge...\"')
+    err = call("sudo echo \"ovs-vsctl add-port br-ext %s > /dev/null 2>&1\" >> ./temp.sh" % (NIC))
     totalErr = totalErr + check_error(err)
+<<<<<<< HEAD
     logger.debug("Done!")
 
+=======
+>>>>>>> 92ae345ad07f7ea1f228ed4568c9329b676863b8
     logger.debug("Removing IP address from the physical interface...")
-    call('ss-display \"Removing IP address from the physical interface...\"')
-    err = call("sudo ifconfig %s 0.0.0.0 > /dev/null 2>&1" % (NIC))
+    call('ss-display \"Add to Bash script: Removing IP address from the physical interface...\"')
+    err = call("sudo echo \"ifconfig %s 0.0.0.0 > /dev/null 2>&1\" >> ./temp.sh" % (NIC))
     totalErr = totalErr + check_error(err)
-    logger.debug("Done!")
-
     logger.debug("Giving the ovs bridge the host IP address...")
-    call('ss-display \"Giving the ovs bridge the host IP address...\"')
-    err = call("sudo ifconfig br-ext %s/%s > /dev/null 2>&1" % (IP,MASK))
+    call('ss-display \"Add to Bash script: Giving the ovs bridge the host IP address...\"')
+    err = call("sudo echo \"ifconfig br-ext %s/%s > /dev/null 2>&1\" >> ./temp.sh" % (IP,MASK))
     totalErr = totalErr + check_error(err)
-    logger.debug("Done!")
 
     logger.debug("Changing the interface MAC address...")
     LAST_MAC_CHAR=list(MAC)[len(MAC)-1]
@@ -126,23 +135,62 @@ def configure_bridge(NIC, IP, GW, MAC, MASK):
         NL="a"
 
     NEW_MAC=AUX+NL
-    call('ss-display \"Configuring bridge and route table...\"')
-    err = call("sudo ifconfig %s down > /dev/null 2>&1" % (NIC))
+    call('ss-display \"Add to Bash script: Configuring bridge...\"')
+    err = call("sudo echo \"ifconfig %s down > /dev/null 2>&1\" >> ./temp.sh" % (NIC))
     totalErr = totalErr + check_error(err)
-    err = call("sudo ifconfig %s hw ether %s > /dev/null 2>&1" % (NIC,NEW_MAC))
+    err = call("sudo echo \"ifconfig %s hw ether %s > /dev/null 2>&1\" >> ./temp.sh" % (NIC,NEW_MAC))
     totalErr = totalErr + check_error(err)
-    err = call("sudo ifconfig %s up > /dev/null 2>&1" % (NIC))
+    err = call("sudo echo \"ifconfig %s up > /dev/null 2>&1\" >> ./temp.sh" % (NIC))
     totalErr = totalErr + check_error(err)
-    logger.debug("Done!")
-
+    call('ss-display \"Add to Bash script: Configuring route table while loop...\"')
     logger.debug("Routing traffic through the new bridge...")
-
-    while (call("sudo ip route del default > /dev/null 2>&1") == 0):
-        pass
-
-    err = call("sudo ip route add default via %s dev br-ext > /dev/null 2>&1" % (GW))
+    err = call("sudo echo \"while ip route del default; do :; done\" >> ./temp.sh")
     totalErr = totalErr + check_error(err)
-    logger.debug("Done!")
+    call('ss-display \"Add to Bash script: Configuring route table default gw...\"')
+    err = call("sudo echo \"ip route add default via %s dev br-ext > /dev/null 2>&1\" >> ./temp.sh" % (GW))
+    totalErr = totalErr + check_error(err)
+
+    call('ss-display \"Executing Bash script...\"')
+    err = call("sudo ./temp.sh")
+    totalErr = totalErr + check_error(err)
+    call('ss-display \"Executed Bash Script...\"')
+
+    return totalErr
+
+def subscribe_to_controller(PROTO_SDN,SDN_CTRL_IP_PORT):
+    totalErr = 0
+    logger = logging.getLogger(__name__)
+    
+    #in order to avoid being disconnected we have to execute several commands as a single script
+    call('ss-display \"starting bash script temp2.sh...\"')
+    err = call("sudo echo \"#!/bin/bash\" >> ./temp2.sh")
+    totalErr = totalErr + check_error(err)
+    err = call("sudo chmod +x ./temp2.sh")
+    totalErr = totalErr + check_error(err)
+
+    logger.debug("Connecting OVS brige to controller...")
+    call('ss-display \"Add to Bash script: Connecting OVS brige to controller...\"')
+    err = call("sudo echo \"ovs-vsctl set-controller br-ext %s:%s > /dev/null 2>&1\" >> ./temp2.sh" % (PROTO_SDN,SDN_CTRL_IP_PORT))
+    totalErr = totalErr + check_error(err)
+
+    logger.debug("Updating problematic OpenFlow rules if any...")
+    call('ss-display \"Add to Bash script: Updating problematic OpenFlow rules if any...\"')
+    err = call("sudo echo \"ovs-ofctl del-flows br-ext > /dev/null 2>&1\" >> ./temp2.sh")
+    totalErr = totalErr + check_error(err)
+    err = call("sudo echo \"sleep 5\" >> ./temp2.sh")
+    totalErr = totalErr + check_error(err)
+    err = call("sudo echo \"ovs-ofctl add-flow br-ext \\\"in_port=LOCAL, priority=500, actions:output=1\\\" > /dev/null 2>&1\" >> ./temp2.sh")
+    totalErr = totalErr + check_error(err)
+    err = call("sudo echo \"ovs-ofctl add-flow br-ext \\\"in_port=1, priority=500, actions:output=LOCAL\\\" > /dev/null 2>&1\" >> ./temp2.sh")
+    totalErr = totalErr + check_error(err)
+
+    call('ss-display \"Executing Bash script...\"')
+    err = call("sudo ./temp2.sh")
+    totalErr = totalErr + check_error(err)
+    call('ss-display \"Executed Bash Script...\"')
+
+    logger.debug("Finished Executing script for connecting ovs to controller...")
+    logger.debug("Error is: %s " % (totalErr))
     return totalErr
 
 
@@ -152,7 +200,8 @@ def configureOvs():
     NIC = "eth0"    
     SDN_PORT_CONCAT=":6633"
     VPN_SERVER_IP="10.10.10.1"
-    VPN_SERVER_IP=call("ss-get --timeout=3600 vpn.server.address")
+    VPN_SERVER_IP= callWithResp("ss-get --timeout=3600 vpn.server.address")
+    VPN_SERVER_IP=VPN_SERVER_IP.rstrip('\n')
     SDN_CTRL_IP_PORT=str(VPN_SERVER_IP)+str(SDN_PORT_CONCAT)
     call('ss-display \"Deploying SDN...\"')
 
@@ -170,19 +219,11 @@ def configureOvs():
     call('ss-display \"Configuring SDN bridge...\"')
     totalErr = configure_bridge(NIC, IP, GW, MAC, MASK)
 
-    # Connect OVS and update rules
-    logger.debug("Connecting OVS bridge to controller...")
-    err = call("sudo ovs-vsctl set-controller br-ext %s:%s> /dev/null 2>&1" % (PROTO_SDN,SDN_CTRL_IP))
-    totalErr = totalErr + check_error(err)
-    logger.debug("Done!")
+    call('ss-display \"Subscribing to controller...\"')
+    totalErr = totalErr + subscribe_to_controller(PROTO_SDN,SDN_CTRL_IP_PORT)
 
-    logger.debug("Updating problematic OpenFlow rules if any...")
-    time.sleep(5)
-    call('sudo ovs-ofctl mod-flows br-ext "actions:output=1" > /dev/null 2>&1')
-    call('sudo ovs-ofctl mod-flows br-ext "in_port=1, actions:output=LOCAL" > /dev/null 2>&1')
-    logger.debug("Done!")
     call('ss-display \"SDN ovs bridge configured successfully\"')
-    
+    logger.debug("Error is: %s " % (totalErr))
     logger.debug("Assuming SDN client is ready")
     return totalErr
 

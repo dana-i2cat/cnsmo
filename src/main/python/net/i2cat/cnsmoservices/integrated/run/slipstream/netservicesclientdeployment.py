@@ -75,7 +75,9 @@ def main():
             if not sdn_server_instance_id:
                 # timeout! Abort the script immediately (ss-get will abort the whole deployment in short time)
                 return -1
-            if deploy_sdn_and_wait(sdn_server_instance_id) == 0:
+            resp = deploy_sdn_and_wait(sdn_server_instance_id)
+            logger.debug("deploy_sdn_response is: %s " % (resp))
+            if resp == 0 or resp == '0':
                 logger.debug("Marking sdn as enabled")
                 netservices_enabled.append('sdn')
             else:
@@ -114,7 +116,7 @@ def deploy_sdn_and_wait(sdn_server_instance_id):
     logger.debug("Deploying SDN...")
     err = check_preconditions(sdn_server_instance_id)
     if err == 0:
-        return 0 # configureOvs()
+        return configureOvs()
     else:
         logger.debug("::: ERROR ::: Preconditions not fully satisfied")
         return -1
