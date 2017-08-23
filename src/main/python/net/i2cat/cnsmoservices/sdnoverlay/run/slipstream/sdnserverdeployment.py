@@ -76,8 +76,8 @@ def deploysdn():
     p.wait()
     logger.debug("Karaf features installed successfully and ready to run!")
 
-    ts = threading.Thread(target=launchSDNServer, args=(hostname, redis_address, instance_id))
-    ts.start()
+    #ts = threading.Thread(target=launchSDNServer, args=(hostname, redis_address, instance_id))
+    #ts.start()
     # TODO implement proper way to detect when the server is ready (using systemstate?)
     time.sleep(1)
     logger.debug("Assuming SDN server is listening")
