@@ -32,6 +32,7 @@ def launchSDNServer(hostname, redis_address, instance_id):
     logger = logging.getLogger(__name__)
     logger.debug("Launching SDN server...")
     call('ss-display \"SDN: Launching SDN server...\"')
+    os.chdir("/var/tmp/slipstream")
     call("python cnsmo/cnsmo/src/main/python/net/i2cat/cnsmoservices/sdnoverlay/run/server.py -a %s -p 20199 -r %s -s SDNServer-%s" % (hostname, redis_address, instance_id))
 
 
@@ -76,8 +77,8 @@ def deploysdn():
     p.wait()
     logger.debug("Karaf features installed successfully and ready to run!")
 
-    #ts = threading.Thread(target=launchSDNServer, args=(hostname, redis_address, instance_id))
-    #ts.start()
+    ts = threading.Thread(target=launchSDNServer, args=(hostname, redis_address, instance_id))
+    ts.start()
     # TODO implement proper way to detect when the server is ready (using systemstate?)
     time.sleep(1)
     logger.debug("Assuming SDN server is listening")
