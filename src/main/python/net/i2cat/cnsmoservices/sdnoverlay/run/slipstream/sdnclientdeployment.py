@@ -168,18 +168,18 @@ def configureOvs():
 
     # Configure OVS bridge
     call('ss-display \"Configuring SDN bridge...\"')
-    #totalErr = configure_bridge(NIC, IP, GW, MAC, MASK)
+    totalErr = configure_bridge(NIC, IP, GW, MAC, MASK)
 
     # Connect OVS and update rules
     logger.debug("Connecting OVS bridge to controller...")
-    #err = call("sudo ovs-vsctl set-controller br-ext %s:%s> /dev/null 2>&1" % (PROTO_SDN,SDN_CTRL_IP))
-    #totalErr = totalErr + check_error(err)
+    err = call("sudo ovs-vsctl set-controller br-ext %s:%s> /dev/null 2>&1" % (PROTO_SDN,SDN_CTRL_IP))
+    totalErr = totalErr + check_error(err)
     logger.debug("Done!")
 
     logger.debug("Updating problematic OpenFlow rules if any...")
     time.sleep(5)
-    #call('sudo ovs-ofctl mod-flows br-ext "actions:output=1" > /dev/null 2>&1')
-    #call('sudo ovs-ofctl mod-flows br-ext "in_port=1, actions:output=LOCAL" > /dev/null 2>&1')
+    call('sudo ovs-ofctl mod-flows br-ext "actions:output=1" > /dev/null 2>&1')
+    call('sudo ovs-ofctl mod-flows br-ext "in_port=1, actions:output=LOCAL" > /dev/null 2>&1')
     logger.debug("Done!")
     call('ss-display \"SDN ovs bridge configured successfully\"')
     
