@@ -36,6 +36,7 @@ def get_flows():
     data = request.json
     if data:
         instanceID = str(data["ssinstanceid"])
+        call("echo %s >> /var/tmp/sdntest.txt" % instanceID)
         vpnAddr = get_corresp_vpn(instanceID)
         if vpnAddr!="":
             flowID = get_flowID(vpnAddr)
@@ -83,7 +84,6 @@ def add_filter_by_port():
     #problema del ssinstanceid???
     newflowCount = get_flowcount()
     data = request.json
-    call("echo %s >> /var/tmp/sdntest.txt" % data)
     ssinstanceid = str(data["ssinstanceid"])
     vpnAddr = get_corresp_vpn(ssinstanceid)
     if vpnAddr!="":
