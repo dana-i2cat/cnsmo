@@ -42,26 +42,6 @@ def check_error(err):
 
 def check_preconditions(sdn_server_instance_id):
     logger = logging.getLogger(__name__)
-
-<<<<<<< HEAD
-    #logger.debug("Resolving net.i2cat.cnsmo.service.sdn.allowedip...")
-    #allowed_ip_and_mask = callWithResp('ss-get --timeout=1200 net.i2cat.cnsmo.service.sdn.allowedip').rstrip('\n')
-    #if not allowed_ip_and_mask:
-        #logger.error("Timeout waiting for net.i2cat.cnsmo.service.sdn.allowedip")
-        #timeout! Abort the script immediately (ss-get will abort the whole deployment in short time)
-        #return -1
-    #logger.debug("Got net.i2cat.cnsmo.service.sdn.allowedip= %s" % allowed_ip_and_mask)
-
-    #logger.debug("Resolving net.i2cat.cnsmo.service.sdn.allowedport...")
-    #allowed_port = callWithResp('ss-get --timeout=1200 net.i2cat.cnsmo.service.sdn.allowedport').rstrip('\n')
-    #if not allowed_port:
-        #logger.error("Timeout waiting for net.i2cat.cnsmo.service.sdn.allowedport")
-        #timeout! Abort the script immediately (ss-get will abort the whole deployment in short time)
-        #return -1
-    #logger.debug("Got net.i2cat.cnsmo.service.sdn.allowedport= %s" % allowed_port)
-
-=======
->>>>>>> 92ae345ad07f7ea1f228ed4568c9329b676863b8
     logger.debug("Waiting for SDN to be deployed...")
     call('ss-display \"SDN: Waiting for SDN to be established...\"')
     response_sdn = callWithResp("ss-get --timeout=1800 %s:net.i2cat.cnsmo.service.sdn.server.ready" % sdn_server_instance_id).rstrip('\n')
@@ -111,11 +91,7 @@ def configure_bridge(NIC, IP, GW, MAC, MASK):
     call('ss-display \"Add to Bash script: Adding the physical interface to the ovs bridge...\"')
     err = call("sudo echo \"ovs-vsctl add-port br-ext %s > /dev/null 2>&1\" >> ./temp.sh" % (NIC))
     totalErr = totalErr + check_error(err)
-<<<<<<< HEAD
-    logger.debug("Done!")
 
-=======
->>>>>>> 92ae345ad07f7ea1f228ed4568c9329b676863b8
     logger.debug("Removing IP address from the physical interface...")
     call('ss-display \"Add to Bash script: Removing IP address from the physical interface...\"')
     err = call("sudo echo \"ifconfig %s 0.0.0.0 > /dev/null 2>&1\" >> ./temp.sh" % (NIC))
