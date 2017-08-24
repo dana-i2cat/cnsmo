@@ -46,8 +46,9 @@ def get_flows():
                 nodes = {}
                 nodes[str(flowID)] = {}
                 nodes[str(flowID)]['vpnIP']=str(vpnAddr)
-                for key in j['node'][0]["flow-node-inventory:table"]:
-                    nodes[str(flowID)]['flows'] = key['flow']
+                # uncomment if we want to return flows
+                #for key in j['node'][0]["flow-node-inventory:table"]:
+                    #nodes[str(flowID)]['flows'] = key['flow']
                 return jsonify(nodes),200
         else:
             return "Node doesn't exist",404
@@ -68,8 +69,9 @@ def get_flows():
             if key['id']!='':
                 nodes[str(key['id'])] = {}
                 nodes[str(key['id'])]['vpnID']=str(clients[str(key['id'])])
-                for tables in key["flow-node-inventory:table"]:
-                    nodes[str(key['id'])]['flows'] = tables['flow']
+                # uncomment if we want to return flows
+                #for tables in key["flow-node-inventory:table"]:
+                    #nodes[str(key['id'])]['flows'] = tables['flow']
         if not nodes:
             return "List is empty",404
         return jsonify(nodes),200
