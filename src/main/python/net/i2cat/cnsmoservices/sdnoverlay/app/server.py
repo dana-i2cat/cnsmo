@@ -60,7 +60,7 @@ def get_flows():
             clients[str(key['id'])] = str(key['flow-node-inventory:ip-address'])
 
         # get all flows from every sdn client
-        url = str("http://127.0.0.1:8080/restconf/config/opendaylight-inventory:nodes/")
+        url = str("http://127.0.0.1:8080/restconf/operational/opendaylight-inventory:nodes/")
         r = requests.get(url , auth=HTTPBasicAuth('admin', 'admin'))
         j = r.json()
         nodes = {}
@@ -155,7 +155,7 @@ def get_flowID(vpnaddress):
 # Returns the last flowId manually added to the filter
 # to access flowID use: print j['nodes']['node'][0]['flow-node-inventory:table'][0]['flow'][0]['id'] 
 def get_flowcount():
-    r = requests.get('http://127.0.0.1:8080/restconf/config/opendaylight-inventory:nodes/' , auth=HTTPBasicAuth('admin', 'admin'))
+    r = requests.get('http://127.0.0.1:8080/restconf/operational/opendaylight-inventory:nodes/' , auth=HTTPBasicAuth('admin', 'admin'))
     j = r.json()
     max = 0
     flows = {}
