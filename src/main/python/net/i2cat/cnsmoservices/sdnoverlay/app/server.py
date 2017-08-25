@@ -65,6 +65,10 @@ def get_flows():
         url = str("http://127.0.0.1:8080/restconf/config/opendaylight-inventory:nodes/")
         r = requests.get(url , auth=HTTPBasicAuth('admin', 'admin'))
         j = r.json()
+        
+        if "errors" in j:
+            return "List is empty",404
+
         nodes = {}
         for key in j['nodes']['node']:
             if key['id']!='':
@@ -73,9 +77,8 @@ def get_flows():
                 if key["flow-node-inventory:table"]:
                     for tables in key["flow-node-inventory:table"]:
                         nodes[str(key['id'])]['flows'] = tables['flow']
-        if not nodes:
-            return "List is empty",404
-        return jsonify(nodes),200
+        
+            return jsonify(nodes),200
 
 
 #la crida sera del format: /blockbyport/SlipstreamInstanceId:port
