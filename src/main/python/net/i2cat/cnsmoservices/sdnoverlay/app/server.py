@@ -62,7 +62,7 @@ def get_flows():
             clients[str(key['id'])] = str(key['flow-node-inventory:ip-address'])
 
         # get all flows from every sdn client
-        url = str("http://127.0.0.1:8080/restconf/operational/opendaylight-inventory:nodes/")
+        url = str("http://127.0.0.1:8080/restconf/config/opendaylight-inventory:nodes/")
         r = requests.get(url , auth=HTTPBasicAuth('admin', 'admin'))
         j = r.json()
         nodes = {}
