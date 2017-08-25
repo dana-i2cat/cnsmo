@@ -47,7 +47,7 @@ def get_flows():
                 nodes = {}
                 nodes[str(flowID)] = {}
                 nodes[str(flowID)]['vpnIP']=str(vpnAddr)
-                if j['node'][0]["flow-node-inventory:table"]:
+                if "node" in j:
                     for key in j['node'][0]["flow-node-inventory:table"]:
                         nodes[str(flowID)]['flows'] = key['flow']
                 return jsonify(nodes),200
