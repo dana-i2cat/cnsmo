@@ -70,13 +70,14 @@ def get_flows():
             return "List is empty",404
 
         nodes = {}
-        for key in j['nodes']['node']:
-            if key['id']!='':
-                nodes[str(key['id'])] = {}
-                nodes[str(key['id'])]['vpnID']=str(clients[str(key['id'])])
-                if key["flow-node-inventory:table"]:
-                    for tables in key["flow-node-inventory:table"]:
-                        nodes[str(key['id'])]['flows'] = tables['flow']
+        for key in j['nodes']:
+            for nn in key['node']:
+                if nn['id']!='':
+                    nodes[str(nn['id'])] = {}
+                    nodes[str(nn['id'])]['vpnID']=str(clients[str(nn['id'])])
+                    if nn["flow-node-inventory:table"]:
+                        for tables in nn["flow-node-inventory:table"]:
+                            nodes[str(nn['id'])]['flows'] = tables['flow']
         
             return jsonify(nodes),200
 
