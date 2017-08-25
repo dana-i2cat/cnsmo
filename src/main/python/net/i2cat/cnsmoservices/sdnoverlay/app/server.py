@@ -160,7 +160,7 @@ def get_flowcount():
     r = requests.get('http://127.0.0.1:8080/restconf/config/opendaylight-inventory:nodes/' , auth=HTTPBasicAuth('admin', 'admin'))
     j = r.json()
     max = 0
-    if not j["errors"]:
+    if "errors" not in j:
         flows = {}
         for key in j['nodes']['node']:
             for idKey in key['flow-node-inventory:table']:
