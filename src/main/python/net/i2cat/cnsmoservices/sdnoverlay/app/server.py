@@ -130,9 +130,9 @@ def add_filter_by_port():
             r = requests.put(url, data = xml, auth=HTTPBasicAuth('admin', 'admin'), headers=header)
             return str(r.headers),r.status_code
         else:
-            return "Node doesn't exist", 404
+            return "Node doesn't exist\n", 404
     else:
-        return "Node doesn't exist", 404
+        return "Node doesn't exist\n", 404
 
 def get_corresp_vpn(ssinstanceid):
     vpnClients = requests.get('http://127.0.0.1:20092/vpn/server/clients/')
