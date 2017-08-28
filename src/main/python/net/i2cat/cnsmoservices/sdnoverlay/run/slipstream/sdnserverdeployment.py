@@ -36,9 +36,6 @@ def launchSDNServer(hostname, redis_address, instance_id):
     call("python cnsmo/cnsmo/src/main/python/net/i2cat/cnsmoservices/sdnoverlay/run/server.py -a %s -p 20199 -r %s -s SDNServer-%s" % (hostname, redis_address, instance_id))
 
 
-### Uncomment everything before MERGE!!!!!!!!!!!!!!!!!!!!!
-
-
 def deploysdn():
     logger = logging.getLogger(__name__)
 

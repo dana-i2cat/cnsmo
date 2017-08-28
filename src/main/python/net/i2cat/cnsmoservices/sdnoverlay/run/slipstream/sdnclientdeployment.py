@@ -31,8 +31,6 @@ if src_dir not in sys.path:
 callWithResp = lambda command: subprocess.check_output(command, shell=True)
 call = lambda command: subprocess.call(command, shell=True)
 
-### Uncomment everything before MERGE!!!!!!!!!!!!!!!!!!!!!
-
 def check_error(err):
     logger = logging.getLogger(__name__)
     if err != 0:

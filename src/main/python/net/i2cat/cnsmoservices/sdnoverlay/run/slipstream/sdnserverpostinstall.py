@@ -36,8 +36,6 @@ def config_logging():
                         level=logging.DEBUG,
                         disable_existing_loggers=False)
 
-### Uncomment everything before MERGE!!!!!!!!!!!!!!!!!!!!!
-
 def install_karaf():
     logger = logging.getLogger(__name__)
     logger.debug("Installing Java 7 JDK and other components...")        

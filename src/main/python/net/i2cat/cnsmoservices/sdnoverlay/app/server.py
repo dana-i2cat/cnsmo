@@ -79,11 +79,8 @@ def get_flows():
         
         return jsonify(nodes),200
 
-
-#la crida sera del format: /blockbyport/SlipstreamInstanceId:port
 @app.route("/sdn/server/filter/blockbyport/", methods=[PUT])
 def add_filter_by_port():
-    #problema del ssinstanceid???
     newflowCount = get_flowcount()
     data = request.json
     ssinstanceid = str(data["ssinstanceid"])
@@ -157,7 +154,6 @@ def get_flowID(vpnaddress):
     return auxi
 
 # Returns the last flowId manually added to the filter
-# to access flowID use: print j['nodes']['node'][0]['flow-node-inventory:table'][0]['flow'][0]['id'] 
 def get_flowcount():
     r = requests.get('http://127.0.0.1:8080/restconf/config/opendaylight-inventory:nodes/' , auth=HTTPBasicAuth('admin', 'admin'))
     j = r.json()
