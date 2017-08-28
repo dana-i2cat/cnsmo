@@ -36,7 +36,6 @@ def get_flows():
     data = request.json
     if data:
         instanceID = str(data["ssinstanceid"])
-        call("echo %s >> /var/tmp/sdntest.txt" % instanceID)
         vpnAddr = get_corresp_vpn(instanceID)
         if vpnAddr!="":
             flowID = get_flowID(vpnAddr)
@@ -52,7 +51,7 @@ def get_flows():
                         nodes[str(flowID)]['flows'] = key['flow']
                 return jsonify(nodes),200
         else:
-            return "Node doesn't exist",404
+            return "Node doesn't exist\n",404
     else:
         # Get all sdn clients
         r = requests.get('http://127.0.0.1:8080/restconf/operational/opendaylight-inventory:nodes/' , auth=HTTPBasicAuth('admin', 'admin'))
