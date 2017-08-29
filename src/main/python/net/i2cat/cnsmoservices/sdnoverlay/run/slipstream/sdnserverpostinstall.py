@@ -40,12 +40,12 @@ def install_karaf():
     logger = logging.getLogger(__name__)
     logger.debug("Installing Java 7 JDK and other components...")        
     call("apt-get -y update")
-    call("apt-get install -y openjdk-7-jdk")
+    #call("apt-get install -y openjdk-7-jdk")
 
     logger.debug("Downloading opendaylight executable")
     call('ss-display \"Downloading opendaylight executable\"')
-    call("wget https://nexus.opendaylight.org/content/repositories/opendaylight.release/org/opendaylight/integration/distribution-karaf/0.3.2-Lithium-SR2/distribution-karaf-0.3.2-Lithium-SR2.zip")
-    call("sudo unzip distribution-karaf-0.3.2-Lithium-SR2.zip")
+    #call("wget https://nexus.opendaylight.org/content/repositories/opendaylight.release/org/opendaylight/integration/distribution-karaf/0.3.2-Lithium-SR2/distribution-karaf-0.3.2-Lithium-SR2.zip")
+    #call("sudo unzip distribution-karaf-0.3.2-Lithium-SR2.zip")
 
     call('ss-set net.services.installed true')
     logger.debug("Set net.services.installed=true")
