@@ -39,6 +39,11 @@ def launchSDNServer(hostname, redis_address, instance_id):
 def deploysdn():
     logger = logging.getLogger(__name__)
 
+    ss_user = call('ss-get cnsmo.user').rstrip('\n')
+    ss_password = call('ss-get cnsmo.password').rstrip('\n')
+
+    call("echo %s :: %s >> /var/tmp/hola.txt" % (ss_user, ss_password))
+
     ss_nodename = call('ss-get nodename').rstrip('\n')
     ss_node_instance = call('ss-get id').rstrip('\n')
     instance_id = "%s.%s" % (ss_nodename, ss_node_instance)
