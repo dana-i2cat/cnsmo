@@ -51,10 +51,21 @@ def install_karaf():
     logger.debug("Set net.services.installed=true")
     return 0
 
+def install_gui():
+    os.chdir("/var/tmp")
+    call("curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -")
+    call("git clone https://github.com/jiponsI2cat/cnsmo-api.git")
+    os.chdir("/var/tmp/cnsmo-api")
+    call("npm install")
+    call("sudo npm install pm2@latest -g")
+    call("pm2 start process.yml")
+
 def postinstallsdn():
     logger = logging.getLogger(__name__)
 
     call('pip install requests')
+
+    install_gui()
     
     logger.debug("Set working directory")
     if not os.path.isdir("/opt/odl"):
