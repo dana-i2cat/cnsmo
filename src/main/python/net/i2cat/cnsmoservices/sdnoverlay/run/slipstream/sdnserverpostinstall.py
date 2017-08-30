@@ -86,6 +86,11 @@ def install_gui():
 
     call("echo fase 5 >> /var/tmp/hola.txt")
     os.chdir("/var/tmp/cnsmo-api")
+    ss_user = call('ss-get cnsmo.user').rstrip('\n')
+    ss_password = call('ss-get cnsmo.password').rstrip('\n')
+
+    call("echo '{'credentials': {'username': %s,'password': %s}}" % (ss_user,ss_password))
+    
     call("sudo npm install pm2@latest -g")
     call("echo fase 6 >> /var/tmp/hola.txt")
     call("pm2 start process.yml")
