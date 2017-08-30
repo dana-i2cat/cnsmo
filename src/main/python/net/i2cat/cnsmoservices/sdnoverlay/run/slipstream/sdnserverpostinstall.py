@@ -23,6 +23,7 @@ if src_dir not in sys.path:
     sys.path.append(src_dir)
 
 call = lambda command: subprocess.check_output(command, shell=True)
+callWithResp = lambda command: subprocess.check_output(command, shell=True)
 
 def main():
     config_logging()
@@ -57,12 +58,36 @@ def install_gui():
     call("curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -")
     call("sudo apt-get install -y nodejs")
     call("git clone https://github.com/jiponsI2cat/cnsmo-api.git")
+
     call("echo fase 2 >> /var/tmp/hola.txt")
     os.chdir("/var/tmp/cnsmo-api")
     call("npm install")
+
     call("echo fase 3 >> /var/tmp/hola.txt")
-    call("sudo npm install pm2@latest -g")
+    os.chdir("/var/tmp/cnsmo-api/node_modules/cnsmo_web/src/environments")
+    call("rm environment.prod.ts")
+
+    # retrive host ip and generate environment.prod.ts file
+    IPADDR = callWithResp("ip addr show eth0 | grep 'inet ' | grep -Fv 127.0.0.1 | awk '{{print $2}}' | cut -d/ -f1")
+    IPADDR = IPADDR.split('\n')[0]
+    call("echo 'export const environment = {\n production: true,\n api: \'http://%s:8080/api/v1\',\n authUrl: \'/authenticate\'\n };' >> environment.prod.ts " % IPADDR)
+    os.chdir("/var/tmp/cnsmo-api/node_modules/cnsmo_web")
+
+    # install cnsmo_web dependencies
     call("echo fase 4 >> /var/tmp/hola.txt")
+    call("sudo npm install -g @angular/cli@1.3.2")
+
+    call("rm -rf node_modules dist")
+    call("npm install --save-dev @angular/cli@1.3.2")
+    call("npm install")
+
+    # build cnsmo_web
+    call("ng build --prod --aot=false")
+
+    call("echo fase 5 >> /var/tmp/hola.txt")
+    os.chdir("/var/tmp/cnsmo-api")
+    call("sudo npm install pm2@latest -g")
+    call("echo fase 6 >> /var/tmp/hola.txt")
     call("pm2 start process.yml")
 
 def postinstallsdn():
