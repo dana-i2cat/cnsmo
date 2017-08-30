@@ -55,6 +55,7 @@ def install_gui():
     os.chdir("/var/tmp")
     call("echo fase 1 >> /var/tmp/hola.txt")
     call("curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -")
+    call("sudo apt-get install -y nodejs")
     call("git clone https://github.com/jiponsI2cat/cnsmo-api.git")
     call("echo fase 2 >> /var/tmp/hola.txt")
     os.chdir("/var/tmp/cnsmo-api")
