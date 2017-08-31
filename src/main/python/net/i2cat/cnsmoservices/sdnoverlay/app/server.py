@@ -23,7 +23,7 @@ PUT = "PUT"
 # Returns a list of strings with the id of the nodes
 @app.route("/sdn/server/nodes/", methods=[GET])
 def get_nodes():
-    r = requests.get('http://127.0.0.1:8080/restconf/operational/opendaylight-inventory:nodes/' , auth=HTTPBasicAuth('admin', 'admin'))
+    r = requests.get('http://127.0.0.1:8090/restconf/operational/opendaylight-inventory:nodes/' , auth=HTTPBasicAuth('admin', 'admin'))
     j = r.json()
     nodes = {}
     for key in j['nodes']['node']:
@@ -40,7 +40,7 @@ def get_flows():
         if vpnAddr!="":
             flowID = get_flowID(vpnAddr)
             if flowID!="":
-                url = str("http://127.0.0.1:8080/restconf/config/opendaylight-inventory:nodes/node/"+str(flowID))
+                url = str("http://127.0.0.1:8090/restconf/config/opendaylight-inventory:nodes/node/"+str(flowID))
                 r = requests.get(url , auth=HTTPBasicAuth('admin', 'admin'))
                 j = r.json()
                 nodes = {}
@@ -54,14 +54,14 @@ def get_flows():
             return "Node doesn't exist\n",404
     else:
         # Get all sdn clients
-        r = requests.get('http://127.0.0.1:8080/restconf/operational/opendaylight-inventory:nodes/' , auth=HTTPBasicAuth('admin', 'admin'))
+        r = requests.get('http://127.0.0.1:8090/restconf/operational/opendaylight-inventory:nodes/' , auth=HTTPBasicAuth('admin', 'admin'))
         j = r.json()
         clients = {}
         for key in j['nodes']['node']:
             clients[str(key['id'])] = str(key['flow-node-inventory:ip-address'])
 
         # get all flows from every sdn client
-        url = str("http://127.0.0.1:8080/restconf/config/opendaylight-inventory:nodes/")
+        url = str("http://127.0.0.1:8090/restconf/config/opendaylight-inventory:nodes/")
         r = requests.get(url , auth=HTTPBasicAuth('admin', 'admin'))
         j = r.json()
         
@@ -89,7 +89,7 @@ def add_filter_by_port():
         flowID = get_flowID(vpnAddr)
         if flowID!="":
             # URL has to follow this format: http://134.158.74.110:8080/restconf/config/opendaylight-inventory:nodes/node/openflow:274973442922995/table/0/flow/12
-            url = str("http://127.0.0.1:8080/restconf/config/opendaylight-inventory:nodes/node/"+flowID+"/table/0/flow/"+str(newflowCount))
+            url = str("http://127.0.0.1:8090/restconf/config/opendaylight-inventory:nodes/node/"+flowID+"/table/0/flow/"+str(newflowCount))
             xml = """
             <flow xmlns="urn:opendaylight:flow:inventory">
                 <strict>false</strict>
@@ -142,7 +142,7 @@ def get_corresp_vpn(ssinstanceid):
     return ""
 
 def get_flowID(vpnaddress):
-    r = requests.get('http://127.0.0.1:8080/restconf/operational/opendaylight-inventory:nodes/' , auth=HTTPBasicAuth('admin', 'admin'))
+    r = requests.get('http://127.0.0.1:8090/restconf/operational/opendaylight-inventory:nodes/' , auth=HTTPBasicAuth('admin', 'admin'))
     j = r.json()
     nodes = {}
     for key in j['nodes']['node']:
@@ -155,7 +155,7 @@ def get_flowID(vpnaddress):
 
 # Returns the last flowId manually added to the filter
 def get_flowcount():
-    r = requests.get('http://127.0.0.1:8080/restconf/config/opendaylight-inventory:nodes/' , auth=HTTPBasicAuth('admin', 'admin'))
+    r = requests.get('http://127.0.0.1:8090/restconf/config/opendaylight-inventory:nodes/' , auth=HTTPBasicAuth('admin', 'admin'))
     j = r.json()
     max = 0
     if "errors" not in j:
