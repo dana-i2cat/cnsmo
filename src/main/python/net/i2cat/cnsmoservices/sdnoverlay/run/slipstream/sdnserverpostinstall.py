@@ -90,10 +90,12 @@ def install_gui():
     ss_user = call('ss-get cnsmo.user').rstrip('\n')
     ss_password = call('ss-get cnsmo.password').rstrip('\n')
 
-    call("echo '{'credentials': {'username': %s,'password': %s}}" % (ss_user,ss_password))
-    
-    call("sudo npm install pm2@latest -g")
     call("echo fase 6 >> /var/tmp/hola.txt")
+    call("rm /var/tmp/cnsmo-api/core/config/initConfig.json")
+    call("echo '{\"credentials\": {\"username\": %s,\"password\": %s}}' >> /var/tmp/cnsmo-api/core/config/initConfig.json" % (ss_user,ss_password))
+ 
+    call("sudo npm install pm2@latest -g")
+    call("echo fase 7 >> /var/tmp/hola.txt")
     call("pm2 start process.yml")
 
 def postinstallsdn():
