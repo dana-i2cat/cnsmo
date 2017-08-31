@@ -70,7 +70,7 @@ def install_gui():
     # retrive host ip and generate environment.prod.ts file
     IPADDR = callWithResp("ip addr show eth0 | grep 'inet ' | grep -Fv 127.0.0.1 | awk '{{print $2}}' | cut -d/ -f1")
     IPADDR = IPADDR.split('\n')[0]
-    aux = "http://"+str(IPADDR)+":8080/api/v1"
+    aux = "http://"+str(IPADDR)+":8090/api/v1"
     call("echo 'export const environment = {\n production: true,\n api: \"%s\",\n authUrl: \"authenticate\"\n };' >> environment.prod.ts " % aux)
     os.chdir("/var/tmp/cnsmo-api/node_modules/cnsmo_web")
 
@@ -92,7 +92,7 @@ def install_gui():
 
     call("echo fase 6 >> /var/tmp/hola.txt")
     call("rm /var/tmp/cnsmo-api/core/config/initConfig.json")
-    call("echo '{\"credentials\": {\"username\": %s,\"password\": %s}}' >> /var/tmp/cnsmo-api/core/config/initConfig.json" % (ss_user,ss_password))
+    call("echo '{\"credentials\": {\"username\": \"%s\",\"password\": \"%s\"}}' >> /var/tmp/cnsmo-api/core/config/initConfig.json" % (ss_user,ss_password))
  
     call("sudo npm install pm2@latest -g")
     call("echo fase 7 >> /var/tmp/hola.txt")
