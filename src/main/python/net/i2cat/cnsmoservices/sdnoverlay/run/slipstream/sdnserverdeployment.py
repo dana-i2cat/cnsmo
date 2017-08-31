@@ -51,7 +51,7 @@ def deploysdn():
 
     os.chdir("/opt/odl/distribution-karaf-0.3.2-Lithium-SR2")
 
-    # Code to change port to 8080 instead of 8090
+    # Code to change port to 8080(uncommented) instead of 8090(commented)
     #KARAF_DIR='/opt/odl/distribution-karaf-0.3.2-Lithium-SR2'
     #DLUX_DIRECTORY=str(KARAF_DIR)+'/system/org/opendaylight/dlux'
     #call("rm -R %s/*" % DLUX_DIRECTORY)
