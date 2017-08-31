@@ -49,8 +49,6 @@ def deployvpn():
     instance_id = "%s.%s" % (ss_nodename, ss_node_instance)
     log_file = os.getcwd() + "/cnsmo/vpn.log"
 
-    
-
     logger.debug("Resolving vpn.server.nodeinstanceid...")
     server_instance_id = call('ss-get --timeout=1200 vpn.server.nodeinstanceid').rstrip('\n')
     if not server_instance_id:

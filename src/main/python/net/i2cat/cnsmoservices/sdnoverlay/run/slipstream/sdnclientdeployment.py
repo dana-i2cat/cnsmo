@@ -40,7 +40,6 @@ def check_error(err):
 
 def check_preconditions(sdn_server_instance_id):
     logger = logging.getLogger(__name__)
-
     logger.debug("Waiting for SDN to be deployed...")
     call('ss-display \"SDN: Waiting for SDN to be established...\"')
     response_sdn = callWithResp("ss-get --timeout=1800 %s:net.i2cat.cnsmo.service.sdn.server.ready" % sdn_server_instance_id).rstrip('\n')
@@ -90,6 +89,7 @@ def configure_bridge(NIC, IP, GW, MAC, MASK):
     call('ss-display \"Add to Bash script: Adding the physical interface to the ovs bridge...\"')
     err = call("sudo echo \"ovs-vsctl add-port br-ext %s > /dev/null 2>&1\" >> ./temp.sh" % (NIC))
     totalErr = totalErr + check_error(err)
+
     logger.debug("Removing IP address from the physical interface...")
     call('ss-display \"Add to Bash script: Removing IP address from the physical interface...\"')
     err = call("sudo echo \"ifconfig %s 0.0.0.0 > /dev/null 2>&1\" >> ./temp.sh" % (NIC))

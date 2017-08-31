@@ -9,13 +9,13 @@ cython
 git
 python-pip
 
-* About the scripts:
-vpn-client-postinstall.sh is meant to run in the VPN-client VM at post-install phase.
-vpn-client-deployment.sh is meant to run in the VPN-client VM at deployment phase, after post-install.
-vpn-client-deployment.py is executed by vpn-client-deployment.sh. It contains the deployment instructions.
-vpn-server-postinstall.sh is meant to run in the VPN-server VM at post-install phase.
-vpn-server-deployment.sh is meant to run in the VPN-server VM at deployment phase, after post-install.
-vpn-server-deployment.py is executed by vpn-server-deployment.sh. It contains the deployment instructions.
+### About the scripts:
+* vpn-client-postinstall.sh is meant to run in the VPN-client VM at post-install phase.
+* vpn-client-deployment.sh is meant to run in the VPN-client VM at deployment phase, after post-install.
+* vpn-client-deployment.py is executed by vpn-client-deployment.sh. It contains the deployment instructions.
+* vpn-server-postinstall.sh is meant to run in the VPN-server VM at post-install phase.
+* vpn-server-deployment.sh is meant to run in the VPN-server VM at deployment phase, after post-install.
+* vpn-server-deployment.py is executed by vpn-server-deployment.sh. It contains the deployment instructions.
 
 These scripts conform the SlipStream application recipe, together with the instruction about which base image should be used. The scripts serve to launch desired services but also as means to interact with the SlipStream application deployment context (run context. . It is through this context, accessed via the slipstream client installed in each machine, that scripts can access a shared state of the run and have access to environment variables. The context also serves as a mean to synchronize the services deployment.
 

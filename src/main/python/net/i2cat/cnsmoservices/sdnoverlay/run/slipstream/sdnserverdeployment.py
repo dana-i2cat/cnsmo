@@ -27,21 +27,39 @@ def main():
     config_logging()
     return deploysdn()
 
+
+def launchSDNServer(hostname, redis_address, instance_id):
+    logger = logging.getLogger(__name__)
+    logger.debug("Launching SDN server...")
+    call('ss-display \"SDN: Launching SDN server...\"')
+    os.chdir("/var/tmp/slipstream")
+    call("python cnsmo/cnsmo/src/main/python/net/i2cat/cnsmoservices/sdnoverlay/run/server.py -a %s -p 20199 -r %s -s SDNServer-%s" % (hostname, redis_address, instance_id))
+
+
 def deploysdn():
     logger = logging.getLogger(__name__)
+
+    ss_nodename = call('ss-get nodename').rstrip('\n')
+    ss_node_instance = call('ss-get id').rstrip('\n')
+    instance_id = "%s.%s" % (ss_nodename, ss_node_instance)
+    hostname = call('ss-get hostname').rstrip('\n')
+    logger.debug("Resolving net.i2cat.cnsmo.dss.address...")
+    redis_address = call("ss-get net.i2cat.cnsmo.dss.address").rstrip('\n')
+
     logger.debug("Installing karaf and features...")
     call('ss-display \"Installing karaf and features..."')
 
     os.chdir("/opt/odl/distribution-karaf-0.3.2-Lithium-SR2")
 
-    KARAF_DIR='/opt/odl/distribution-karaf-0.3.2-Lithium-SR2'
-    DLUX_DIRECTORY=str(KARAF_DIR)+'/system/org/opendaylight/dlux'
-    call("rm -R %s/*" % DLUX_DIRECTORY)
-    CNSMO_DIRECTORY='/var/tmp/slipstream/cnsmo/cnsmo/dlux-Lithium-SR2-MOD.zip'
-    call("cp %s  %s/" % (CNSMO_DIRECTORY , DLUX_DIRECTORY))
-    os.chdir("/opt/odl/distribution-karaf-0.3.2-Lithium-SR2/system/org/opendaylight/dlux/")
-    call("sudo unzip dlux-Lithium-SR2-MOD.zip")
-    os.chdir(KARAF_DIR)
+    # Code to change port to 8080 instead of 8090
+    #KARAF_DIR='/opt/odl/distribution-karaf-0.3.2-Lithium-SR2'
+    #DLUX_DIRECTORY=str(KARAF_DIR)+'/system/org/opendaylight/dlux'
+    #call("rm -R %s/*" % DLUX_DIRECTORY)
+    #CNSMO_DIRECTORY='/var/tmp/slipstream/cnsmo/cnsmo/dlux-Lithium-SR2-MOD.zip'
+    #call("cp %s  %s/" % (CNSMO_DIRECTORY , DLUX_DIRECTORY))
+    #os.chdir("/opt/odl/distribution-karaf-0.3.2-Lithium-SR2/system/org/opendaylight/dlux/")
+    #call("sudo unzip dlux-Lithium-SR2-MOD.zip")
+    #os.chdir(KARAF_DIR)
 
     with open("./bin/setenv", "a") as myfile:
         myfile.write("export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64")
@@ -55,9 +73,13 @@ def deploysdn():
 
     p = subprocess.Popen(["./bin/client","-u","karaf","feature:install","odl-openflowjava-all","odl-netconf-all","odl-dlux-all","odl-l2switch-packethandler","odl-l2switch-loopremover","odl-l2switch-arphandler","odl-l2switch-switch-ui","odl-restconf-all","odl-l2switch-addresstracker","odl-l2switch-switch-rest","odl-l2switch-switch","odl-mdsal-all","odl-openflowjava-all","odl-mdsal-apidocs","odl-openflowplugin-all","odl-ovsdb-all"])    
     p.wait()
-    #os.waitpid(p.pid,0)
-    #time.sleep(120)
     logger.debug("Karaf features installed successfully and ready to run!")
+
+    ts = threading.Thread(target=launchSDNServer, args=(hostname, redis_address, instance_id))
+    ts.start()
+    # TODO implement proper way to detect when the server is ready (using systemstate?)
+    time.sleep(1)
+    logger.debug("Assuming SDN server is listening")
 
     logger.debug("Announcing sdn service has been deployed")
     call('ss-set net.i2cat.cnsmo.service.sdn.server.ready true')
