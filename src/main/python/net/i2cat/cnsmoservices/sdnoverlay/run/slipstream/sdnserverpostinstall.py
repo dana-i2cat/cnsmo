@@ -55,7 +55,6 @@ def install_karaf():
 def install_gui():
     os.chdir("/var/tmp")
 
-    # install api node dependencies
     call("echo fase 1 - clone api node project... >> /var/tmp/hola.txt")
     call("curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -")
     call("sudo apt-get install -y nodejs")
@@ -66,7 +65,6 @@ def install_gui():
     call("echo '\"use strict\";\n\nmodule.exports = {\n  BASE_URL: \"/api/v1\",\n  MONGO_URL: \"mongodb://localhost/cnsmo\",\n  DOMAIN: \"127.0.0.1\",\n  PROTOCOL: \"http\",\n  port: process.env.PORT || 8081,\n  SWAGGER: true,\n  JWT_SECRET: \"cnsmosecret\",\n  TOKEN_EXPIRATION_DAYS: 10,\n};' > config/env/production.js")
     
     call("echo fase 3 - retrive host ip and generate environment.prod.ts file... >> /var/tmp/hola.txt")
-    # retrive host ip and generate environment.prod.ts file
     os.chdir("/var/tmp/cnsmo-api/node_modules/cnsmo_web/src/environments")
     IPADDR = callWithResp("ip addr show eth0 | grep 'inet ' | grep -Fv 127.0.0.1 | awk '{{print $2}}' | cut -d/ -f1")
     IPADDR = IPADDR.split('\n')[0]
@@ -75,13 +73,11 @@ def install_gui():
     os.chdir("/var/tmp/cnsmo-api/node_modules/cnsmo_web")
 
     call("echo fase 4 - install cnsmo_web dependencies... >> /var/tmp/hola.txt")
-    # install cnsmo_web dependencies
     call("sudo npm install -g @angular/cli@1.3.2")
     call("npm install --save-dev @angular/cli@1.3.2")
     call("npm install")
 
     call("echo fase 5 - building cnsmo_web...  >> /var/tmp/hola.txt")
-    # build cnsmo_web
     call("ng build --prod --aot=false")
     os.chdir("/var/tmp/cnsmo-api")
     ss_user = call('ss-get cnsmo.user').rstrip('\n')
