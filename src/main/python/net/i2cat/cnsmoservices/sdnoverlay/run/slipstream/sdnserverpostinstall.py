@@ -63,14 +63,17 @@ def install_gui():
     os.chdir("/var/tmp/cnsmo-api")
     call("npm install")
 
+    #generate conf env for api
+    call("rm config/env/production.js 2>/dev/null")
+    call("echo '\"use strict\";\n\nmodule.exports = {\n  BASE_URL: \"/api/v1\",\n  MONGO_URL: \"mongodb://localhost/cnsmo\",\n  DOMAIN: \"127.0.0.1\",\n  PROTOCOL: \"http\",\n  port: process.env.PORT || 8081,\n  SWAGGER: true,\n  JWT_SECRET: \"cnsmosecret\",\n  TOKEN_EXPIRATION_DAYS: 10,\n};' >> config/env/production.js")
     call("echo fase 3 >> /var/tmp/hola.txt")
-    os.chdir("/var/tmp/cnsmo-api/node_modules/cnsmo_web/src/environments")
-    call("rm environment.prod.ts")
-
+    
     # retrive host ip and generate environment.prod.ts file
+    os.chdir("/var/tmp/cnsmo-api/node_modules/cnsmo_web/src/environments")
+    call("rm environment.prod.ts 2>/dev/null")
     IPADDR = callWithResp("ip addr show eth0 | grep 'inet ' | grep -Fv 127.0.0.1 | awk '{{print $2}}' | cut -d/ -f1")
     IPADDR = IPADDR.split('\n')[0]
-    aux = "http://"+str(IPADDR)+":8181/api/v1"
+    aux = "http://"+str(IPADDR)+":8081/api/v1"
     call("echo 'export const environment = {\n production: true,\n api: \"%s\",\n authUrl: \"/authenticate\"\n };' >> environment.prod.ts " % aux)
     os.chdir("/var/tmp/cnsmo-api/node_modules/cnsmo_web")
 
