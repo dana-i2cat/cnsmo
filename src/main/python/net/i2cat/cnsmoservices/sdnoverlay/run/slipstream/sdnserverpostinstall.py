@@ -54,54 +54,45 @@ def install_karaf():
 
 def install_gui():
     os.chdir("/var/tmp")
-    call("echo fase 1 >> /var/tmp/hola.txt")
+
+    # install api node dependencies
+    call("echo fase 1 - clone api node project... >> /var/tmp/hola.txt")
     call("curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -")
     call("sudo apt-get install -y nodejs")
     call("git clone https://github.com/jiponsI2cat/cnsmo-api.git")
-
-    call("echo fase 2 >> /var/tmp/hola.txt")
+    call("echo fase 2 - install api node dependencies... >> /var/tmp/hola.txt")
     os.chdir("/var/tmp/cnsmo-api")
     call("npm install")
-    call("echo fase 2 - npm install done >> /var/tmp/hola.txt")
-
-    #generate conf env for api
-    call("rm config/env/production.js")
-    call("echo '\"use strict\";\n\nmodule.exports = {\n  BASE_URL: \"/api/v1\",\n  MONGO_URL: \"mongodb://localhost/cnsmo\",\n  DOMAIN: \"127.0.0.1\",\n  PROTOCOL: \"http\",\n  port: process.env.PORT || 8081,\n  SWAGGER: true,\n  JWT_SECRET: \"cnsmosecret\",\n  TOKEN_EXPIRATION_DAYS: 10,\n};' >> config/env/production.js")
+    call("echo '\"use strict\";\n\nmodule.exports = {\n  BASE_URL: \"/api/v1\",\n  MONGO_URL: \"mongodb://localhost/cnsmo\",\n  DOMAIN: \"127.0.0.1\",\n  PROTOCOL: \"http\",\n  port: process.env.PORT || 8081,\n  SWAGGER: true,\n  JWT_SECRET: \"cnsmosecret\",\n  TOKEN_EXPIRATION_DAYS: 10,\n};' > config/env/production.js")
     
-    call("echo fase 3 >> /var/tmp/hola.txt")
-    
+    call("echo fase 3 - retrive host ip and generate environment.prod.ts file... >> /var/tmp/hola.txt")
     # retrive host ip and generate environment.prod.ts file
     os.chdir("/var/tmp/cnsmo-api/node_modules/cnsmo_web/src/environments")
-    call("rm environment.prod.ts")
     IPADDR = callWithResp("ip addr show eth0 | grep 'inet ' | grep -Fv 127.0.0.1 | awk '{{print $2}}' | cut -d/ -f1")
     IPADDR = IPADDR.split('\n')[0]
     aux = "http://"+str(IPADDR)+":8081/api/v1"
-    call("echo 'export const environment = {\n production: true,\n api: \"%s\",\n authUrl: \"/authenticate\"\n };' >> environment.prod.ts " % aux)
+    call("echo 'export const environment = {\n production: true,\n api: \"%s\",\n authUrl: \"/authenticate\"\n };' > environment.prod.ts " % aux)
     os.chdir("/var/tmp/cnsmo-api/node_modules/cnsmo_web")
 
+    call("echo fase 4 - install cnsmo_web dependencies... >> /var/tmp/hola.txt")
     # install cnsmo_web dependencies
-    call("echo fase 4 >> /var/tmp/hola.txt")
     call("sudo npm install -g @angular/cli@1.3.2")
-
-    call("rm -rf node_modules dist")
     call("npm install --save-dev @angular/cli@1.3.2")
     call("npm install")
 
+    call("echo fase 5 - building cnsmo_web...  >> /var/tmp/hola.txt")
     # build cnsmo_web
     call("ng build --prod --aot=false")
-
-    call("echo fase 5 >> /var/tmp/hola.txt")
     os.chdir("/var/tmp/cnsmo-api")
     ss_user = call('ss-get cnsmo.user').rstrip('\n')
     ss_password = call('ss-get cnsmo.password').rstrip('\n')
 
-    call("echo fase 6 >> /var/tmp/hola.txt")
-    call("rm /var/tmp/cnsmo-api/core/config/initConfig.json")
-    call("echo '{\"credentials\": {\"username\": \"%s\",\"password\": \"%s\"}}' >> /var/tmp/cnsmo-api/core/config/initConfig.json" % (ss_user,ss_password))
- 
-    call("sudo npm install pm2@latest -g")
-    call("echo fase 7 >> /var/tmp/hola.txt")
+    call("echo fase 6 - retrive access credentials and generating config file... >> /var/tmp/hola.txt")
+    call("echo '{\"credentials\": {\"username\": \"%s\",\"password\": \"%s\"}}' > /var/tmp/cnsmo-api/core/config/initConfig.json" % (ss_user,ss_password))
+     call("sudo npm install pm2@latest -g")
+    call("echo fase 7 - starting process... >> /var/tmp/hola.txt")
     call("pm2 start process.yml")
+    call("echo Done - API and UI installed correctly >> /var/tmp/hola.txt")
 
 def postinstallsdn():
     logger = logging.getLogger(__name__)
