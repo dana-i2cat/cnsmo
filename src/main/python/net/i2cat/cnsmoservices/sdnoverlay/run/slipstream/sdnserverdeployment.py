@@ -52,14 +52,14 @@ def deploysdn():
     os.chdir("/opt/odl/distribution-karaf-0.3.2-Lithium-SR2")
 
     # Code to change port to 8080(uncommented) instead of 8090(commented)
-    #KARAF_DIR='/opt/odl/distribution-karaf-0.3.2-Lithium-SR2'
-    #DLUX_DIRECTORY=str(KARAF_DIR)+'/system/org/opendaylight/dlux'
-    #call("rm -R %s/*" % DLUX_DIRECTORY)
-    #CNSMO_DIRECTORY='/var/tmp/slipstream/cnsmo/cnsmo/dlux-Lithium-SR2-MOD.zip'
-    #call("cp %s  %s/" % (CNSMO_DIRECTORY , DLUX_DIRECTORY))
-    #os.chdir("/opt/odl/distribution-karaf-0.3.2-Lithium-SR2/system/org/opendaylight/dlux/")
-    #call("sudo unzip dlux-Lithium-SR2-MOD.zip")
-    #os.chdir(KARAF_DIR)
+    KARAF_DIR='/opt/odl/distribution-karaf-0.3.2-Lithium-SR2'
+    DLUX_DIRECTORY=str(KARAF_DIR)+'/system/org/opendaylight/dlux'
+    call("rm -R %s/*" % DLUX_DIRECTORY)
+    CNSMO_DIRECTORY='/var/tmp/slipstream/cnsmo/cnsmo/dlux-Lithium-SR2-MOD.zip'
+    call("cp %s  %s/" % (CNSMO_DIRECTORY , DLUX_DIRECTORY))
+    os.chdir("/opt/odl/distribution-karaf-0.3.2-Lithium-SR2/system/org/opendaylight/dlux/")
+    call("sudo unzip dlux-Lithium-SR2-MOD.zip")
+    os.chdir(KARAF_DIR)
 
     with open("./bin/setenv", "a") as myfile:
         myfile.write("export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64")
