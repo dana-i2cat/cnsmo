@@ -51,11 +51,13 @@ def get_all_vpn_clients():
     client_instances.remove(instance_id)
     Clientlist = {}
     for client_id in client_instances:
-        response = call("ss-get --timeout=1800 %s:vpn.address" % client_id)
         # respInstanceID = call("ss-get --timeout=1800 %s:instanceid" % client_id) if we want to return instanceid
         Clientlist[str(client_id)] = {}
-        Clientlist[str(client_id)]["VPN address:"] = str(response).rstrip('\n')
-        response = call("ss-get --timeout=1800 %s:net.services.enabled" % client_id)
+        response = call("ss-get --timeout=1800 %s:vpn.address" % client_id)
+	Clientlist[str(client_id)]["VPN address:"] = str(response).rstrip('\n')
+        response = call("ss-get --timeout=1800 %s:hostname" % client_id)
+	Clientlist[str(client_id)]["IPv4:"] = str(response).rstrip('\n')
+	response = call("ss-get --timeout=1800 %s:net.services.enabled" % client_id)
         Clientlist[str(client_id)]["Services:"] = str(response).rstrip('\n')
     
     return jsonify(Clientlist),200
