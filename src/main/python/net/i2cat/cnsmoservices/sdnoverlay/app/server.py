@@ -163,10 +163,11 @@ def get_flowcount():
         for key in j['nodes']['node']:
             if key['flow-node-inventory:table']:
                 for idKey in key['flow-node-inventory:table']:
-                    for flowId in idKey['flow']:
-                        aux = flowId['id']
-                        if int(aux)>int(max):
-                            max = aux
+                    if idkey['flow']:
+                        for flowId in idKey['flow']:
+                            aux = flowId['id']
+                            if int(aux)>int(max):
+                                max = aux
                     
     return int(max)+1
 
