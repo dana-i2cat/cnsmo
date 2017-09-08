@@ -138,7 +138,7 @@ def get_corresp_vpn(ssinstanceid):
     vpnClients = requests.get('http://127.0.0.1:20092/vpn/server/clients/')
     vpnClients = vpnClients.json()
     if vpnClients.get(str(ssinstanceid)):
-        return str(vpnClients[str(ssinstanceid)]["VPN address:"])
+        return str(vpnClients[str(ssinstanceid)]["vpnAddress"])
     return ""
 
 def get_flowID(vpnaddress):
