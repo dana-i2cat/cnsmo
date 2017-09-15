@@ -23,13 +23,7 @@ PUT = "PUT"
 # Returns a list of strings with the id of the nodes
 @app.route("/sdn/server/nodes/", methods=[GET])
 def get_nodes():
-    r = requests.get('http://127.0.0.1:8080/restconf/operational/opendaylight-inventory:nodes/' , auth=HTTPBasicAuth('admin', 'admin'))
-    j = r.json()
-    nodes = {}
-    for key in j['nodes']['node']:
-        nodes[str(key['id'])] = str(key['flow-node-inventory:ip-address'])
-
-    return jsonify(nodes),200
+    return jsonify(get_nodeDict()),200
 
 @app.route("/sdn/server/flows/", methods=[GET])
 def get_flows():
@@ -38,27 +32,28 @@ def get_flows():
         instanceID = str(data["ssinstanceid"])
         vpnAddr = get_corresp_vpn(instanceID)
         if vpnAddr!="":
-            flowID = get_flowID(vpnAddr)
-            if flowID!="":
-                url = str("http://127.0.0.1:8080/restconf/config/opendaylight-inventory:nodes/node/"+str(flowID))
+            openflowID = get_nodeOpenflowID(vpnAddr)
+            if openflowID!="":
+                url = str("http://127.0.0.1:8080/restconf/config/opendaylight-inventory:nodes/node/"+str(openflowID))
                 r = requests.get(url , auth=HTTPBasicAuth('admin', 'admin'))
                 j = r.json()
-                nodes = {}
-                nodes[str(flowID)] = {}
-                nodes[str(flowID)]['vpnIP']=str(vpnAddr)
-                if "node" in j:
-                    for key in j['node'][0]["flow-node-inventory:table"]:
-                        nodes[str(flowID)]['flows'] = key['flow']
-                return jsonify(nodes),200
+                nodeList = {}
+                nodeList[str(openflowID)] = {}
+                nodeList[str(openflowID)]['vpnIP']=str(vpnAddr)
+                if 'node' in j:
+                    for node in j['node']:
+                        if 'flow-node-inventory:table' in node:
+                            for table in node['flow-node-inventory:table']:
+                                if 'id' in table and table['id'] == 0 :
+                                    nodeList[str(openflowID)]['flows'] = []
+                                    if 'flow' in table:
+                                        nodeList[str(openflowID)]['flows'] = table['flow']
+                return jsonify(nodeList),200
         else:
             return "Node doesn't exist\n",404
     else:
-        # Get all sdn clients
-        r = requests.get('http://127.0.0.1:8080/restconf/operational/opendaylight-inventory:nodes/' , auth=HTTPBasicAuth('admin', 'admin'))
-        j = r.json()
-        clients = {}
-        for key in j['nodes']['node']:
-            clients[str(key['id'])] = str(key['flow-node-inventory:ip-address'])
+        # Get all sdn clients  
+        clients = get_nodeDict()
 
         # get all flows from every sdn client
         url = str("http://127.0.0.1:8080/restconf/config/opendaylight-inventory:nodes/")
@@ -66,18 +61,20 @@ def get_flows():
         j = r.json()
         
         if "errors" in j:
-            return "List of configured flows is empty\n",404
+            return jsonify({}),200
 
-        nodes = {}
-        for key in j['nodes']['node']:
-            if key['id']!='':
-                nodes[str(key['id'])] = {}
-                nodes[str(key['id'])]['vpnID']=str(clients[str(key['id'])])
-                if key["flow-node-inventory:table"]:
-                    for tables in key["flow-node-inventory:table"]:
-                        nodes[str(key['id'])]['flows'] = tables['flow']
-        
-        return jsonify(nodes),200
+        nodeList = {}
+        for node in j['nodes']['node']:
+            if 'id' in node:
+                nodeList[str(node['id'])] = {}
+                nodeList[str(node['id'])]['vpnID']=str(clients[str(node['id'])])
+                if 'flow-node-inventory:table' in node:
+                    for table in node['flow-node-inventory:table']:
+                        if 'id' in table and table['id'] == 0 : 
+                            nodeList[str(node['id'])]['flows'] = []
+                            if 'flow' in table:
+                                nodeList[str(node['id'])]['flows'] = table['flow']
+        return jsonify(nodeList),200
 
 @app.route("/sdn/server/filter/blockbyport/", methods=[PUT])
 def add_filter_by_port():
@@ -86,10 +83,10 @@ def add_filter_by_port():
     ssinstanceid = str(data["ssinstanceid"])
     vpnAddr = get_corresp_vpn(ssinstanceid)
     if vpnAddr!="":
-        flowID = get_flowID(vpnAddr)
-        if flowID!="":
+        openflowID = get_nodeOpenflowID(vpnAddr)
+        if openflowID!="":
             # URL has to follow this format: http://134.158.74.110:8080/restconf/config/opendaylight-inventory:nodes/node/openflow:274973442922995/table/0/flow/12
-            url = str("http://127.0.0.1:8080/restconf/config/opendaylight-inventory:nodes/node/"+flowID+"/table/0/flow/"+str(newflowCount))
+            url = str("http://127.0.0.1:8080/restconf/config/opendaylight-inventory:nodes/node/"+openflowID+"/table/0/flow/"+str(newflowCount))
             xml = """
             <flow xmlns="urn:opendaylight:flow:inventory">
                 <strict>false</strict>
@@ -134,6 +131,15 @@ def add_filter_by_port():
     else:
         return "Node doesn't exist\n", 404
 
+def get_nodeDict():
+    r = requests.get('http://127.0.0.1:8080/restconf/operational/opendaylight-inventory:nodes/' , auth=HTTPBasicAuth('admin', 'admin'))
+    j = r.json()
+    nodes = {}
+    for key in j['nodes']['node']:
+        nodes[str(key['id'])] = str(key['flow-node-inventory:ip-address'])
+
+    return nodes
+
 def get_corresp_vpn(ssinstanceid):
     vpnClients = requests.get('http://127.0.0.1:20092/vpn/server/clients/')
     vpnClients = vpnClients.json()
@@ -141,12 +147,9 @@ def get_corresp_vpn(ssinstanceid):
         return str(vpnClients[str(ssinstanceid)]["vpnAddress"])
     return ""
 
-def get_flowID(vpnaddress):
-    r = requests.get('http://127.0.0.1:8080/restconf/operational/opendaylight-inventory:nodes/' , auth=HTTPBasicAuth('admin', 'admin'))
-    j = r.json()
-    nodes = {}
-    for key in j['nodes']['node']:
-        nodes[str(key['id'])] = str(key['flow-node-inventory:ip-address'])
+def get_nodeOpenflowID(vpnaddress):
+    # call to obtain all the sdn clients
+    nodes = get_nodeDict()
     auxi = ""
     for key,value in nodes.iteritems():
         if str(value)==str(vpnaddress):
@@ -160,15 +163,15 @@ def get_flowcount():
     max = 10
     if "errors" not in j:
         flows = {}
-        for key in j['nodes']['node']:
-            if key['flow-node-inventory:table']:
-                for idKey in key['flow-node-inventory:table']:
-                    if idkey['flow']:
-                        for flowId in idKey['flow']:
-                            aux = flowId['id']
-                            if int(aux)>int(max):
-                                max = aux
-                    
+        for node in j['nodes']['node']:
+            if 'flow-node-inventory:table' in node:
+                for table in node['flow-node-inventory:table']:
+                    if 'id' in table and table['id'] == 0 : 
+                        if 'flow' in table:
+                            for flow in table['flow']:
+                                aux = flow['id']
+                                if int(aux)>int(max):
+                                    max = aux 
     return int(max)+1
 
     
@@ -191,3 +194,6 @@ if __name__ == "__main__":
     app.config["host"] = host
     app.config["port"] = port
     app.run(host=host, port=port, debug=True)
+
+    
+
