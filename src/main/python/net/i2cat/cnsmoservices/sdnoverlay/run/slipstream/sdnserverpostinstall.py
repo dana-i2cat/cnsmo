@@ -81,7 +81,8 @@ def install_gui():
     call("ng build --prod --aot=false")
     os.chdir("/var/tmp/cnsmo-api")
     ss_user = call('ss-get cnsmo.user').rstrip('\n')
-    ss_password = call('ss-get cnsmo.password').rstrip('\n')
+    password = callWithResp('ss- random')
+    ss_password = call('ss-set cnsmo.password %s' % password)
 
     call("echo fase 6 - retrive access credentials and generating config file... >> /var/tmp/hola.txt")
     call("echo '{\"credentials\": {\"username\": \"%s\",\"password\": \"%s\"}}' > /var/tmp/cnsmo-api/core/config/initConfig.json" % (ss_user,ss_password))
