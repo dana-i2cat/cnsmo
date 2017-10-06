@@ -82,9 +82,7 @@ def install_gui():
     os.chdir("/var/tmp/cnsmo-api")
     ss_user = call('ss-get cnsmo.user').rstrip('\n')
     password = ""
-    password = call('ss- random').rstrip('\n')
-    if password=="":
-        password = call('ss-random').rstrip('\n')
+    password = call('ss-random').rstrip('\n')
     #password = "testpwd"
     ss_password = call('ss-set cnsmo.password %s' % password)
 
