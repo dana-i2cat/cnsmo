@@ -19,6 +19,7 @@ app = Flask(__name__)
 GET = "GET"
 POST = "POST"
 PUT = "PUT"
+DELETE = "DELETE"
 
 # Returns a list of strings with the id of the nodes
 @app.route("/sdn/server/nodes/", methods=[GET])
