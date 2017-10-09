@@ -131,6 +131,22 @@ def add_filter_by_port():
     else:
         return "Node doesn't exist\n", 404
 
+@app.route("/sdn/server/filter/blockbyport/instance/<str:ssinstanceid>/flow/<int:flowID>", methods=[DELETE])
+def delete_filter_by_port():
+    vpnAddr = get_corresp_vpn(ssinstanceid)
+    if vpnAddr!="":
+        openflowID = get_nodeOpenflowID(vpnAddr)
+        if openflowID!="":
+            # URL has to follow this format: http://134.158.74.110:8080/restconf/config/opendaylight-inventory:nodes/node/openflow:274973442922995/table/0/flow/12
+            url = str("http://127.0.0.1:8080/restconf/config/opendaylight-inventory:nodes/node/"+openflowID+"/table/0/flow/"+str(flowID))
+            header = {'Content-Type': 'application/xml'}
+            r = requests.delete(url, data=json.dumps({}), auth=HTTPBasicAuth('admin', 'admin'), headers=header)
+            return str(r.headers),r.status_code
+        else:
+            return "Node doesn't exist\n", 404
+    else:
+        return "Node doesn't exist\n", 404
+
 def get_nodeDict():
     r = requests.get('http://127.0.0.1:8080/restconf/operational/opendaylight-inventory:nodes/' , auth=HTTPBasicAuth('admin', 'admin'))
     j = r.json()
