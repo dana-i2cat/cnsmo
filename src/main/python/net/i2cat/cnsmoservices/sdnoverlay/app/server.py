@@ -141,7 +141,7 @@ def delete_filter_by_port(ssinstanceid,flowID):
             # URL has to follow this format: http://134.158.74.110:8080/restconf/config/opendaylight-inventory:nodes/node/openflow:274973442922995/table/0/flow/12
             url = str("http://127.0.0.1:8080/restconf/config/opendaylight-inventory:nodes/node/"+openflowID+"/table/0/flow/"+str(flowID))
             header = {'Content-Type': 'application/xml'}
-            r = requests.delete(url, data=json.dumps({}), auth=HTTPBasicAuth('admin', 'admin'), headers=header)
+            r = requests.delete(url, data="", auth=HTTPBasicAuth('admin', 'admin'), headers=header)
             return str(r.headers),r.status_code
         else:
             return "Node doesn't exist\n", 404
