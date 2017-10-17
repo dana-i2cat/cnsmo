@@ -133,7 +133,7 @@ def add_filter_by_port():
         return "Node doesn't exist\n", 404
 
 @app.route("/sdn/server/filter/blockbyport/instance/<ssinstanceid>/flow/<int:flowID>", methods=[DELETE])
-def delete_filter_by_port():
+def delete_filter_by_port(ssinstanceid,flowID):
     vpnAddr = get_corresp_vpn(ssinstanceid)
     if vpnAddr!="":
         openflowID = get_nodeOpenflowID(vpnAddr)
