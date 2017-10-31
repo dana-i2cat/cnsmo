@@ -126,7 +126,7 @@ def add_filter_by_port():
             </flow>"""
             header = {'Content-Type': 'application/xml'}
             r = requests.put(url, data = xml, auth=HTTPBasicAuth('admin', 'admin'), headers=header)
-            return str(r.headers),r.status_code
+            return jsonify({'flowID':str(newflowCount)}),r.status_code
         else:
             return "Node doesn't exist\n", 404
     else:
