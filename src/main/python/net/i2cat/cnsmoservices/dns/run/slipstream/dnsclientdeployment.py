@@ -54,10 +54,7 @@ def main():
     config_logging()
     logger = logging.getLogger(__name__)
     logger.debug("Running DNS client deployment script...")
-    configureDNS()
-    else:
-        logger.debug("::: ERROR ::: Preconditions not fully satisfied")
-        return -1
+    deploydns()
 
 if __name__ == "__main__":
     main()
