@@ -27,6 +27,7 @@ src_dir = path + "/../../../../../../../../../"
 if src_dir not in sys.path:
     sys.path.append(src_dir)
 
+from src.main.python.net.i2cat.cnsmoservices.dns.run.slipstream.dnsserverdeployment import deploydns
 from src.main.python.net.i2cat.cnsmoservices.vpn.run.slipstream.vpnserverdeployment import deployvpn
 from src.main.python.net.i2cat.cnsmoservices.fw.run.slipstream.fwdeployment import deployfw
 from src.main.python.net.i2cat.cnsmoservices.lb.run.slipstream.lborchestratordeployment import deploylb
@@ -56,6 +57,13 @@ def main():
 
     logger.debug("Deploying net services...")
     netservices_enabled = list()
+    if 'dns' in netservices:
+        if deploy_dns_and_wait() == 0:
+            logger.debug("Marking dns as enabled")
+            netservices_enabled.append('dns')
+        else:
+            logger.error("Error deploying DNS. Aborting script")
+            return -1
     if 'vpn' in netservices:
         if deploy_vpn_and_wait() == 0:
             logger.debug("Marking vpn as enabled")
@@ -95,6 +103,10 @@ def main():
     logger.debug("Set net.services.enabled= %s" % json.dumps(netservices_enabled))
     return 0
 
+def deploy_dns_and_wait():
+    logger = logging.getLogger(__name__)
+    logger.debug("Deploying DNS...")
+    return deploydns()
 
 def deploy_vpn_and_wait():
     logger = logging.getLogger(__name__)

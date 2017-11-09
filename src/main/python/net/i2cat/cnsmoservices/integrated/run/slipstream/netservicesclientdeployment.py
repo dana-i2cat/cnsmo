@@ -10,10 +10,10 @@
 # Input parameters:
 # cnsmo.server.nodeinstanceid: Indicates the node.id of the component acting as CNSMO server
 # vpn.server.nodeinstanceid: Indicates the node.id of the component acting as VPN server
-# net.services.enable: A json encoded list of strings indicating the network services to be enabled. e.g. ['vpn', 'fw', 'lb', 'sdn']
+# net.services.enable: A json encoded list of strings indicating the network services to be enabled. e.g. ['vpn', 'fw', 'lb', 'sdn','dns']
 #
 # Output parameters:
-# net.services.enabled: A json encoded list of strings indicating the network services that has been enabled. e.g. ['vpn', 'fw', 'lb', 'sdn']
+# net.services.enabled: A json encoded list of strings indicating the network services that has been enabled. e.g. ['vpn', 'fw', 'lb', 'sdn','dns']
 ###
 
 import json
@@ -33,6 +33,7 @@ from src.main.python.net.i2cat.cnsmoservices.vpn.run.slipstream.vpnclientdeploym
 from src.main.python.net.i2cat.cnsmoservices.fw.run.slipstream.fwdeployment import deployfw
 from src.main.python.net.i2cat.cnsmoservices.sdnoverlay.run.slipstream.sdnclientdeployment import configureOvs
 from src.main.python.net.i2cat.cnsmoservices.sdnoverlay.run.slipstream.sdnclientdeployment import check_preconditions
+from src.main.python.net.i2cat.cnsmoservices.dns.run.slipstream.dnsclientdeployment import deploydns
 
 call = lambda command: subprocess.check_output(command, shell=True)
 
@@ -58,6 +59,13 @@ def main():
         logger.debug("Got cnsmo.server.nodeinstanceid= %s" % cnsmo_server_instance_id)
 
         logger.debug("Deploying net services...")
+        if 'dns' in netservices:
+            if deploy_dns_and_wait(cnsmo_server_instance_id) == 0:
+                logger.debug("Marking dns as enabled")
+                netservices_enabled.append('dns')
+            else:
+                logger.error("Error deploying DNS. Aborting script")
+                return -1
         if 'vpn' in netservices:
             vpn_server_instance_id = call('ss-get --timeout=1200 vpn.server.nodeinstanceid').rstrip('\n')
             if not vpn_server_instance_id:
@@ -105,6 +113,10 @@ def main():
     logger.debug("Set net.services.enabled= %s" % json.dumps(netservices_enabled))
     return 0
 
+def deploy_dns_and_wait(dns_server_instance_id):
+    logger = logging.getLogger(__name__)
+    logger.debug("Deploying DNS...")
+    return deploydns()
 
 def deploy_vpn_and_wait(vpn_server_instance_id):
     logger = logging.getLogger(__name__)

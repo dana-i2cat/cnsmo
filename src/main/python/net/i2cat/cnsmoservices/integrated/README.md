@@ -12,7 +12,7 @@ Input parameter cnsmo.server.nodeinstanceid is mapped to output Server:cnsmo.ser
 
 Input parameter net.i2cat.cnsmo.git.branch has to be set to the git branch from where the code has to be downloaded
 
-Input parameter net.services.enable parameter is used to indicate which network service has to be deployed following the format ["vpn","fw","lb","sdn"]
+Input parameter net.services.enable parameter is used to indicate which network service has to be deployed following the format ["vpn","fw","lb","sdn","dns"]
 
 Output parameter net.i2cat.cnsmo.core.ready set to default
 
@@ -24,7 +24,7 @@ Output parameter net.services.enabled set to default
 
 Input parameter net.i2cat.cnsmo.git.branch has to be set to the git branch from where the code has to be downloaded.
 
-Input parameter net.services.enable parameter is used to indicate which network service has to be deployed following the format ["vpn","fw","lb","sdn"]
+Input parameter net.services.enable parameter is used to indicate which network service has to be deployed following the format ["vpn","fw","lb","sdn","dns"]
 
 Output parameter cnsmo.server.nodeinstanceid set to default
 
@@ -40,3 +40,4 @@ Output parameter net.services.enabled set to default
 * [FW documentation](/src/main/python/net/i2cat/cnsmoservices/fw/run/slipstream/README.md)
 * [SDN documentation](/src/main/python/net/i2cat/cnsmoservices/sdnoverlay/run/slipstream/README.md)
 * [VPN documentation](/src/main/python/net/i2cat/cnsmoservices/vpn/run/slipstream/README.md)
+* [DNS documentation](/src/main/python/net/i2cat/cnsmoservices/dns/run/slipstream/README.md)
