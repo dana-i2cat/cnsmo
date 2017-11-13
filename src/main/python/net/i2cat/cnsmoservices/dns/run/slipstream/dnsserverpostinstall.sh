@@ -26,7 +26,29 @@ git clone -b master --single-branch https://github.com/dana-i2cat/cnsmo-net-serv
 
 cd ${DIRECTORY}
 
-cwd=${PWD}
-python ${cwd}/cnsmo/cnsmo/src/main/python/net/i2cat/cnsmoservices/integrated/run/slipstream/netservicesserverpostinstall.py &
-disown $!
-ss-get --timeout=1200 net.services.installed # crear variable
+# install cnsmo requirements
+pip install -r cnsmo/cnsmo/requirements.txt
+
+#install redis
+wget http://download.redis.io/releases/redis-3.0.7.tar.gz
+tar xzf redis-3.0.7.tar.gz
+rm redis-3.0.7.tar.gz
+cd redis-3.0.7
+make
+make install --quiet
+PORT=20379
+CONFIG_FILE=/etc/redis/20379.conf
+LOG_FILE=/var/log/redis_20379.log
+DATA_DIR=/var/lib/redis/20379
+EXECUTABLE=/usr/local/bin/redis-server
+echo -e \
+  "${PORT}\n${CONFIG_FILE}\n${LOG_FILE}\n${DATA_DIR}\n${EXECUTABLE}\n" | \
+  utils/install_server.sh
+cd ..
+
+# remove persisted network configuration (for compatibility with pre-built images)
+rm -f /etc/udev/rules.d/*net*.rules
+
+# reboot to apply new kernel, upgraded by docker installation script
+reboot
+
