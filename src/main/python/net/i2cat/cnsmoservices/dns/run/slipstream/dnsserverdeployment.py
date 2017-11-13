@@ -15,6 +15,8 @@ import subprocess
 import sys
 import threading
 import time
+import edit_file as edit
+import fileinput,re
 
 path = os.path.dirname(os.path.abspath(__file__))
 src_dir = path + "/../../../../../../../../../"
@@ -46,6 +48,18 @@ def configure_dnsmasq(upstream_servers, local_listeners, hostnames):
         l = host
         edit.add_line("/etc/hosts", l)
 
+def prepend_after(file_name,pattern,value=""):
+    fh=fileinput.input(file_name,inplace=True)
+    for line in fh:
+        replacement=value + line
+        line=re.sub(pattern,replacement,line)
+        sys.stdout.write(line)
+    fh.close()
+
+def add_line(file_name,line):
+    with open(file_name, 'a') as file:
+        file.writelines(line)
+
 def configure_vpn_dns(local_dns_servers):
     for server in local_dns_servers:
         edit.add_line("/etc/openvpn/server.conf", "push dhcp-option DNS " + server)
@@ -56,7 +70,6 @@ def deploydns(is_vpn_enabled):
     ss_nodename = call('ss-get nodename').rstrip('\n')
     ss_node_instance = call('ss-get id').rstrip('\n')
     instance_id = "%s.%s" % (ss_nodename, ss_node_instance)
-    hostname = "dnsserver"
     logger.debug("Resolving net.i2cat.cnsmo.dss.address...")
     redis_address = call("ss-get net.i2cat.cnsmo.dss.address").rstrip('\n')
 
@@ -65,7 +78,10 @@ def deploydns(is_vpn_enabled):
 
     upstream = ["8.8.8.8", "8.8.4.4"]
     listeners = ["127.0.0.1"]
-    hostnames = ["172.17.0.1 %s" %hostname]
+    hostnames = [""]
+
+    if is_vpn_enabled:
+        hostnames = ["10.10.10.2 client1"]
     
     configure_dnsmasq(upstream, listeners, hostnames)
     if is_vpn_enabled:
