@@ -118,7 +118,7 @@ def main():
     netservices = get_net_services_to_enable()
     if (('vpn' not in netservices) and ('sdn' in netservices)): netservices.append('vpn')
     logger.debug("Will install software for the following services %s" % json.dumps(netservices))
-    
+
     logger.debug("Postinstall net services...")
     if 'sdn' in netservices:
         if postinst_sdn_and_wait() == 0:

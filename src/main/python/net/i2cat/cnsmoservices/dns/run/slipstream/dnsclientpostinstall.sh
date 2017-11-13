@@ -27,7 +27,11 @@ git clone -b master --single-branch https://github.com/dana-i2cat/cnsmo-net-serv
 # set working directory
 cd ${DIRECTORY}
 
-cwd=${PWD}
-python ${cwd}/cnsmo/cnsmo/src/main/python/net/i2cat/cnsmoservices/integrated/run/slipstream/netservicesclientpostinstall.py &
-disown $!
-ss-get --timeout=1800 net.services.installed
+# install cnsmo requirements
+pip install -r cnsmo/cnsmo/requirements.txt
+
+# remove persisted network configuration (for compatibility with pre-built images)
+rm -f /etc/udev/rules.d/*net*.rules
+
+# reboot to apply new kernel, upgraded by docker installation script
+reboot
