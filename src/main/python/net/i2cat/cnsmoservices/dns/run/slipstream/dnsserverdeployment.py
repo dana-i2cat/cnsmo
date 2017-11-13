@@ -35,19 +35,43 @@ def launchDNSServer(hostname, redis_address, instance_id):
     os.chdir("/var/tmp/slipstream")
     call("python cnsmo/cnsmo/src/main/python/net/i2cat/cnsmoservices/dns/run/server.py -a %s -p 20200 -r %s -s DNSServer-%s" % (hostname, redis_address, instance_id))
 
+def configure_dnsmasq(upstream_servers, local_listeners, hostnames):
+    for server in upstream_servers:
+        l = "server="+server
+        edit.add_line("/etc/dnsmasq.conf", l)
+    for listen in local_listeners:
+        l = "listen-address="+listen
+        edit.add_line("/etc/dnsmasq.conf", l)
+    for host in hostnames:
+        l = host
+        edit.add_line("/etc/hosts", l)
 
-def deploydns():
+def configure_vpn_dns(local_dns_servers):
+    for server in local_dns_servers:
+        edit.add_line("/etc/openvpn/server.conf", "push dhcp-option DNS " + server)
+
+def deploydns(is_vpn_enabled):
     logger = logging.getLogger(__name__)
 
     ss_nodename = call('ss-get nodename').rstrip('\n')
     ss_node_instance = call('ss-get id').rstrip('\n')
     instance_id = "%s.%s" % (ss_nodename, ss_node_instance)
-    hostname = call('ss-get hostname').rstrip('\n')
+    hostname = "dnsserver"
     logger.debug("Resolving net.i2cat.cnsmo.dss.address...")
     redis_address = call("ss-get net.i2cat.cnsmo.dss.address").rstrip('\n')
 
     logger.debug("Configuring DNS server...")
     call('ss-display \"Configuring DNS server..."')
+
+    upstream = ["8.8.8.8", "8.8.4.4"]
+    listeners = ["127.0.0.1"]
+    hostnames = ["172.17.0.1 %s" %hostname]
+    
+    configure_dnsmasq(upstream, listeners, hostnames)
+    if is_vpn_enabled:
+        vpn_server_address = call('ss-get vpn.server.address').rstrip('\n')
+        dns_server_ips = [vpn_server_address]
+        configure_vpn_dns(dns_server_ips)
 
     logger.debug("DNS configured successfully")
 
