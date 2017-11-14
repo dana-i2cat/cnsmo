@@ -15,8 +15,9 @@ import subprocess
 import sys
 import threading
 import time
-#import edit_file as edit
-#import fileinput,re
+import edit_file as edit
+import fileinput
+import re
 
 path = os.path.dirname(os.path.abspath(__file__))
 src_dir = path + "/../../../../../../../../../"
@@ -89,7 +90,7 @@ def deploydns(netservices):
         vpn_server_address = call('ss-get vpn.server.address').rstrip('\n')
         dns_server_ips = [vpn_server_address]
         configure_vpn_dns(dns_server_ips)
-    '''
+    
     logger.debug("DNS configured successfully")
 
     ts = threading.Thread(target=launchDNSServer, args=(hostname, redis_address, instance_id))
@@ -97,7 +98,7 @@ def deploydns(netservices):
     # TODO implement proper way to detect when the server is ready (using systemstate?)
     time.sleep(1)
     logger.debug("Assuming DNS server is listening")
-
+    '''
     logger.debug("Announcing dns service has been deployed")
     call('ss-set net.i2cat.cnsmo.service.dns.server.ready true')
     logger.debug("Set net.i2cat.cnsmo.service.dns.server.ready=true")
