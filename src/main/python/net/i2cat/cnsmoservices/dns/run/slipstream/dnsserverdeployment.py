@@ -15,7 +15,6 @@ import subprocess
 import sys
 import threading
 import time
-import edit_file as edit
 import fileinput
 import re
 
@@ -30,7 +29,6 @@ def main():
     config_logging()
     return deploydns("")
 
-'''
 def launchDNSServer(hostname, redis_address, instance_id):
     logger = logging.getLogger(__name__)
     logger.debug("Launching DNS server API...")
@@ -41,13 +39,13 @@ def launchDNSServer(hostname, redis_address, instance_id):
 def configure_dnsmasq(upstream_servers, local_listeners, hostnames):
     for server in upstream_servers:
         l = "server="+server
-        edit.add_line("/etc/dnsmasq.conf", l)
+        add_line("/etc/dnsmasq.conf", l)
     for listen in local_listeners:
         l = "listen-address="+listen
-        edit.add_line("/etc/dnsmasq.conf", l)
+        add_line("/etc/dnsmasq.conf", l)
     for host in hostnames:
         l = host
-        edit.add_line("/etc/hosts", l)
+        add_line("/etc/hosts", l)
 
 def prepend_after(file_name,pattern,value=""):
     fh=fileinput.input(file_name,inplace=True)
@@ -64,7 +62,7 @@ def add_line(file_name,line):
 def configure_vpn_dns(local_dns_servers):
     for server in local_dns_servers:
         edit.add_line("/etc/openvpn/server.conf", "push dhcp-option DNS " + server)
-'''
+
 def deploydns(netservices):
     logger = logging.getLogger(__name__)
     logger.debug("Deploying DNS server...")
@@ -77,7 +75,7 @@ def deploydns(netservices):
 
     logger.debug("Configuring DNS server...")
     call('ss-display \"Configuring DNS server..."')
-    '''
+    
     upstream = ["8.8.8.8", "8.8.4.4"]
     listeners = ["127.0.0.1"]
     hostnames = [""]
@@ -98,7 +96,7 @@ def deploydns(netservices):
     # TODO implement proper way to detect when the server is ready (using systemstate?)
     time.sleep(1)
     logger.debug("Assuming DNS server is listening")
-    '''
+    
     logger.debug("Announcing dns service has been deployed")
     call('ss-set net.i2cat.cnsmo.service.dns.server.ready true')
     logger.debug("Set net.i2cat.cnsmo.service.dns.server.ready=true")
