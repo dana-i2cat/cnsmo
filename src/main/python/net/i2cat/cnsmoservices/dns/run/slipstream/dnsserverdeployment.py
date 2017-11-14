@@ -85,7 +85,7 @@ def deploydns(netservices):
     
     configure_dnsmasq(upstream, listeners, hostnames)
     if 'vpn' in netservices:
-        vpn_server_address = call('ss-get vpn.server.address').rstrip('\n')
+        vpn_server_address = call('ss-get vpn.address').rstrip('\n')
         dns_server_ips = [vpn_server_address]
         configure_vpn_dns(dns_server_ips)
     
