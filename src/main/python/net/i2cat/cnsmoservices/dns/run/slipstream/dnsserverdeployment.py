@@ -15,8 +15,8 @@ import subprocess
 import sys
 import threading
 import time
-import edit_file as edit
-import fileinput,re
+#import edit_file as edit
+#import fileinput,re
 
 path = os.path.dirname(os.path.abspath(__file__))
 src_dir = path + "/../../../../../../../../../"
@@ -27,7 +27,7 @@ call = lambda command: subprocess.check_output(command, shell=True)
 
 def main():
     config_logging()
-    return deploydns()
+    return deploydns("")
 
 
 def launchDNSServer(hostname, redis_address, instance_id):
@@ -36,7 +36,7 @@ def launchDNSServer(hostname, redis_address, instance_id):
     call('ss-display \"DNS: Launching DNS server...\"')
     os.chdir("/var/tmp/slipstream")
     call("python cnsmo/cnsmo/src/main/python/net/i2cat/cnsmoservices/dns/run/server.py -a %s -p 20200 -r %s -s DNSServer-%s" % (hostname, redis_address, instance_id))
-
+'''
 def configure_dnsmasq(upstream_servers, local_listeners, hostnames):
     for server in upstream_servers:
         l = "server="+server
@@ -63,8 +63,8 @@ def add_line(file_name,line):
 def configure_vpn_dns(local_dns_servers):
     for server in local_dns_servers:
         edit.add_line("/etc/openvpn/server.conf", "push dhcp-option DNS " + server)
-
-def deploydns(is_vpn_enabled):
+'''
+def deploydns(netservices):
     logger = logging.getLogger(__name__)
 
     ss_nodename = call('ss-get nodename').rstrip('\n')
@@ -75,20 +75,20 @@ def deploydns(is_vpn_enabled):
 
     logger.debug("Configuring DNS server...")
     call('ss-display \"Configuring DNS server..."')
-
+    '''
     upstream = ["8.8.8.8", "8.8.4.4"]
     listeners = ["127.0.0.1"]
     hostnames = [""]
 
-    if is_vpn_enabled:
+    if 'vpn' in netservices:
         hostnames = ["10.10.10.2 client1"]
     
     configure_dnsmasq(upstream, listeners, hostnames)
-    if is_vpn_enabled:
+    if 'vpn' in netservices:
         vpn_server_address = call('ss-get vpn.server.address').rstrip('\n')
         dns_server_ips = [vpn_server_address]
         configure_vpn_dns(dns_server_ips)
-
+    '''
     logger.debug("DNS configured successfully")
 
     ts = threading.Thread(target=launchDNSServer, args=(hostname, redis_address, instance_id))
