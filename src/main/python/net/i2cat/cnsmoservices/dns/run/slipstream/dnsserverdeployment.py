@@ -32,8 +32,8 @@ def main():
 
 def launchDNSServer(hostname, redis_address, instance_id):
     logger = logging.getLogger(__name__)
-    logger.debug("Launching DNS server...")
-    call('ss-display \"DNS: Launching DNS server...\"')
+    logger.debug("Launching DNS server API...")
+    call('ss-display \"DNS: Launching DNS server API...\"')
     os.chdir("/var/tmp/slipstream")
     call("python cnsmo/cnsmo/src/main/python/net/i2cat/cnsmoservices/dns/run/server.py -a %s -p 20200 -r %s -s DNSServer-%s" % (hostname, redis_address, instance_id))
 '''
@@ -66,7 +66,8 @@ def configure_vpn_dns(local_dns_servers):
 '''
 def deploydns(netservices):
     logger = logging.getLogger(__name__)
-
+    logger.debug("Deploying DNS server...")
+    call('ss-display \"DNS: Deploying DNS server...\"')
     ss_nodename = call('ss-get nodename').rstrip('\n')
     ss_node_instance = call('ss-get id').rstrip('\n')
     instance_id = "%s.%s" % (ss_nodename, ss_node_instance)

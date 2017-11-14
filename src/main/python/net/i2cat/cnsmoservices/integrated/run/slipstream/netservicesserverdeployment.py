@@ -66,7 +66,7 @@ def main():
             logger.error("Error deploying VPN. Aborting script")
             return -1
     if 'dns' in netservices:   
-        if deploy_dns_and_wait() == 0:
+        if deploy_dns_and_wait(netservices) == 0:
             logger.debug("Marking dns as enabled")
             netservices_enabled.append('dns')
         else:
@@ -103,7 +103,7 @@ def main():
     logger.debug("Set net.services.enabled= %s" % json.dumps(netservices_enabled))
     return 0
 
-def deploy_dns_and_wait():
+def deploy_dns_and_wait(netservices):
     logger = logging.getLogger(__name__)
     logger.debug("Deploying DNS...")
     return deploydns(netservices)
