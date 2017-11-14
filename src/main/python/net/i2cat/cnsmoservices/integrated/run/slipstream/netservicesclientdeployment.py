@@ -59,13 +59,7 @@ def main():
         logger.debug("Got cnsmo.server.nodeinstanceid= %s" % cnsmo_server_instance_id)
 
         logger.debug("Deploying net services...")
-        if 'dns' in netservices:
-            if deploy_dns_and_wait(cnsmo_server_instance_id) == 0:
-                logger.debug("Marking dns as enabled")
-                netservices_enabled.append('dns')
-            else:
-                logger.error("Error deploying DNS. Aborting script")
-                return -1
+        
         if 'vpn' in netservices:
             vpn_server_instance_id = call('ss-get --timeout=1200 vpn.server.nodeinstanceid').rstrip('\n')
             if not vpn_server_instance_id:
@@ -77,7 +71,13 @@ def main():
             else:
                 logger.error("Error deploying VPN. Aborting script")
                 return -1
-
+        if 'dns' in netservices:
+            if deploy_dns_and_wait(cnsmo_server_instance_id) == 0:
+                logger.debug("Marking dns as enabled")
+                netservices_enabled.append('dns')
+            else:
+                logger.error("Error deploying DNS. Aborting script")
+                return -1
         if 'sdn' in netservices:
             sdn_server_instance_id = call('ss-get --timeout=1200 vpn.server.nodeinstanceid').rstrip('\n')
             if not sdn_server_instance_id:
