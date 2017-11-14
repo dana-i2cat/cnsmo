@@ -61,7 +61,7 @@ def add_line(file_name,line):
 
 def configure_vpn_dns(local_dns_servers):
     for server in local_dns_servers:
-        edit.add_line("/etc/openvpn/server.conf", "push dhcp-option DNS " + server)
+        add_line("/etc/openvpn/server.conf", "push dhcp-option DNS " + server)
 
 def deploydns(netservices):
     logger = logging.getLogger(__name__)
