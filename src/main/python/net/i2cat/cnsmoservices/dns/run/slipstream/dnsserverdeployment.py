@@ -29,14 +29,14 @@ def main():
     config_logging()
     return deploydns("")
 
-
+'''
 def launchDNSServer(hostname, redis_address, instance_id):
     logger = logging.getLogger(__name__)
     logger.debug("Launching DNS server API...")
     call('ss-display \"DNS: Launching DNS server API...\"')
     os.chdir("/var/tmp/slipstream")
     call("python cnsmo/cnsmo/src/main/python/net/i2cat/cnsmoservices/dns/run/server.py -a %s -p 20200 -r %s -s DNSServer-%s" % (hostname, redis_address, instance_id))
-'''
+
 def configure_dnsmasq(upstream_servers, local_listeners, hostnames):
     for server in upstream_servers:
         l = "server="+server
