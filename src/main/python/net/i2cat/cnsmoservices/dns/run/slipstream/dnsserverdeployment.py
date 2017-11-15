@@ -66,6 +66,7 @@ def deploydns(netservices):
     ss_nodename = call('ss-get nodename').rstrip('\n')
     ss_node_instance = call('ss-get id').rstrip('\n')
     instance_id = "%s.%s" % (ss_nodename, ss_node_instance)
+    hostname = call('ss-get hostname').rstrip('\n')
     logger.debug("Resolving net.i2cat.cnsmo.dss.address...")
     redis_address = call("ss-get net.i2cat.cnsmo.dss.address").rstrip('\n')
 
