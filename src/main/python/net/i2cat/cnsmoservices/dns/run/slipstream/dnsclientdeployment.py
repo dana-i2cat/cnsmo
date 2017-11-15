@@ -38,7 +38,7 @@ def deploydns():
     call('ss-display \"Configuring DNS in client...\"')
 
     call('ss-display \"DNS client configured successfully\"')
-    totalErr= ""
+    totalErr= 0
     logger.debug("Error is: %s " % (totalErr))
     logger.debug("Assuming SDN client is ready")
     return totalErr
