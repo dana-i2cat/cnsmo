@@ -60,24 +60,26 @@ def main():
 
         logger.debug("Deploying net services...")
         
-        if 'vpn' in netservices:
-            vpn_server_instance_id = call('ss-get --timeout=1200 vpn.server.nodeinstanceid').rstrip('\n')
-            if not vpn_server_instance_id:
-                # timeout! Abort the script immediately (ss-get will abort the whole deployment in short time)
-                return -1
-            if deploy_vpn_and_wait(vpn_server_instance_id) == 0:
-                logger.debug("Marking vpn as enabled")
-                netservices_enabled.append('vpn')
-            else:
-                logger.error("Error deploying VPN. Aborting script")
-                return -1
         if 'dns' in netservices:
-            if deploy_dns_and_wait(cnsmo_server_instance_id) == 0:
+            if deploy_dns_and_wait() == 0:
                 logger.debug("Marking dns as enabled")
                 netservices_enabled.append('dns')
             else:
                 logger.error("Error deploying DNS. Aborting script")
                 return -1
+
+        if 'vpn' in netservices:
+            vpn_server_instance_id = call('ss-get --timeout=1200 vpn.server.nodeinstanceid').rstrip('\n')
+            if not vpn_server_instance_id:
+                # timeout! Abort the script immediately (ss-get will abort the whole deployment in short time)
+                return -1
+            if deploy_vpn_and_wait() == 0:
+                logger.debug("Marking vpn as enabled")
+                netservices_enabled.append('vpn')
+            else:
+                logger.error("Error deploying VPN. Aborting script")
+                return -1
+        
         if 'sdn' in netservices:
             sdn_server_instance_id = call('ss-get --timeout=1200 vpn.server.nodeinstanceid').rstrip('\n')
             if not sdn_server_instance_id:
@@ -113,12 +115,12 @@ def main():
     logger.debug("Set net.services.enabled= %s" % json.dumps(netservices_enabled))
     return 0
 
-def deploy_dns_and_wait(dns_server_instance_id):
+def deploy_dns_and_wait():
     logger = logging.getLogger(__name__)
     logger.debug("Deploying DNS...")
     return deploydns()
 
-def deploy_vpn_and_wait(vpn_server_instance_id):
+def deploy_vpn_and_wait():
     logger = logging.getLogger(__name__)
     logger.debug("Deploying VPN...")
     return deployvpn()

@@ -57,11 +57,7 @@ def prepend_after(file_name,pattern,value=""):
 
 def add_line(file_name,line):
     with open(file_name, 'a') as file:
-        file.writelines(line)
-
-def configure_vpn_dns(local_dns_servers):
-    for server in local_dns_servers:
-        add_line("/etc/openvpn/server.conf", "push dhcp-option DNS " + server)
+        file.writelines(line)   
 
 def deploydns(netservices):
     logger = logging.getLogger(__name__)
@@ -84,10 +80,6 @@ def deploydns(netservices):
         hostnames = ["10.10.10.2 client1"]
     
     configure_dnsmasq(upstream, listeners, hostnames)
-    if 'vpn' in netservices:
-        vpn_server_address = call('ss-get vpn.address').rstrip('\n')
-        dns_server_ips = [vpn_server_address]
-        configure_vpn_dns(dns_server_ips)
     
     logger.debug("DNS configured successfully")
 

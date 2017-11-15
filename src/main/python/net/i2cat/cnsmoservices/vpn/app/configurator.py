@@ -117,12 +117,13 @@ def get_status():
 
 class VPNConfigManager:
 
-    def __init__(self, ip, mask, port, server_ip, key_dir):
+    def __init__(self, ip, mask, port, server_ip, key_dir, dns_enabled):
         self.ip = ip
         self.mask = mask
         self.port = port
         self.server_ip = server_ip
         self.key_dir = key_dir
+        self.dns_enabled = dns_enabled
 
     def generate_ca_and_dh(self):
         print "sh %s../gen_ca.sh" % self.key_dir
@@ -167,7 +168,10 @@ class VPNConfigManager:
 
     def get_server_config(self):
         template = Template(VPN_SERVER_CONFIG_TEMPLATE)
-        return template.render(port=str(self.port), ip=self.ip, mask=self.mask)
+        dns_line
+        if self.dns_enabled == "true":
+            dns_line = "push dhcp-option DNS 10.10.10.1"
+        return template.render(port=str(self.port), ip=self.ip, mask=self.mask, dns_line=dns_line)
 
     def get_ca_cert(self):
         f = open(self.key_dir + "ca.crt")
@@ -200,6 +204,7 @@ persist-key
 persist-tun
 status openvpn-status.log
 verb 3
+{{dns_line}}
 """
 
 VPN_CLIENT_CONFIG_TEMPLATE = """
@@ -220,7 +225,7 @@ verb 3
 
 if __name__ == "__main__":
 
-    opts, _ = getopt.getopt(sys.argv[1:], "a:p:w:s:m:v:o:", ["working-dir="])
+    opts, _ = getopt.getopt(sys.argv[1:], "a:p:w:s:m:v:o:", ["working-dir=","dns-enabled="])
 
     address = "127.0.0.1"
     port = 9093
@@ -242,8 +247,10 @@ if __name__ == "__main__":
             vpn_address = arg
         elif opt == "-o":
             vpn_port = arg
+        elif opt == "--dns-enabled":
+            dns_enabled = arg
 
-    manager = VPNConfigManager(vpn_address, vpn_mask, vpn_port, server_address, working_dir)
+    manager = VPNConfigManager(vpn_address, vpn_mask, vpn_port, server_address, working_dir, dns_enabled)
     app.config["manager"] = manager
 
     app.run(host=address, port=port, debug=True)

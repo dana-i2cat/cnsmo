@@ -28,7 +28,7 @@ def main():
     return deployvpn()
 
 
-def deployvpn():
+def deployvpn(netservices):
     logger = logging.getLogger(__name__)
     logger.debug("Deploying VPN server on a SlipStream application...")
 
@@ -73,7 +73,7 @@ def deployvpn():
     # Launch the rest of VPN services
 
     # Launch VPN configurator
-    tc = threading.Thread(target=launchVPNConfigurator, args=(hostname, redis_address, instance_id))
+    tc = threading.Thread(target=launchVPNConfigurator, args=(hostname, redis_address, instance_id, netservices))
     tc.start()
     # TODO implement proper way to detect when the configurator is ready (using systemstate?)
     time.sleep(1)
@@ -184,11 +184,15 @@ def launchSystemState(hostname, dss_port):
     call("python cnsmo/cnsmo/src/main/python/net/i2cat/cnsmo/run/systemstate.py -a %s -p %s" % (hostname, dss_port))
 
 
-def launchVPNConfigurator(hostname, redis_address, instance_id):
+def launchVPNConfigurator(hostname, redis_address, instance_id, netservices):
     logger = logging.getLogger(__name__)
     logger.debug("Launching VPN configurator...")
     call('ss-display \"VPN: Launching VPN configurator...\"')
-    call("python cnsmo/cnsmo/src/main/python/net/i2cat/cnsmoservices/vpn/run/configurator.py -a %s -p 20093 -r %s -s VPNConfigurator-%s --vpn-server-ip %s --vpn-server-port 9004 --vpn-address 10.10.10.0 --vpn-mask 255.255.255.0" % (hostname, redis_address, instance_id, hostname))
+
+    dns_enabled = false
+    if 'dns' in netservices:
+        dns_enabled = true
+    call("python cnsmo/cnsmo/src/main/python/net/i2cat/cnsmoservices/vpn/run/configurator.py -a %s -p 20093 -r %s -s VPNConfigurator-%s --vpn-server-ip %s --vpn-server-port 9004 --vpn-address 10.10.10.0 --vpn-mask 255.255.255.0 --dns-enabled %s" % (hostname, redis_address, instance_id, hostname, dns_enabled))
 
 
 def launchVPNServer(hostname, redis_address, instance_id):
