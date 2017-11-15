@@ -168,7 +168,7 @@ class VPNConfigManager:
 
     def get_server_config(self):
         template = Template(VPN_SERVER_CONFIG_TEMPLATE)
-        dns_line
+        dns_line = ""
         if self.dns_enabled == "true":
             dns_line = "push dhcp-option DNS 10.10.10.1"
         return template.render(port=str(self.port), ip=self.ip, mask=self.mask, dns_line=dns_line)
