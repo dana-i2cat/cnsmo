@@ -38,10 +38,10 @@ def launchDNSServer(hostname, redis_address, instance_id):
 
 def configure_dnsmasq(upstream_servers, local_listeners, hostnames):
     for server in upstream_servers:
-        l = "server="+server
+        l = "server="+server+"\n"
         add_line("/etc/dnsmasq.conf", l)
     for listen in local_listeners:
-        l = "listen-address="+listen
+        l = "listen-address="+listen+"\n"
         add_line("/etc/dnsmasq.conf", l)
     for host in hostnames:
         l = host
@@ -79,6 +79,7 @@ def deploydns(netservices):
 
     if 'vpn' in netservices:
         hostnames = ["10.10.10.2 client1"]
+        listeners = ["10.10.10.1"]
     
     configure_dnsmasq(upstream, listeners, hostnames)
     

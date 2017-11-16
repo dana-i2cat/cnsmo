@@ -170,7 +170,7 @@ class VPNConfigManager:
         template = Template(VPN_SERVER_CONFIG_TEMPLATE)
         dns_line = ""
         if self.dns_enabled == "true":
-            dns_line = "push dhcp-option DNS 10.10.10.1"
+            dns_line = "push dhcp-option DNS 10.10.10.1\n"
         return template.render(port=str(self.port), ip=self.ip, mask=self.mask, dns_line=dns_line)
 
     def get_ca_cert(self):
