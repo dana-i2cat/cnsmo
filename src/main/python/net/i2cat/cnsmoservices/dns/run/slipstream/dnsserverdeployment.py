@@ -43,6 +43,8 @@ def configure_dnsmasq(upstream_servers, local_listeners, hostnames):
     for listen in local_listeners:
         l = "listen-address="+listen+"\n"
         add_line("/etc/dnsmasq.conf", l)
+    l = "expand-hosts\n"
+    add_line("/etc/dnsmasq.conf", l)
     for host in hostnames:
         l = host
         add_line("/etc/hosts", l)
@@ -74,12 +76,14 @@ def deploydns(netservices):
     call('ss-display \"Configuring DNS server..."')
     
     upstream = ["8.8.8.8", "8.8.4.4"]
-    listeners = ["127.0.0.1"]
+    ip = call("ifconfig eth0 | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}'").rstrip('\n')
+    listeners = [ip]
+
     hostnames = [""]
 
     if 'vpn' in netservices:
-        hostnames = ["10.10.10.2 client1"]
-        listeners = ["10.10.10.1"]
+        hostnames = ["10.10.10.2 client1\n"]
+        listeners = [ip,"10.10.10.1"]
     
     configure_dnsmasq(upstream, listeners, hostnames)
     
