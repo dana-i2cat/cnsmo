@@ -198,6 +198,9 @@ class VPNManager:
         server_key = self.__configuration_manager.get_server_key(None).content
         server_crt = self.__configuration_manager.get_server_cert(None).content
         server_conf = self.__configuration_manager.get_server_config(None).content
+        self.__logger.debug("printing vpn server conf...")
+        self.__logger.debug(server_conf)
+        print server_conf
 
         self.__configure_and_start_vpn_server("server", dh, ca_crt, server_key, server_crt, server_conf)
         self.__server_deployed = True

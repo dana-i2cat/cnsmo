@@ -57,20 +57,19 @@ def main():
 
     logger.debug("Deploying net services...")
     netservices_enabled = list()
-    
-    if 'vpn' in netservices:
-        if deploy_vpn_and_wait() == 0:
-            logger.debug("Marking vpn as enabled")
-            netservices_enabled.append('vpn')
-        else:
-            logger.error("Error deploying VPN. Aborting script")
-            return -1
     if 'dns' in netservices:   
         if deploy_dns_and_wait(netservices) == 0:
             logger.debug("Marking dns as enabled")
             netservices_enabled.append('dns')
         else:
             logger.error("Error deploying DNS. Aborting script")
+            return -1
+    if 'vpn' in netservices:
+        if deploy_vpn_and_wait(netservices) == 0:
+            logger.debug("Marking vpn as enabled")
+            netservices_enabled.append('vpn')
+        else:
+            logger.error("Error deploying VPN. Aborting script")
             return -1
     if 'sdn' in netservices:
         if deploy_sdn_and_wait() == 0:
@@ -108,10 +107,10 @@ def deploy_dns_and_wait(netservices):
     logger.debug("Deploying DNS...")
     return deploydns(netservices)
 
-def deploy_vpn_and_wait():
+def deploy_vpn_and_wait(netservices):
     logger = logging.getLogger(__name__)
     logger.debug("Deploying VPN...")
-    return deployvpn()
+    return deployvpn(netservices)
 
 def deploy_sdn_and_wait():
     logger = logging.getLogger(__name__)

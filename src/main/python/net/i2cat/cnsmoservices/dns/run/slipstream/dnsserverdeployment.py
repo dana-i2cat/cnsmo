@@ -38,11 +38,13 @@ def launchDNSServer(hostname, redis_address, instance_id):
 
 def configure_dnsmasq(upstream_servers, local_listeners, hostnames):
     for server in upstream_servers:
-        l = "server="+server
+        l = "server="+server+"\n"
         add_line("/etc/dnsmasq.conf", l)
     for listen in local_listeners:
-        l = "listen-address="+listen
+        l = "listen-address="+listen+"\n"
         add_line("/etc/dnsmasq.conf", l)
+    l = "expand-hosts\n"
+    add_line("/etc/dnsmasq.conf", l)
     for host in hostnames:
         l = host
         add_line("/etc/hosts", l)
@@ -57,11 +59,7 @@ def prepend_after(file_name,pattern,value=""):
 
 def add_line(file_name,line):
     with open(file_name, 'a') as file:
-        file.writelines(line)
-
-def configure_vpn_dns(local_dns_servers):
-    for server in local_dns_servers:
-        add_line("/etc/openvpn/server.conf", "push dhcp-option DNS " + server)
+        file.writelines(line)   
 
 def deploydns(netservices):
     logger = logging.getLogger(__name__)
@@ -70,6 +68,7 @@ def deploydns(netservices):
     ss_nodename = call('ss-get nodename').rstrip('\n')
     ss_node_instance = call('ss-get id').rstrip('\n')
     instance_id = "%s.%s" % (ss_nodename, ss_node_instance)
+    hostname = call('ss-get hostname').rstrip('\n')
     logger.debug("Resolving net.i2cat.cnsmo.dss.address...")
     redis_address = call("ss-get net.i2cat.cnsmo.dss.address").rstrip('\n')
 
@@ -77,17 +76,16 @@ def deploydns(netservices):
     call('ss-display \"Configuring DNS server..."')
     
     upstream = ["8.8.8.8", "8.8.4.4"]
-    listeners = ["127.0.0.1"]
+    ip = call("ifconfig eth0 | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}'").rstrip('\n')
+    listeners = [ip]
+
     hostnames = [""]
 
     if 'vpn' in netservices:
-        hostnames = ["10.10.10.2 client1"]
+        hostnames = ["10.10.10.2 client1\n"]
+        listeners = [ip,"10.10.10.1"]
     
     configure_dnsmasq(upstream, listeners, hostnames)
-    if 'vpn' in netservices:
-        vpn_server_address = call('ss-get vpn.address').rstrip('\n')
-        dns_server_ips = [vpn_server_address]
-        configure_vpn_dns(dns_server_ips)
     
     logger.debug("DNS configured successfully")
 

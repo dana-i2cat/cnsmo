@@ -3,7 +3,7 @@ import os
 import sys
 import subprocess
 
-def get_app_request(host, port, service_id, vpn_server_address, vpn_server_port, vpn_address):
+def get_app_request(host, port, service_id, vpn_server_address, vpn_server_port, vpn_address, dns_enabled):
 
     bind_address = "0.0.0.0"
 
@@ -14,7 +14,7 @@ def get_app_request(host, port, service_id, vpn_server_address, vpn_server_port,
     gitBranch = call('git branch').rstrip('\n').lstrip('* ')
 
     d = dict(service_id=service_id,
-             trigger= 'mkdir -p keys && chmod +x "$(pwd)"/build-* && python configurator.py -a %s -p %s -w "$(pwd)"/keys/ -s %s -m %s -v %s -o %s' % (bind_address, port, vpn_server_address, vpn_mask, vpn_address, vpn_server_port),
+             trigger= 'mkdir -p keys && chmod +x "$(pwd)"/build-* && python configurator.py -a %s -p %s -w "$(pwd)"/keys/ -s %s -m %s -v %s -o %s --dns-enabled %s' % (bind_address, port, vpn_server_address, vpn_mask, vpn_address, vpn_server_port, dns_enabled),
              resources = ["https://raw.githubusercontent.com/dana-i2cat/cnsmo/%s/src/main/python/net/i2cat/cnsmoservices/vpn/app/configurator.py" % gitBranch,
                           "https://raw.githubusercontent.com/dana-i2cat/cnsmo-net-services/master/src/main/docker/vpn/easy-rsa/gen_ca.sh",
                           "https://raw.githubusercontent.com/dana-i2cat/cnsmo-net-services/master/src/main/docker/vpn/easy-rsa/gen_client.sh",
@@ -43,12 +43,12 @@ def get_app_request(host, port, service_id, vpn_server_address, vpn_server_port,
     return d
 
 
-def main(host, port, redis_address, service_id, vpn_server_address, vpn_server_port, vpn_address, vpn_port):
+def main(host, port, redis_address, service_id, vpn_server_address, vpn_server_port, vpn_address, vpn_port, dns_enabled):
 
     bash_deployer = BashDeployer(None)
     configurer = CNSMOManager(redis_address, service_id, "VPNConfigManager", bash_deployer, None)
     configurer.start()
-    configurer.compose_service(**get_app_request(host, port,service_id, vpn_server_address, vpn_server_port, vpn_address))
+    configurer.compose_service(**get_app_request(host, port,service_id, vpn_server_address, vpn_server_port, vpn_address, dns_enabled))
     configurer.launch_service(service_id)
 
 if __name__ == "__main__":
@@ -65,7 +65,7 @@ if __name__ == "__main__":
     from src.main.python.net.i2cat.cnsmo.deployment.bash import BashDeployer
     from src.main.python.net.i2cat.cnsmo.manager.cnsmo import CNSMOManager
 
-    opts, _ = getopt.getopt(sys.argv[1:], "a:p:r:s:", ["vpn-server-ip=", "vpn-server-port=", "vpn-address=", "vpn-mask="])
+    opts, _ = getopt.getopt(sys.argv[1:], "a:p:r:s:", ["vpn-server-ip=", "vpn-server-port=", "vpn-address=", "vpn-mask=", "dns-enabled="])
 
     host = "0.0.0.0"
     port = "9093"
@@ -75,6 +75,7 @@ if __name__ == "__main__":
     vpn_server_port = "1194"
     vpn_address = "10.10.10.0"
     vpn_mask = "255.255.255.0"
+    dns_enabled = "false"
 
     for opt, arg in opts:
         if opt == "-a":
@@ -93,5 +94,7 @@ if __name__ == "__main__":
             vpn_address = arg
         elif opt == "--vpn-mask":
             vpn_mask = arg
+        elif opt == "--dns-enabled":
+            dns_enabled = arg
 
-    main(host, port, redis_address, service_id, vpn_server_ip, vpn_server_port, vpn_address, vpn_mask)
+    main(host, port, redis_address, service_id, vpn_server_ip, vpn_server_port, vpn_address, vpn_mask, dns_enabled)
