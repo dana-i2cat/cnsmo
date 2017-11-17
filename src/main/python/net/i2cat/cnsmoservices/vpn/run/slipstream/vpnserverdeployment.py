@@ -141,6 +141,11 @@ def deployvpn(netservices):
     if vpn_local_ipv6_address:
         call("ss-set vpn.address6 %s" % vpn_local_ipv6_address)
 
+    #Restart dns service if dns is activated
+    logger.debug("Restarting DNS service...")
+    call('ss-display \"VPN: Restarting DNS Service...\"')
+    if 'dns' in netservices:
+        call("service dnsmasq restart")
 
     # Communicate that the VPN has been established
     logger.debug("Announcing vpn service has been deployed")
