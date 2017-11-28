@@ -146,7 +146,7 @@ def deployvpn(netservices):
     call('ss-display \"VPN: Restarting DNS Service...\"')
     if 'dns' in netservices:
         call("service dnsmasq restart")
-
+    time.sleep(15)
     # Communicate that the VPN has been established
     logger.debug("Announcing vpn service has been deployed")
     call('ss-set net.i2cat.cnsmo.service.vpn.ready true')
