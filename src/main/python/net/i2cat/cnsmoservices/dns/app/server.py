@@ -26,7 +26,7 @@ DELETE = "DELETE"
 def get_status():
     return jsonify({}),200
 
-@app.route("/dns/server/record/", methods=[PUT])
+@app.route("/dns/server/record/", methods=[POST])
 def add_dns_record():
     data = request.json
     dnsrecords = [str(data["dnsrecords"])]
@@ -36,7 +36,6 @@ def add_dns_record():
     return jsonify({response}),200
 
 def update_records(records):
-    add_line("/etc/dnsmasq.conf", l)
     for record in records:
         l = str(record+"\n")
         add_line("/etc/hosts", l)
