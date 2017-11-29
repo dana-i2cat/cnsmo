@@ -32,7 +32,6 @@ def add_dns_record():
     dnsrecords = [str(data["dnsrecords"])]
     update_records(dnsrecords)
     response = call("service dnsmasq restart")
-    logger.debug("response of restarting dnsmasq is %s" % response)
     return jsonify({response}),200
 
 def update_records(records):
