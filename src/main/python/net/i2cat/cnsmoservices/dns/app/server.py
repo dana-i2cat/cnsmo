@@ -30,10 +30,10 @@ def get_status():
 def add_dns_record():
     data = request.json
     dnsrecords = [str(data["dnsrecords"])]
-        update_records(dnsrecords)
-        response = call("service dnsmasq restart")
-        logger.debug("response of restarting dnsmasq is %s" % response)
-        return jsonify({response}),200
+    update_records(dnsrecords)
+    response = call("service dnsmasq restart")
+    logger.debug("response of restarting dnsmasq is %s" % response)
+    return jsonify({response}),200
 
 def update_records(records):
     add_line("/etc/dnsmasq.conf", l)
