@@ -152,7 +152,10 @@ class VPNConfigManager:
 
     def get_client_config(self):
         template = Template(VPN_CLIENT_CONFIG_TEMPLATE)
-        return template.render(port=str(self.port), server_ip=self.server_ip)
+        dns_line = ""
+        if self.dns_enabled == "true":
+            dns_line = "dhcp-option DNS 10.10.10.1\n"
+        return template.render(port=str(self.port), server_ip=self.server_ip, dns_line=dns_line)
 
     def get_server_cert(self):
         f = open(self.key_dir + "server.crt")
@@ -221,6 +224,7 @@ cert client.crt
 key client.key
 comp-lzo
 verb 3
+{{dns_line}}
 """
 
 if __name__ == "__main__":
