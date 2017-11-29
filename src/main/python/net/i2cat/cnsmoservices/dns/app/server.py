@@ -46,7 +46,7 @@ def add_line(file_name,line):
         file.writelines(line) 
 
 def read_lines(file_name): 
-    with open(file_name, 'a') as file:
+    with open(file_name, 'r') as file:
         return file.readlines()
 
 
