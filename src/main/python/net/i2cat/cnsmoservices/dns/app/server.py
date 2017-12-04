@@ -22,9 +22,32 @@ PUT = "PUT"
 DELETE = "DELETE"
 
 # Returns a list of strings with the id of the nodes
-@app.route("/sdn/server/status/", methods=[GET])
-def get_status():
-    return jsonify({}),200
+@app.route("/dns/server/record/", methods=[GET])
+def get_dns_records():
+    content = read_lines("/etc/hosts")
+    return jsonify({"dns_records":content}),200
+
+@app.route("/dns/server/record/", methods=[POST])
+def add_dns_record():
+    data = request.json
+    dnsrecords = [str(data["dnsrecords"])]
+    update_records(dnsrecords)
+    response = ""
+    response = call("service dnsmasq restart")
+    return str(response),200
+
+def update_records(records):
+    for record in records:
+        l = str(record+"\n")
+        add_line("/etc/hosts", l)
+
+def add_line(file_name,line):
+    with open(file_name, 'a') as file:
+        file.writelines(line) 
+
+def read_lines(file_name): 
+    with open(file_name, 'r') as file:
+        return file.readlines()
 
 
 if __name__ == "__main__":

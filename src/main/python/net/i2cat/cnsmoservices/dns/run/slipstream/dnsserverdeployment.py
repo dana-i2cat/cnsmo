@@ -82,7 +82,7 @@ def deploydns(netservices):
     hostnames = [""]
 
     if 'vpn' in netservices:
-        hostnames = ["10.10.10.2 client1\n"]
+        #hostnames = ["10.10.10.2 client1\n"]
         listeners = [ip,"10.10.10.1"]
     
     configure_dnsmasq(upstream, listeners, hostnames)

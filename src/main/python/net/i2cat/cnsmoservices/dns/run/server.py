@@ -15,7 +15,8 @@ def get_server_app_request(host, port, service_id):
              resources=["https://raw.githubusercontent.com/dana-i2cat/cnsmo/%s/src/main/python/net/i2cat/cnsmoservices/dns/app/server.py" % gitBranch,
                         ],
              dependencies=[],
-             endpoints=[{ "uri":"http://%s:%s/dns/server/status/" %(host, port), "driver":"REST", "logic":"get", "name":"get_status"},])
+             endpoints=[{ "uri":"http://%s:%s/dns/server/status/" %(host, port), "driver":"REST", "logic":"get", "name":"get_status"},
+                        { "uri":"http://%s:%s/dns/server/records/" %(host, port), "driver":"REST", "logic":"post", "name":"add_dns_record"}])
     return d
 
 
