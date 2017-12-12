@@ -80,7 +80,7 @@ def install_gui():
     call("sudo npm install -g @angular/cli@1.3.2")
     call("npm install --save-dev @angular/cli@1.3.2")
     call("npm install")
-
+    '''
     call("echo fase 5 - building cnsmo_web...  >> /var/tmp/slipstream/cnsmo_api_gui.log")
     call("ng build --prod --aot=false")
     os.chdir("/var/tmp/cnsmo-api")
@@ -95,7 +95,7 @@ def install_gui():
     call("echo fase 7 - starting process... >> /var/tmp/slipstream/cnsmo_api_gui.log")
     call("pm2 start process.yml")
     call("echo Done - API and UI installed correctly >> /var/tmp/slipstream/cnsmo_api_gui.log")
-
+    '''
 
 
 def main():
