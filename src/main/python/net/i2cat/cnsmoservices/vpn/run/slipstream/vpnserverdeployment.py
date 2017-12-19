@@ -120,7 +120,7 @@ def deployvpn(netservices):
     call('ss-display \"VPN: Waiting before Locating VPN enabled interface...\"')
     time.sleep(15)
     # assuming the VPN interface (probably tap0) is the only one created during this script execution
-    vpn_iface = detect_new_interface_in_30_sec(ifaces_prev)
+    vpn_iface = detect_new_interface_in_half_hour(ifaces_prev)
     if not vpn_iface:
         logger.error("Timeout! Failed to locate tap interface, created by the VPN")
         call("ss-abort \"%s:Timeout! Failed to locate tap interface, created by the VPN\"" % instance_id)
@@ -160,10 +160,10 @@ def deployvpn(netservices):
     return 0
 
 
-def detect_new_interface_in_30_sec(ifaces_prev):
+def detect_new_interface_in_half_hour(ifaces_prev):
     vpn_iface = do_detect_new_interface(ifaces_prev)
     attempts = 0
-    while not vpn_iface and attempts < 50:
+    while not vpn_iface and attempts < 180:
         time.sleep(10)
         vpn_iface = do_detect_new_interface(ifaces_prev)
         attempts += 1
