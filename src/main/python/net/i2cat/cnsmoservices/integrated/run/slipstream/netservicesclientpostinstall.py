@@ -27,6 +27,7 @@ if src_dir not in sys.path:
 from subprocess import Popen, PIPE
 
 call = lambda command: subprocess.check_output(command, shell=True)
+callWithoutWait = lambda command: subprocess.call(command, shell=True)
 
 def install_redis():
     logger = logging.getLogger(__name__)
@@ -56,7 +57,7 @@ def main():
     config_logging()
     logger = logging.getLogger(__name__)
     logger.debug("Running net services client postinstall script")
-    call('ss-display \"Running net services client postinstall script\"')
+    callWithoutWait('ss-display \"Running net services client postinstall script\"')
 
     logger.debug("Installing CNSMO requirements")
     p = subprocess.Popen(["pip","install","-r","cnsmo/cnsmo/requirements.txt"])
@@ -68,7 +69,7 @@ def main():
     install_redis()
 
     logger.debug("Finished posinstalling net services")
-    call("ss-set net.services.installed true")
+    callWithoutWait("ss-set net.services.installed true")
     logger.debug("Set net.services.installed = true")
     return 0
 
