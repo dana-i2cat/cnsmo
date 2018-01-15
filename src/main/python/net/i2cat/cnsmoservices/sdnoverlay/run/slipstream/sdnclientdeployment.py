@@ -42,7 +42,7 @@ def check_preconditions(sdn_server_instance_id):
     logger = logging.getLogger(__name__)
     logger.debug("Waiting for SDN to be deployed...")
     call('ss-display \"SDN: Waiting for SDN to be established...\"')
-    response_sdn = callWithResp("ss-get --timeout=1800 %s:net.i2cat.cnsmo.service.sdn.server.ready" % sdn_server_instance_id).rstrip('\n')
+    response_sdn = callWithResp("ss-get --timeout=18000 %s:net.i2cat.cnsmo.service.sdn.server.ready" % sdn_server_instance_id).rstrip('\n')
     logger.debug("Finished waiting for SDN to be deployed. ready=%s" % response_sdn)
     if not response_sdn:
         logger.error("Timeout waiting for %s:net.i2cat.cnsmo.service.sdn.server.ready" % sdn_server_instance_id)
