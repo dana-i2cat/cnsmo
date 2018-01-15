@@ -155,7 +155,7 @@ def get_filter_statistics(ssinstanceid,flowID):
         openflowID = get_nodeOpenflowID(vpnAddr)
         if openflowID!="":
             # URL has to follow this format: http://134.158.74.110:8080/restconf/config/opendaylight-inventory:nodes/node/openflow:274973442922995/table/0/flow/12/flow-statistics
-            url = str("http://127.0.0.1:8080/restconf/config/opendaylight-inventory:nodes/node/"+openflowID+"/table/0/flow/"+str(flowID))+"/flow-statistics/"
+            url = str("http://127.0.0.1:8080/restconf/operational/opendaylight-inventory:nodes/node/"+openflowID+"/table/0/flow/"+str(flowID))+"/flow-statistics/"
             r = requests.get(url , auth=HTTPBasicAuth('admin', 'admin'))
             j = r.json()
 
