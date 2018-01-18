@@ -50,14 +50,16 @@ def main():
     netservices_enabled = list()
 
     if netservices:
+        call('ss-display \"Waitting while server post-install finishes \" ')
         logger.debug("Resolving cnsmo.server.nodeinstanceid...")
-        cnsmo_server_instance_id = call('ss-get --timeout=3000 cnsmo.server.nodeinstanceid').rstrip('\n')
+        #increase the timeouts if the client finishes post-install much much earlier than server post-install end
+        cnsmo_server_instance_id = call('ss-get --timeout=180000 cnsmo.server.nodeinstanceid').rstrip('\n')
         if not cnsmo_server_instance_id:
             logger.error("Timeout waiting for cnsmo.server.nodeinstanceid")
             # timeout! Abort the script immediately (ss-get will abort the whole deployment in short time)
             return -1
         logger.debug("Got cnsmo.server.nodeinstanceid= %s" % cnsmo_server_instance_id)
-
+        call('ss-display \"Server post-install finished. Got Server.instanceid \" ')
         logger.debug("Deploying net services...")
         
         if 'dns' in netservices:
