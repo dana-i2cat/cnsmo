@@ -194,6 +194,7 @@ def configure_resolvconf(container_name):
     call("service resolvconf restart")
 
 def extract_lines(file_name):
+    logger = logging.getLogger(__name__)
     lines =[]
     with open(file_name) as fh:
         logger.debug("opened file %s" % file_name)
