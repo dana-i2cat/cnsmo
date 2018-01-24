@@ -90,7 +90,7 @@ def deployvpn():
 
     logger.debug("Waiting for VPN to be deployed...")
     call('ss-display \"VPN: Waiting for VPN to be established...\"')
-    response_vpn = call("ss-get --timeout=1800 %s:net.i2cat.cnsmo.service.vpn.ready" % server_instance_id).rstrip('\n')
+    response_vpn = call("ss-get --timeout=18000 %s:net.i2cat.cnsmo.service.vpn.ready" % server_instance_id).rstrip('\n')
     logger.debug("Finished waiting for VPN to be deployed. ready=%s" % response_vpn)
     if not response_vpn:
         logger.error("Timeout waiting for %s:net.i2cat.cnsmo.service.vpn.ready" % server_instance_id)

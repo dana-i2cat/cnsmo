@@ -154,7 +154,7 @@ class VPNConfigManager:
         template = Template(VPN_CLIENT_CONFIG_TEMPLATE)
         dns_line = ""
         if self.dns_enabled == "true":
-            dns_line = "dhcp-option DNS 10.10.10.1\n"
+            dns_line = "dhcp-option DNS 10.10.10.1\nscript-security 2\nup /etc/openvpn/up.sh\ndown /etc/openvpn/down.sh\n"
         return template.render(port=str(self.port), server_ip=self.server_ip, dns_line=dns_line)
 
     def get_server_cert(self):
