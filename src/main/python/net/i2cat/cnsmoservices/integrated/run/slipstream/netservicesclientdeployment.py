@@ -75,7 +75,7 @@ def main():
             if not vpn_server_instance_id:
                 # timeout! Abort the script immediately (ss-get will abort the whole deployment in short time)
                 return -1
-            if deploy_vpn_and_wait() == 0:
+            if deploy_vpn_and_wait(netservices) == 0:
                 logger.debug("Marking vpn as enabled")
                 netservices_enabled.append('vpn')
             else:

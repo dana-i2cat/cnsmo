@@ -37,7 +37,7 @@ def main():
     return deployvpn()
 
 
-def deployvpn():
+def deployvpn(netservices):
     logger = logging.getLogger(__name__)
     logger.debug("Deploying VPN client on a SlipStream application...")
 
@@ -123,6 +123,15 @@ def deployvpn():
                  % (vpn_iface, vpn_local_ipv4_address, vpn_local_ipv6_address))
     call("ss-display \"VPN: VPN has been established! Using interface %s with ipaddr %s and ipv6addr %s\""
          % (vpn_iface, vpn_local_ipv4_address, vpn_local_ipv6_address))
+
+
+    #copying resolv.conf from docker to host machine
+    #logger.debug("Setting DNS server address in Client...")
+    #call('ss-display \"VPN: Setting DNS server address in Client...\"')
+    if 'dns' in netservices:
+        #container_name must be equal to the name of docker container used for the vpn
+        configure_resolvconf("client-vpn")
+
     return 0
 
 
@@ -166,6 +175,35 @@ def getInterfaceIPv4Address(iface):
 
 def getInterfaceIPv6Address(iface):
     return (call("ifconfig " + iface + "| awk '/inet6 / { print $3 }'").rstrip('\n').split('/'))[0]
+
+def configure_resolvconf(container_name):
+    logger = logging.getLogger(__name__)
+    #copy resolv.conf from container
+    filepath_in_container = "/etc/resolv.conf"
+    copied_resolvconf = "/etc/resolvconf/resolv.conf.d/copy.conf"
+    resolvconf_head_file = "/etc/resolvconf/resolv.conf.d/head"
+    call("docker cp %s:%s %s" % (container_name,filepath_in_container,copied_resolvconf))
+    #extract nameserver lines from copied file
+    lines = []
+    lines = extract_lines(copied_resolvconf)
+    #TODO: GET LINES FROM DOCKER CONTAINER RESOLVECONF
+    call("touch %s" % resolvconf_head_file)
+    for l in lines:
+        logger.debug("nameserver line %s" % l)
+        add_line(resolvconf_head_file, l)
+    call("service resolvconf restart")
+
+def extract_lines(file_name):
+    lines =[]
+    with open(file_name) as fh:
+        logger.debug("opened file %s" % file_name)
+        for line in fh:
+            lines.append(line)
+    return lines
+
+def add_line(file_name,line):
+    with open(file_name, 'a') as file:
+        file.writelines(line) 
 
 
 def logToFile(message, filename, filemode):
