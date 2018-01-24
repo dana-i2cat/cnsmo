@@ -122,10 +122,10 @@ def deploy_dns_and_wait():
     logger.debug("Deploying DNS...")
     return deploydns()
 
-def deploy_vpn_and_wait():
+def deploy_vpn_and_wait(netservices):
     logger = logging.getLogger(__name__)
     logger.debug("Deploying VPN...")
-    return deployvpn()
+    return deployvpn(netservices)
 
 def deploy_sdn_and_wait(sdn_server_instance_id):
     logger = logging.getLogger(__name__)
