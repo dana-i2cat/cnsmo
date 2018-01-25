@@ -153,7 +153,6 @@ def deployvpn(netservices):
     call('ss-display \"VPN: Restarting DNS Service...\"')
     if 'dns' in netservices:
         response = call("service dnsmasq restart")
-        time.sleep(15)
         logger.debug("response of restarting dnsmasq is %s" % response)
         
     return 0
