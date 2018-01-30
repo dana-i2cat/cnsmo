@@ -35,6 +35,7 @@ from src.main.python.net.i2cat.cnsmoservices.sdnoverlay.run.slipstream.sdnserver
 
 
 call = lambda command: subprocess.check_output(command, shell=True)
+callNoResp = lambda command: subprocess.call(command, shell=True)
 
 
 def main():
@@ -95,6 +96,13 @@ def main():
             logger.error("Error deploying LB. Aborting script")
             return -1
 
+    #Restart dns service if dns is activated
+    #logger.debug("Restarting DNS service...")
+    #call('ss-display \"VPN: Restarting DNS Service...\"')
+    #if 'dns' in netservices:
+    #    callNoResp("service dnsmasq restart")
+    #    logger.debug("restarted dnsmasq")
+        
     logger.debug("Finished deploying net services")
     call('ss-display \"Successfully deployed network services: %s\"' % netservices_enabled)
 

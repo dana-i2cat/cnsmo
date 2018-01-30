@@ -140,15 +140,6 @@ def deployvpn(netservices):
     call("ss-set vpn.address %s" % vpn_local_ipv4_address)
     if vpn_local_ipv6_address:
         call("ss-set vpn.address6 %s" % vpn_local_ipv6_address)
-
-    #Restart dns service if dns is activated
-    #logger.debug("Restarting DNS service...")
-    #call('ss-display \"VPN: Restarting DNS Service...\"')
-    #if 'dns' in netservices:
-        #response = call("service dnsmasq restart")
-        #time.sleep(15)
-        #logger.debug("response of restarting dnsmasq is %s" % response)
-    # Communicate that the VPN has been established
     
     logger.debug("Announcing vpn service has been deployed")
     call('ss-set net.i2cat.cnsmo.service.vpn.ready true')
@@ -156,7 +147,7 @@ def deployvpn(netservices):
 
     logger.debug("VPN has been established! Using interface %s with ipaddr %s and ipv6addr %s" % (vpn_iface, vpn_local_ipv4_address, vpn_local_ipv6_address))
     call("ss-display \"VPN: VPN has been established! Using interface %s with ipaddr %s and ipv6addr %s\"" % (vpn_iface, vpn_local_ipv4_address, vpn_local_ipv6_address))
-
+        
     return 0
 
 

@@ -10,6 +10,7 @@
 ###
 
 import logging
+import json
 import os
 import subprocess
 import sys
@@ -46,7 +47,7 @@ def configure_dnsmasq(upstream_servers, local_listeners, hostnames):
     l = "expand-hosts\n"
     add_line("/etc/dnsmasq.conf", l)
     for host in hostnames:
-        l = host
+        l = host+"\n"
         add_line("/etc/hosts", l)
 
 def prepend_after(file_name,pattern,value=""):
@@ -82,7 +83,7 @@ def deploydns(netservices):
     hostnames = [""]
 
     if 'vpn' in netservices:
-        #hostnames = ["10.10.10.2 client1\n"]
+        hostnames = get_default_dns_records()
         listeners = [ip,"10.10.10.1"]
     
     configure_dnsmasq(upstream, listeners, hostnames)
@@ -99,6 +100,28 @@ def deploydns(netservices):
     call('ss-set net.i2cat.cnsmo.service.dns.server.ready true')
     logger.debug("Set net.i2cat.cnsmo.service.dns.server.ready=true")
     return 0
+
+def get_default_dns_records():
+    """
+    :return: A list of strings for each dns record which we want to enable by default
+    """
+    logger = logging.getLogger(__name__)
+    try:
+        recordlist_str = call('ss-get dns.recordlist').rstrip('\n')
+        if recordlist_str:
+            recordlist = json.loads(recordlist_str)
+            return recordlist
+        else:
+            raise ValueError("Couldn't get value for dns.recordlist")
+    except subprocess.CalledProcessError as e:
+        logger.error("Command {} returned non-zero exit status {} with output {}".format(e.cmd, e.returncode, e.output))
+        call('ss-abort \"Error reading dns record list\"')
+        raise
+    except Exception as e:
+        logger.error(e.message)
+        call('ss-abort \"Error reading dns record list\"')
+        raise
+
 
 def config_logging():
     logging.basicConfig(filename='cnsmo-dns-deployment.log',
