@@ -38,9 +38,13 @@ def launchDNSServer(hostname, redis_address, instance_id):
     call("python cnsmo/cnsmo/src/main/python/net/i2cat/cnsmoservices/dns/run/server.py -a %s -p 20200 -r %s -s DNSServer-%s" % (hostname, redis_address, instance_id))
 
 def configure_dnsmasq(upstream_servers, local_listeners, hostnames):
+    resolvconf_head_file = "/etc/resolvconf/resolv.conf.d/head"
     for server in upstream_servers:
         l = "server="+server+"\n"
         add_line("/etc/dnsmasq.conf", l)
+        laux = "nameserver "+server+"\n"
+        add_line(resolvconf_head_file,laux)
+    call("service resolvconf restart")
     for listen in local_listeners:
         l = "listen-address="+listen+"\n"
         add_line("/etc/dnsmasq.conf", l)

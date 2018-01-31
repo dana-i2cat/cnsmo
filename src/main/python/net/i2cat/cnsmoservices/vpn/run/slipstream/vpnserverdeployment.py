@@ -152,9 +152,6 @@ def deployvpn(netservices):
     #logger.debug("Setting DNS server address in Server...")
     call('ss-display \"VPN: Restarting DNS Service...\"')
     if 'dns' in netservices:
-        #copying resolv.conf from docker to host machine
-        #container_name must be equal to the name of docker container used for the vpn
-        configure_resolvconf("server-vpn")
         response = call("service dnsmasq restart")
         time.sleep(5)
         logger.debug("response of restarting dnsmasq is %s" % response)
@@ -244,36 +241,6 @@ def getInterfaceIPv6Address(iface):
     ip = (call("ifconfig " + iface + "| awk '/inet6 / { print $3 }'").rstrip('\n').split('/'))[0]
     logger.debug("found ip ... %s" % ip)
     return ip
-
-def configure_resolvconf(container_name):
-    logger = logging.getLogger(__name__)
-    #copy resolv.conf from container
-    filepath_in_container = "/etc/resolv.conf"
-    copied_resolvconf = "/etc/resolvconf/resolv.conf.d/copy.conf"
-    resolvconf_head_file = "/etc/resolvconf/resolv.conf.d/head"
-    call("docker cp %s:%s %s" % (container_name,filepath_in_container,copied_resolvconf))
-    #extract nameserver lines from copied file
-    lines = []
-    lines = extract_lines(copied_resolvconf)
-    #TODO: GET LINES FROM DOCKER CONTAINER RESOLVECONF
-    call("touch %s" % resolvconf_head_file)
-    for l in lines:
-        logger.debug("nameserver line %s" % l)
-        add_line(resolvconf_head_file, l)
-    call("service resolvconf restart")
-
-def extract_lines(file_name):
-    logger = logging.getLogger(__name__)
-    lines =[]
-    with open(file_name) as fh:
-        logger.debug("opened file %s" % file_name)
-        for line in fh:
-            lines.append(line)
-    return lines
-
-def add_line(file_name,line):
-    with open(file_name, 'a') as file:
-        file.writelines(line) 
 
 # Gets the instances that compose the deployment
 # NOTE: Currently there is no way to directly retrieve all nodes intances in a deployment.
