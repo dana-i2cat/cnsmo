@@ -171,7 +171,7 @@ def subscribe_to_controller(PROTO_SDN,SDN_CTRL_IP_PORT):
 def configureOvs():
     logger = logging.getLogger(__name__)
     # Configuration values
-    NIC = "eth0"    
+    NIC = getFirstEthernetInterface()  
     SDN_PORT_CONCAT=":6633"
     VPN_SERVER_IP="10.10.10.1"
     VPN_SERVER_IP= callWithResp("ss-get --timeout=3600 vpn.server.address")
@@ -200,6 +200,9 @@ def configureOvs():
     logger.debug("Error is: %s " % (totalErr))
     logger.debug("Assuming SDN client is ready")
     return totalErr
+
+def getFirstEthernetInterface():
+    return call("""ls /sys/class/net | grep \"en\|eth\" | head -1""").rstrip('\n')
 
 def config_logging():
     logging.basicConfig(filename='cnsmo-sdn-deployment.log',

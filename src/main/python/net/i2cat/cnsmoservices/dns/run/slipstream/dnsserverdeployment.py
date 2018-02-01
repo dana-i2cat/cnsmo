@@ -81,7 +81,8 @@ def deploydns(netservices):
     call('ss-display \"Configuring DNS server..."')
     
     upstream = ["8.8.8.8", "8.8.4.4"]
-    ip = call("ifconfig eth0 | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}'").rstrip('\n')
+    ethIface = getFirstEthernetInterface()
+    ip = call("ifconfig "+ ethIface +" | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}'").rstrip('\n')
     listeners = [ip]
 
     hostnames = [""]
@@ -125,6 +126,9 @@ def get_default_dns_records():
         logger.error(e.message)
         call('ss-abort \"Error reading dns record list\"')
         raise
+
+def getFirstEthernetInterface():
+    return call("""ls /sys/class/net | grep \"en\|eth\" | head -1""").rstrip('\n')
 
 
 def config_logging():
