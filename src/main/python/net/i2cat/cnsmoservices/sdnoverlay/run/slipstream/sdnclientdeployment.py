@@ -202,7 +202,7 @@ def configureOvs():
     return totalErr
 
 def getFirstEthernetInterface():
-    return call("""ls /sys/class/net | grep \"en\|eth\" | head -1""").rstrip('\n')
+    return callWithResp("""ls /sys/class/net | grep \"en\|eth\" | head -1""").rstrip('\n')
 
 def config_logging():
     logging.basicConfig(filename='cnsmo-sdn-deployment.log',
