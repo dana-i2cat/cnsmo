@@ -147,8 +147,17 @@ def deployvpn(netservices):
 
     logger.debug("VPN has been established! Using interface %s with ipaddr %s and ipv6addr %s" % (vpn_iface, vpn_local_ipv4_address, vpn_local_ipv6_address))
     call("ss-display \"VPN: VPN has been established! Using interface %s with ipaddr %s and ipv6addr %s\"" % (vpn_iface, vpn_local_ipv4_address, vpn_local_ipv6_address))
-        
+
+    
+    #logger.debug("Setting DNS server address in Server...")
+    call('ss-display \"VPN: Restarting DNS Service...\"')
+    if 'dns' in netservices:
+        response = call("service dnsmasq restart")
+        time.sleep(5)
+        logger.debug("response of restarting dnsmasq is %s" % response)
+
     return 0
+
 
 
 def detect_new_interface_in_half_hour(ifaces_prev):
