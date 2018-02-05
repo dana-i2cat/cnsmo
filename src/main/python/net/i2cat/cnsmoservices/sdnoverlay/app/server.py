@@ -119,7 +119,7 @@ def add_filter_by_port():
                     <tcp-destination-port>"""+str(data["tcp-destination-port"])+"""</tcp-destination-port>
                 </match>
                 <cookie>8</cookie>
-                <idle-timeout>700000</idle-timeout>
+                <idle-timeout>0</idle-timeout>
                 <flow-name>portweb-drop</flow-name>
                 <priority>650</priority>
                 <barrier>false</barrier>
