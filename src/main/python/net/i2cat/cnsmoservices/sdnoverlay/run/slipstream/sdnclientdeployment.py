@@ -75,7 +75,8 @@ def configure_bridge(NIC, IP, GW, MAC, MASK):
     logger.debug("Creating an OpenvSwitch bridge to the physical interface...")
     err = call("sudo ovs-vsctl add-br br-ext -- set bridge br-ext other-config:hwaddr=%s > /dev/null 2>&1" % (MAC))
     totalErr = totalErr + check_error(err)
-    err = call("sudo ovs-vsctl set bridge br-ext protocols=OpenFlow10,OpenFlow12,OpenFlow13")
+    #Use only openflow10 because with posteriour openFlow versions flows are not properly configured in ovs
+    err = call("sudo ovs-vsctl set bridge br-ext protocols=OpenFlow10")
     totalErr = totalErr + check_error(err)
     logger.debug("Done!")
     
