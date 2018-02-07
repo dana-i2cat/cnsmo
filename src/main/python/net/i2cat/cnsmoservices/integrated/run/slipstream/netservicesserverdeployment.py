@@ -96,13 +96,6 @@ def main():
             logger.error("Error deploying LB. Aborting script")
             return -1
 
-    #Restart dns service if dns is activated
-    #logger.debug("Restarting DNS service...")
-    #call('ss-display \"VPN: Restarting DNS Service...\"')
-    #if 'dns' in netservices:
-    #    callNoResp("service dnsmasq restart")
-    #    logger.debug("restarted dnsmasq")
-        
     logger.debug("Finished deploying net services")
     call('ss-display \"Successfully deployed network services: %s\"' % netservices_enabled)
 
