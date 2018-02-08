@@ -169,7 +169,7 @@ def get_filter_statistics(ssinstanceid,flowID):
         return "Node doesn't exist\n", 404
 
 @app.route("/sdn/server/monitor/instance/<ssinstanceid>/statistics", methods=[GET])
-def get_filter_statistics(ssinstanceid):
+def get_all_flow_info(ssinstanceid):
     vpnAddr = get_corresp_vpn(ssinstanceid)
     if vpnAddr!="":
         openflowID = get_nodeOpenflowID(vpnAddr)
