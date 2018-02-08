@@ -155,7 +155,7 @@ def get_filter_statistics(ssinstanceid,flowID):
         openflowID = get_nodeOpenflowID(vpnAddr)
         if openflowID!="":
             # URL has to follow this format: http://134.158.74.110:8080/restconf/config/opendaylight-inventory:nodes/node/openflow:274973442922995/table/0/flow/12/flow-statistics
-            url = str("http://127.0.0.1:8080/restconf/operational/opendaylight-inventory:nodes/node/"+openflowID+"/table/0/flow/"+str(flowID))+"/flow-statistics/"
+            url = str("http://127.0.0.1:8080/restconf/operational/opendaylight-inventory:nodes/node/"+openflowID+"/table/0/flow/"+str(flowID)+"/flow-statistics/")
             r = requests.get(url , auth=HTTPBasicAuth('admin', 'admin'))
             j = r.json()
 
@@ -163,6 +163,21 @@ def get_filter_statistics(ssinstanceid,flowID):
             if 'opendaylight-flow-statistics:flow-statistics' in j:
                 statistics['num-packets'] = j['opendaylight-flow-statistics:flow-statistics']['packet-count']
             return jsonify(statistics),200
+        else:
+            return "Node doesn't exist\n", 404
+    else:
+        return "Node doesn't exist\n", 404
+
+@app.route("/sdn/server/monitor/instance/<ssinstanceid>/statistics", methods=[GET])
+def get_filter_statistics(ssinstanceid):
+    vpnAddr = get_corresp_vpn(ssinstanceid)
+    if vpnAddr!="":
+        openflowID = get_nodeOpenflowID(vpnAddr)
+        if openflowID!="":
+            url = str("http://127.0.0.1:8080/restconf/operational/opendaylight-inventory:nodes/node/"+openflowID+"/table/0")
+            r = requests.get(url , auth=HTTPBasicAuth('admin', 'admin'))
+            
+            return r,200
         else:
             return "Node doesn't exist\n", 404
     else:
