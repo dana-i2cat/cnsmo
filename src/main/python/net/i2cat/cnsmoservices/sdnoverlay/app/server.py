@@ -178,11 +178,14 @@ def get_all_flow_info(ssinstanceid):
             r = requests.get(url , auth=HTTPBasicAuth('admin', 'admin'))
             j= r.json()
             statistics = {}
+            i=0
             for flow in j['flow-node-inventory:table']:
                 if 'flow' in flow:
                     for flowdetails in flow['flow']:
                         if 'id' in flowdetails and 'opendaylight-flow-statistics:flow-statistics' in flowdetails:
-                            statistics[str(flowdetails['id'])]['num-packets'] = flowdetails['opendaylight-flow-statistics:flow-statistics']['packet-count']
+                            statistics[i]['num-packets'] = flowdetails['opendaylight-flow-statistics:flow-statistics']['packet-count']
+                            statistics[i]['id'] = str(flowdetails['id'])
+                            i++
             return jsonify(statistics),200
         else:
             return "Node doesn't exist\n", 404
