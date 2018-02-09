@@ -185,7 +185,7 @@ def get_all_flow_info(ssinstanceid):
                         if 'id' in flowdetails and 'opendaylight-flow-statistics:flow-statistics' in flowdetails:
                             statistics[i]['num-packets'] = flowdetails['opendaylight-flow-statistics:flow-statistics']['packet-count']
                             statistics[i]['id'] = str(flowdetails['id'])
-                            i++
+                            i=i+1
             return jsonify(statistics),200
         else:
             return "Node doesn't exist\n", 404
