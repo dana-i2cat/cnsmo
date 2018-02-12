@@ -178,14 +178,22 @@ def get_all_flow_info(ssinstanceid):
             r = requests.get(url , auth=HTTPBasicAuth('admin', 'admin'))
             j= r.json()
             statistics = {}
-            i=0
             for flow in j['flow-node-inventory:table']:
                 if 'flow' in flow:
                     for flowdetails in flow['flow']:
-                        if 'id' in flowdetails and 'opendaylight-flow-statistics:flow-statistics' in flowdetails:
-                            statistics[i]['num-packets'] = flowdetails['opendaylight-flow-statistics:flow-statistics']['packet-count']
-                            statistics[i]['id'] = str(flowdetails['id'])
-                            i=i+1
+                        if 'id' in flowdetails and 'UF$TABLE' in flowdetails['id'] and 'opendaylight-flow-statistics:flow-statistics' in flowdetails:
+                            if 'instructions' in flowdetails:
+                                if 'instruction' in flowdetails['instructions']:
+                                    for instruction in flowdetails['instructions']['instruction']:
+                                        if 'apply-actions' in instruction:
+                                            if 'action' in instruction['apply-actions']:
+                                                for action in instruction['apply-actions']['action']:
+                                                    if 'output-action' in action: 
+                                                        if 'output-node-connector' in action['output-action']:
+                                                            if action['output-action']['output-node-connector'] == 'LOCAL':
+                                                                statistics['IN traffic'] =  flowdetails['opendaylight-flow-statistics:flow-statistics']['packet-count']
+                                                            if action['output-action']['output-node-connector'] == '1':
+                                                                statistics['OUT traffic'] =  flowdetails['opendaylight-flow-statistics:flow-statistics']['packet-count']
             return jsonify(statistics),200
         else:
             return "Node doesn't exist\n", 404
