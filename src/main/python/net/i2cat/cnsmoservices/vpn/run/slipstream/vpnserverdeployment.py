@@ -163,7 +163,7 @@ def deployvpn(netservices):
 def detect_new_interface_in_half_hour(ifaces_prev):
     vpn_iface = do_detect_new_interface(ifaces_prev)
     attempts = 0
-    while not vpn_iface and attempts < 180:
+    while not vpn_iface and attempts < 540:
         time.sleep(10)
         vpn_iface = do_detect_new_interface(ifaces_prev)
         attempts += 1
