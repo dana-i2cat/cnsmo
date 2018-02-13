@@ -106,7 +106,7 @@ def deployvpn(netservices):
     logger.debug("Finished detecting all VPN clients: %s" % client_instances)
     logger.debug("Waiting for all VPN clients...")
     call('ss-display \"VPN: Waiting for all clients...\"')
-    # wait for clients to be ready: instance_id:net.i2cat.cnsmo.service.vpn.client.waiting=true
+    # wait for clients to be ready
     for client_id in client_instances:
         logger.debug("Waiting for VPN client %s" % client_id)
         response = call("ss-get --timeout=10800 %s:net.i2cat.cnsmo.service.vpn.client.listening" % client_id).rstrip("\n")

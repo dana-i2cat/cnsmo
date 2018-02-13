@@ -82,21 +82,6 @@ def deployvpn(netservices):
     hostname = call('ss-get hostname').rstrip('\n')
     tc = threading.Thread(target=launchVPNClient, args=(hostname, redis_address, instance_id))
     tc.start()
-    # TODO implement proper way to detect when the client is ready (using systemstate?)
-    time.sleep(1)
-    logger.debug("Assuming VPN client is ready")
-    call('ss-set net.i2cat.cnsmo.service.vpn.client.listening true')
-
-
-    logger.debug("Waiting for VPN to be deployed...")
-    call('ss-display \"VPN: Waiting for VPN to be established...\"')
-    response_vpn = call("ss-get --timeout=18000 %s:net.i2cat.cnsmo.service.vpn.ready" % server_instance_id).rstrip('\n')
-    logger.debug("Finished waiting for VPN to be deployed. ready=%s" % response_vpn)
-    if not response_vpn:
-        logger.error("Timeout waiting for %s:net.i2cat.cnsmo.service.vpn.ready" % server_instance_id)
-        return -1
-    logger.debug("VPN deployed")
-    call('ss-display \"VPN: Finished Waiting for VPN to be deployed...\"')
 
     logger.debug("Locating VPN enabled interface...")
     time.sleep(5)
@@ -118,6 +103,18 @@ def deployvpn(netservices):
     call("ss-set vpn.address %s" % vpn_local_ipv4_address)
     if vpn_local_ipv6_address:
         call("ss-set vpn.address6 %s" % vpn_local_ipv6_address)
+
+    call('ss-set net.i2cat.cnsmo.service.vpn.client.listening true')
+
+    logger.debug("Waiting for server VPN to be deployed...")
+    call('ss-display \"VPN: Waiting for server VPN to be ready...\"')
+    response_vpn = call("ss-get --timeout=18000 %s:net.i2cat.cnsmo.service.vpn.ready" % server_instance_id).rstrip('\n')
+    logger.debug("Finished waiting for VPN to be deployed. ready=%s" % response_vpn)
+    if not response_vpn:
+        logger.error("Timeout waiting for %s:net.i2cat.cnsmo.service.vpn.ready" % server_instance_id)
+        return -1
+    logger.debug("VPN deployed")
+    call('ss-display \"VPN: Finished Waiting for VPN to be deployed...\"')
 
     logger.debug("VPN has been established! Using interface %s with ipaddr %s and ipv6addr %s"
                  % (vpn_iface, vpn_local_ipv4_address, vpn_local_ipv6_address))
