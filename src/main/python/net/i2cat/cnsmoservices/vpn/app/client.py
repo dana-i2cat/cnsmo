@@ -47,7 +47,7 @@ def set_client_key():
 def build_client():
     result = reduce(lambda x, y: x and y, app.config["config_files"].values())
     if result:
-        subprocess.check_call(shlex.split("docker build -t client-vpn ."))
+        subprocess.check_call(shlex.split("docker build -t client-vpn . --network host"))
         app.config["service_built"] = True
         return "", 204
     else:

@@ -132,7 +132,7 @@ def build_server():
         result = reduce(lambda x, y: x and y, app.config["config_files"].values())
         if result:
             log.debug("building docker...")
-            subprocess.check_call(shlex.split("docker build -t vpn-server ."))
+            subprocess.check_call(shlex.split("docker build -t vpn-server . --network host"))
             log.debug("docker build")
             app.config["service_built"] = True
             return "", 204
