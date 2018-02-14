@@ -109,7 +109,7 @@ def deploylb():
     # Launch orchestrator with gathered data
     logger.debug("Deploying LB...")
     call('ss-display \"LB: Launching LB orchestrator...\"')
-    deploy_lb(hostname, redis_address, lb_port, lb_mode, lb_backend_servers)
+    deploy_lb(hostname, redis_address, "8095", lb_mode, lb_backend_servers)
 
     logger.debug("Assuming LB service is ready")
     call('ss-set net.i2cat.cnsmo.service.lb.ready true')
