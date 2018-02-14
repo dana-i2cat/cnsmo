@@ -167,11 +167,19 @@ def getCurrentInterfaces():
 
 
 def getInterfaceIPv4Address(iface):
-    return call("ifconfig " + iface + " | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}'").rstrip('\n')
+    version = call("cat /etc/issue")
+    if 'Kernel' in version: 
+        return (call("ifconfig " + iface + "| awk '/inet / { print $2 }'").rstrip('\n').split('/'))[0]
+    else:
+        return call("ifconfig " + iface + " | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}'").rstrip('\n')
 
 
 def getInterfaceIPv6Address(iface):
-    return (call("ifconfig " + iface + "| awk '/inet6 / { print $3 }'").rstrip('\n').split('/'))[0]
+    version = call("cat /etc/issue")
+    if 'Kernel' in version: 
+        return (call("ifconfig " + iface + "| awk '/inet6 / { print $2 }'").rstrip('\n').split('/'))[0]
+    else:
+        return (call("ifconfig " + iface + "| awk '/inet6 / { print $3 }'").rstrip('\n').split('/'))[0]
 
 def configure_resolvconf(container_name):
     logger = logging.getLogger(__name__)
