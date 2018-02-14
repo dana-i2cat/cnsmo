@@ -150,18 +150,23 @@ def delete_filter_by_port(ssinstanceid,flowID):
 
 @app.route("/sdn/server/filter/blockbyport/instance/<ssinstanceid>/flow/<int:flowID>/statistics", methods=[GET])
 def get_filter_statistics(ssinstanceid,flowID):
+    logger = logging.getLogger(__name__)
+    logger.debug("going to retrieve statistics...")
     vpnAddr = get_corresp_vpn(ssinstanceid)
+    logger.debug("retrieve statistics...step1")
     if vpnAddr!="":
         openflowID = get_nodeOpenflowID(vpnAddr)
+        logger.debug("retrieve statistics...step2")
         if openflowID!="":
             # URL has to follow this format: http://134.158.74.110:8080/restconf/config/opendaylight-inventory:nodes/node/openflow:274973442922995/table/0/flow/12/flow-statistics
             url = str("http://127.0.0.1:8080/restconf/operational/opendaylight-inventory:nodes/node/"+openflowID+"/table/0/flow/"+str(flowID)+"/flow-statistics/")
             r = requests.get(url , auth=HTTPBasicAuth('admin', 'admin'))
             j = r.json()
-
+            logger.debug("retrieve statistics...step3")
             statistics = {}
             if 'opendaylight-flow-statistics:flow-statistics' in j:
                 statistics['num-packets'] = j['opendaylight-flow-statistics:flow-statistics']['packet-count']
+            logger.debug("retrieve statistics...step4")
             return jsonify(statistics),200
         else:
             return "Node doesn't exist\n", 404
