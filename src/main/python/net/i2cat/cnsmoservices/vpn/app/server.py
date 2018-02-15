@@ -8,6 +8,13 @@ import sys
 from flask import Flask, jsonify
 from flask import request
 
+logging.basicConfig(filename='cnsmo-api-service-calls.log',
+                    filemode='a',
+                    format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
+                    datefmt='%H:%M:%S',
+                    level=logging.DEBUG,
+                    disable_existing_loggers=False)
+
 log = logging.getLogger('cnsmoservices.vpn.app.server')
 
 call = lambda command: subprocess.check_output(command, shell=True)
@@ -17,6 +24,8 @@ app = Flask(__name__)
 
 GET = "GET"
 POST = "POST"
+
+Clientlist = {}
 
 
 @app.route("/vpn/server/dh/", methods=[POST])
@@ -49,7 +58,7 @@ def get_all_vpn_clients():
     ss_node_instance = call('ss-get id').rstrip('\n')
     instance_id = "%s.%s" % (ss_nodename, ss_node_instance)
     client_instances.remove(instance_id)
-    Clientlist = {}
+    Clientlist.clear()
     for client_id in client_instances:
         # respInstanceID = call("ss-get --timeout=1800 %s:instanceid" % client_id) if we want to return instanceid
         Clientlist[str(client_id)] = {}
@@ -64,6 +73,13 @@ def get_all_vpn_clients():
     
     return jsonify(Clientlist),200
 
+# Function to return all the vpn clients with their ID and their @IP . Only returns info retrieved in previous function
+@app.route("/vpn/server/clients/noupdate/", methods=[GET])
+def get_all_vpn_clients_no_update():
+    if len(Clientlist.keys()) == 0:
+        return get_all_vpn_clients()
+    else:
+        return jsonify(Clientlist),200
 
 # Gets the instances that compose the deployment
 # NOTE: Currently there is no way to directly retrieve all nodes intances in a deployment.
