@@ -10,6 +10,13 @@ from flask import Flask, jsonify
 from flask import request
 from requests.auth import HTTPBasicAuth
 
+logging.basicConfig(filename='cnsmo-api-service-calls.log',
+                    filemode='a',
+                    format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
+                    datefmt='%H:%M:%S',
+                    level=logging.DEBUG,
+                    disable_existing_loggers=False)
+
 log = logging.getLogger('cnsmoservices.sdn.app.server')
 
 call = lambda command: subprocess.check_output(command, shell=True)
@@ -77,8 +84,8 @@ def get_flows():
                                 nodeList[str(node['id'])]['flows'] = table['flow']
         return jsonify(nodeList),200
 
-@app.route("/sdn/server/filter/blockbyport/", methods=[PUT])
-def add_filter_by_port():
+@app.route("/sdn/server/filter/rule/", methods=[PUT])
+def add_accepted_rule():
     newflowCount = get_flowcount()
     data = request.json
     ssinstanceid = str(data["ssinstanceid"])
@@ -97,7 +104,10 @@ def add_filter_by_port():
                         <apply-actions>
                             <action>
                                 <order>0</order>
-                                <drop-action/>
+                                "output-action": {
+                                    "output-node-connector": "LOCAL",
+                                    "max-length": 0
+                                }
                             </action>
                         </apply-actions>
                     </instruction>
@@ -132,8 +142,8 @@ def add_filter_by_port():
     else:
         return "Node doesn't exist\n", 404
 
-@app.route("/sdn/server/filter/blockbyport/instance/<ssinstanceid>/flow/<int:flowID>", methods=[DELETE])
-def delete_filter_by_port(ssinstanceid,flowID):
+@app.route("/sdn/server/filter/rule/instance/<ssinstanceid>/flow/<int:flowID>", methods=[DELETE])
+def delete_accepted_rule(ssinstanceid,flowID):
     vpnAddr = get_corresp_vpn(ssinstanceid)
     if vpnAddr!="":
         openflowID = get_nodeOpenflowID(vpnAddr)
@@ -148,7 +158,7 @@ def delete_filter_by_port(ssinstanceid,flowID):
     else:
         return "Node doesn't exist\n", 404
 
-@app.route("/sdn/server/filter/blockbyport/instance/<ssinstanceid>/flow/<int:flowID>/statistics", methods=[GET])
+@app.route("/sdn/server/filter/rule/instance/<ssinstanceid>/flow/<int:flowID>/statistics", methods=[GET])
 def get_filter_statistics(ssinstanceid,flowID):
     logger = logging.getLogger(__name__)
     logger.debug("going to retrieve statistics...")
@@ -165,7 +175,7 @@ def get_filter_statistics(ssinstanceid,flowID):
             logger.debug("retrieve statistics...step3")
             statistics = {}
             if 'opendaylight-flow-statistics:flow-statistics' in j:
-                statistics['num-packets'] = j['opendaylight-flow-statistics:flow-statistics']['packet-count']
+                statistics['num-packets'] = j['opendaylight-flow-statistics:flow-statistics']['byte-count']
             logger.debug("retrieve statistics...step4")
             return jsonify(statistics),200
         else:
