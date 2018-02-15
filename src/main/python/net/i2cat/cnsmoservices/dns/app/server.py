@@ -10,6 +10,13 @@ from flask import Flask, jsonify
 from flask import request
 from requests.auth import HTTPBasicAuth
 
+logging.basicConfig(filename='cnsmo-api-service-calls.log',
+                    filemode='a',
+                    format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
+                    datefmt='%H:%M:%S',
+                    level=logging.DEBUG,
+                    disable_existing_loggers=False)
+                    
 log = logging.getLogger('cnsmoservices.dns.app.server')
 
 call = lambda command: subprocess.check_output(command, shell=True)
@@ -21,9 +28,12 @@ POST = "POST"
 PUT = "PUT"
 DELETE = "DELETE"
 
+
 # Returns a list of strings with the id of the nodes
 @app.route("/dns/server/record/", methods=[GET])
 def get_dns_records():
+    logger = logging.getLogger(__name__)
+    logger.debug("get_dns_records GET invocation")
     content = read_lines("/etc/hosts")
     return jsonify({"dns_records":content}),200
 
