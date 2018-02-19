@@ -163,6 +163,8 @@ def subscribe_to_controller(PROTO_SDN,SDN_CTRL_IP_PORT):
     totalErr = totalErr + check_error(err)
     err = call("sudo echo \"ovs-ofctl add-flow br-ext \\\"in_port=1, tcp, tp_dst=8080, priority=600, actions=drop\\\" > /dev/null 2>&1\" >> ./temp2.sh")
     totalErr = totalErr + check_error(err)
+    err = call("sudo echo \"ovs-ofctl add-flow br-ext \\\"in_port=1, tcp, tp_dst=22, priority=600, actions=drop\\\" > /dev/null 2>&1\" >> ./temp2.sh")
+    totalErr = totalErr + check_error(err)
     '''
     err = call("sudo echo \"ovs-ofctl add-flow br-ext \\\"in_port=1, tcp, tp_dst=6633, priority=600, actions:output=LOCAL\\\" > /dev/null 2>&1\" >> ./temp2.sh")
     totalErr = totalErr + check_error(err)
